@@ -51,6 +51,32 @@ Options: `restoreDraft` (default `true`) puts back values saved with "Save draft
 Callbacks: `onFieldChange`, `onWorkflow`, `onDataPull`, `onAction`, `onSubmitSuccess`, `onSubmitError`, `onSubmitQueued`.
 Their parameters are documented in `src/DynamicFormRenderer.js`.
 
+## Live demo (GitHub Pages)
+
+Every push to `main` runs [.github/workflows/pages.yml](.github/workflows/pages.yml):
+
+1. **Check:** every `.js` file must parse, every `.json` file must be valid, and `dev-server.py` must compile. Pull requests run this step only.
+2. **Build:** copy only the files the website needs into `_site/`. `dev-server.py`, this README and `.github/` are not published.
+3. **Deploy:** publish `_site/` to GitHub Pages.
+
+Links to share:
+
+| What | URL |
+|---|---|
+| Landing page | https://ghchetan.github.io/dynamic-form/ |
+| Form demo | https://ghchetan.github.io/dynamic-form/sample.html |
+| Documentation | https://ghchetan.github.io/dynamic-form/docs/ |
+
+**One-time setup:** in **Settings → Pages → Build and deployment**, set **Source** to **GitHub Actions**. GitHub Pages needs the repo to be public on the Free plan.
+
+**Demo mode.** GitHub Pages can only serve files, so there is no CRM to send reports to. When `sample.html` runs anywhere other than `localhost`, it switches to demo mode:
+
+- a banner says nothing is sent
+- Submit, Approve and Reject pretend the CRM accepted the report
+- "Pull from CAPS" fills in demo values
+
+Add `?demo` to the URL to try demo mode locally. Production pages don't use `sample.html`, so they are not affected.
+
 ## How the code works (5-minute tour)
 
 Start reading at **`src/DynamicFormRenderer.js`**. The comment at the top explains the whole flow:
@@ -65,9 +91,11 @@ user input → form.setValue() → form.values → form.refresh() → screen
 - **After any change**, `refresh()` runs on every field and section. Nothing updates itself in a hidden way.
 
 ```
+index.html                       Landing page of the hosted demo (links to the demo and the docs)
 Accurex-DynamicFormRenderer.js   Entry point (load this on the page)
 dev-server.py                    Local server for the sample (also fakes the CRM submit API)
 docs/index.html                  Developer documentation portal (Cmd+K search); open via the dev server at /docs/
+.github/workflows/pages.yml      Checks the code and deploys the site to GitHub Pages on every push to main
 service-worker.js                Stores the page's files so it opens offline
 Accurex-dynamic-form.css         Styles (all classes start with "dfr-")
 src/

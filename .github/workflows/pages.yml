@@ -1,0 +1,94 @@
+# Check the code and publish the site to GitHub Pages.
+#
+#   Push to main        → check → build → deploy   (site: https://ghchetan.github.io/dynamic-form/)
+#   Pull request        → check only, so mistakes are caught before they reach main
+#   "Run workflow" button (Actions tab) → same as a push to main
+#
+# One-time setup in GitHub: Settings → Pages → Build and deployment → Source: "GitHub Actions".
+
+name: Check and deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Least privilege by default; the deploy job asks for the extra rights it needs.
+permissions:
+  contents: read
+
+# Never run two deployments at once. A newer push waits for the running one instead of cancelling it,
+# so a deployment is never cut off halfway.
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Check and build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      # The site has no build tool: the browser loads the files as they are.
+      # So "building" means: make sure every file is valid, then pick the files to publish.
+
+      - name: Check that every JavaScript file parses
+        run: |
+          find . -name '*.js' -not -path './.git/*' -not -path './node_modules/*' -print0 \
+            | xargs -0 -n1 node --check
+          echo "All JavaScript files parse."
+
+      - name: Check that every JSON file is valid
+        run: |
+          find . -name '*.json' -not -path './.git/*' -not -path './node_modules/*' -print0 \
+            | xargs -0 -n1 node -e 'JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"))'
+          echo "All JSON files are valid."
+
+      - name: Check that the dev server compiles
+        run: python3 -m py_compile dev-server.py
+
+      - name: Collect the files the website needs
+        if: github.event_name != 'pull_request'
+        run: |
+          mkdir -p _site
+          cp index.html sample.html service-worker.js \
+             Accurex-DynamicFormRenderer.js Accurex-dynamic-form.css \
+             accurex-startup-report-config.json \
+             _site/
+          cp -R src docs _site/
+          echo "Files to publish:"
+          find _site -type f | sort
+
+      - name: Upload the site
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site/
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write      # publish to Pages
+      id-token: write   # prove to Pages that this run is allowed to publish
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5

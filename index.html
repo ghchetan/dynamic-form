@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accurex Dynamic Form</title>
+<meta name="description" content="Forms configured in the CRM, rendered on the website. Live demo and developer documentation.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Same visual language as docs/: Geist, hairlines, monochrome with the Accurex brand blue. */
+:root {
+  --bg: #ffffff; --bg-subtle: #fafafa; --fg: #0a0a0a; --fg-muted: #5c636e; --fg-faint: #8b919b;
+  --line: #ebebeb; --line-strong: #d6d8dc; --accent: #1d5fa6; --accent-soft: #eaf1f9;
+  --pass: #2e7d46; --pass-soft: #e5f2e9; --caution: #8f6408; --caution-soft: #fbf1db; --fail: #c0392b; --fail-soft: #f9e4e1;
+  --shadow: 0 1px 2px rgba(10, 10, 10, 0.04), 0 8px 24px rgba(10, 10, 10, 0.08);
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0a0a0a; --bg-subtle: #111111; --fg: #ededed; --fg-muted: #a3a8b0; --fg-faint: #70757d;
+    --line: #1f1f1f; --line-strong: #2f3237; --accent: #6fa8e8; --accent-soft: #0f2238;
+    --pass: #4cc38a; --pass-soft: #0e2a1c; --caution: #e5b94e; --caution-soft: #2d2208; --fail: #ff7a6b; --fail-soft: #331512;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.5);
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding-inline: 16px;
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-sans); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.page { max-width: 760px; margin: 0 auto; padding-block: 72px 56px; display: grid; gap: 40px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.brand-mark { width: 18px; height: 18px; border-radius: 4px; background: var(--accent); position: relative; }
+.brand-mark::after { content: ""; position: absolute; inset: 5px; border-radius: 1.5px; background: var(--bg); }
+h1 { margin: 0 0 12px; font-size: clamp(30px, 6vw, 42px); line-height: 1.1; letter-spacing: -0.03em; text-wrap: balance; }
+.lead { margin: 0; max-width: 60ch; font-size: 17px; color: var(--fg-muted); }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.card {
+  display: grid; gap: 6px; padding: 20px; border: 1px solid var(--line); border-radius: 10px;
+  color: var(--fg); text-decoration: none; transition: border-color 0.12s, box-shadow 0.12s;
+}
+.card:hover { border-color: var(--line-strong); box-shadow: var(--shadow); }
+.card-kicker { font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); }
+.card strong { font-size: 17px; }
+.card span { color: var(--fg-muted); font-size: 14px; }
+.card .go { margin-top: 6px; font-size: 14px; font-weight: 500; color: var(--accent); }
+h2 { margin: 0 0 12px; font-size: 13px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--fg-faint); }
+.try { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.try li { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: baseline; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.try li:last-child { border-bottom: 0; padding-bottom: 0; }
+.pill { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.pill.fail { color: var(--fail); background: var(--fail-soft); }
+.pill.caution { color: var(--caution); background: var(--caution-soft); }
+.pill.pass { color: var(--pass); background: var(--pass-soft); }
+code { font-family: var(--font-mono); font-size: 0.88em; padding: 1px 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg-subtle); }
+footer { padding-top: 20px; border-top: 1px solid var(--line); font-size: 13px; color: var(--fg-faint); }
+@media (max-width: 520px) { .page { padding-block: 40px 40px; } .try li { grid-template-columns: 1fr; gap: 4px; } }
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="brand"><span class="brand-mark" aria-hidden="true"></span>Accurex Dynamic Form</div>
+
+  <header>
+    <h1>Forms configured in the CRM, rendered on the website</h1>
+    <p class="lead">The CRM sends a form as JSON and the website draws it: questions, pass/fail rules, unit tabs, a deficiency list and workflow buttons. It keeps working offline. The demo below is the Accurex Start-Up Report used when commissioning kitchen ventilation equipment.</p>
+  </header>
+
+  <section class="cards" aria-label="Start here">
+    <a class="card" href="sample.html">
+      <span class="card-kicker">Live demo</span>
+      <strong>Accurex Start-Up Report</strong>
+      <span>Four units (CP-1, HD-1, EF-1, MUA-1) with checks, readings, photos and a reviewer step.</span>
+      <span class="go">Open the demo →</span>
+    </a>
+    <a class="card" href="docs/">
+      <span class="card-kicker">Documentation</span>
+      <strong>Developer docs</strong>
+      <span>Tutorials, configuration and JavaScript API reference, and deployment guides. Press ⌘K to search.</span>
+      <span class="go">Read the docs →</span>
+    </a>
+  </section>
+
+  <section aria-labelledby="try-title">
+    <h2 id="try-title">Things to try in the demo</h2>
+    <ul class="try">
+      <li><span class="pill fail">Flagged</span><span>On CP-1, answer <strong>No</strong> to "Power to lights?". The tab turns red and the problem appears in the deficiency list at the top. <strong>View</strong> jumps back to it.</span></li>
+      <li><span class="pill caution">Check</span><span>Enter <code>18.2</code> and <code>19.5</code> in "EF Fan 1 overload setting": a 7.1% deviation, inside the amber band.</span></li>
+      <li><span class="pill pass">Pass</span><span>Click <strong>Save draft</strong> and reload: your answers come back. Then try <strong>Submit for review</strong>, or the reviewer's Approve and Reject.</span></li>
+    </ul>
+  </section>
+
+  <footer>Demo with sample data. Answers stay in your browser and no report is sent anywhere.</footer>
+</main>
+</body>
+</html>

@@ -3,11 +3,29 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dynamic Form</title>
+    <title>Accurex Start-Up Report — Demo</title>
     <link rel="stylesheet" href="Accurex-dynamic-form.css">
+    <style>
+        /* Shown only in demo mode (see DEMO_MODE below). */
+        .demo-banner {
+            margin: 0;
+            padding: 8px 14px;
+            background: var(--dfr-brand-tint);
+            color: var(--dfr-brand-dark);
+            border-bottom: 1px solid var(--dfr-line);
+            font: 13px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+            text-align: center;
+        }
+        .demo-banner a { color: inherit; font-weight: 600; }
+    </style>
 </head>
 
 <body>
+
+    <p class="demo-banner" id="demoBanner" hidden>
+        Demo: answers stay in this browser and reports are not sent anywhere.
+        <a href="docs/">Read the documentation</a>
+    </p>
 
     <!-- The form is drawn inside this container. -->
     <div id="dynamicFormContainer"></div>
@@ -20,7 +38,22 @@
     -->
     <script type="module" src="Accurex-DynamicFormRenderer.js"></script>
     <script>
+        /*
+         * DEMO MODE
+         * On the local dev server, dev-server.py pretends to be the CRM, so reports are really posted.
+         * On static hosting (GitHub Pages) there is no CRM, so the demo pretends it accepted the report
+         * and fills "Pull from CAPS" with demo values. Add ?demo to the URL to try demo mode locally.
+         */
+        const LOCAL_HOSTS = ["localhost", "127.0.0.1"];
+        const DEMO_MODE = new URLSearchParams(location.search).has("demo") || !LOCAL_HOSTS.includes(location.hostname);
+
+        function wait(milliseconds) {
+            return new Promise(function (resolve) { setTimeout(resolve, milliseconds); });
+        }
+
         document.addEventListener("DOMContentLoaded", async function () {
+
+            document.getElementById("demoBanner").hidden = !DEMO_MODE;
 
             const formRenderer = new DynamicFormRenderer({
                 container: "#dynamicFormContainer",
@@ -29,14 +62,26 @@
                 // Lets this page open without a connection (when the config switches offline mode on).
                 serviceWorkerUrl: "service-worker.js",
 
-                // Optional hooks for the website:
                 // "Submit for review", "Approve" and "Reject": send the report to the CRM.
                 // Offline, submit() keeps it in the outbox and it is sent automatically later.
                 // If submit() fails, the form puts the previous report status back.
-                onWorkflow: function (action, data, form) {
+                onWorkflow: async function (action, data, form) {
                     console.log("Workflow:", action.targetStatus);
+                    if (DEMO_MODE) {
+                        await wait(400); // feels like a real request
+                        console.log("Demo: the report would be sent to the CRM now.", data);
+                        return;
+                    }
                     return form.submit();
                 },
+
+                // "Pull from CAPS": in demo mode, answer with demo values instead of calling the API.
+                // Returning undefined outside demo mode makes the form use config.dataSources as usual.
+                onDataPull: DEMO_MODE ? async function (action) {
+                    await wait(500);
+                    return { model: "Demo model", serial: "DEMO-" + action.unitId.toUpperCase() + "-0001" };
+                } : undefined,
+
                 onSubmitSuccess: function (response) {
                     console.log("Report received by the CRM:", response);
                 },
