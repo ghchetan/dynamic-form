@@ -203,6 +203,62 @@ td.mono, td:first-child.mono { font-family: var(--font-mono); font-size: 12.5px;
 
 footer.end { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 13.5px; color: var(--fg-faint); }
 
+/* Folder tree */
+.tree { margin: 0 0 22px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--code-bg); font-size: 13.5px; overflow-x: auto; }
+.tree ul { list-style: none; margin: 0; padding-left: 18px; border-left: 1px solid var(--line-strong); }
+.tree > ul { padding-left: 0; border-left: 0; }
+.tree li { margin: 0; padding: 3px 0 3px 12px; position: relative; line-height: 1.5; }
+.tree > ul > li { padding-left: 0; }
+.tree li li::before { content: ""; position: absolute; left: 0; top: 14px; width: 9px; border-top: 1px solid var(--line-strong); }
+.tree .dir { font-family: var(--font-mono); font-weight: 600; font-size: 13px; }
+.tree code { padding: 0; border: 0; background: none; font-size: 12.5px; color: var(--accent); }
+.tree code a { color: inherit; }
+.tree .role { color: var(--fg-muted); margin-left: 10px; }
+.tree .lines { margin-left: 8px; font-family: var(--font-mono); font-size: 11.5px; color: var(--fg-faint); white-space: nowrap; }
+
+/* Import table */
+table.imports td { vertical-align: middle; }
+table.imports .chip { display: inline-block; margin: 2px 6px 2px 0; padding: 1px 7px; border: 1px solid var(--line-strong); border-radius: 999px; font-family: var(--font-mono); font-size: 11.5px; white-space: nowrap; background: var(--surface); }
+table.imports .none { color: var(--fg-faint); font-size: 13px; }
+
+/* Feature flows */
+.legend { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 0 0 16px; font-size: 13px; color: var(--fg-muted); }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.legend-box { display: inline-block; width: 26px; height: 14px; border: 1px dashed var(--line-strong); border-radius: 4px; background: var(--accent-soft); }
+.flow-index { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 8px; }
+.flow-index a { padding: 4px 11px; border: 1px solid var(--line); border-radius: 999px; font-size: 13px; color: var(--fg); background: var(--surface); }
+.flow-index a:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+.flow-diagram {
+  /* Wider than the 760px text column: everything beside the sidebar, up to 1000px, centred on the text. */
+  --flow-width: min(1000px, calc(100vw - 260px - 112px));
+  width: var(--flow-width);
+  margin: 0 calc((100% - var(--flow-width)) / 2) 10px;
+}
+.seq-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--code-bg); padding: 8px 0; }
+svg.seq { display: block; width: 100%; height: auto; margin: 0 auto; font-family: var(--font-sans); }
+.seq-lane rect { fill: var(--surface); stroke: var(--line-strong); }
+.seq-lane.actor rect { fill: var(--accent-soft); stroke: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.seq-lane-name { fill: var(--fg); font-size: 12.5px; font-weight: 600; }
+.seq-lane-file { fill: var(--fg-faint); font-family: var(--font-mono); font-size: 10.5px; }
+.seq-lifeline { stroke: var(--line-strong); stroke-dasharray: 3 4; }
+.seq-arrow { stroke: var(--fg-muted); stroke-width: 1.4; fill: none; }
+.seq-arrow.reply { stroke-dasharray: 5 4; }
+.seq-head { fill: var(--fg-muted); }
+.seq-label { fill: var(--fg); font-size: 12.5px; font-weight: 500; }
+.seq-number circle { fill: var(--bg); stroke: var(--accent); stroke-width: 1.2; }
+.seq-number text { fill: var(--accent); font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; }
+.seq-group rect { fill: color-mix(in srgb, var(--accent-soft) 55%, transparent); stroke: color-mix(in srgb, var(--accent) 35%, var(--line)); stroke-dasharray: 5 4; }
+.seq-group.alt rect, .seq-group.opt rect { fill: color-mix(in srgb, var(--caution-soft) 55%, transparent); stroke: color-mix(in srgb, var(--caution) 35%, var(--line)); }
+.seq-group-label { fill: var(--accent); font-size: 11.5px; font-weight: 600; }
+.seq-group.alt .seq-group-label, .seq-group.opt .seq-group-label { fill: var(--caution); }
+.seq-note { fill: var(--bg-subtle); stroke: var(--line-strong); }
+.seq-note-text { fill: var(--fg-muted); font-size: 12px; font-style: italic; }
+details.seq-text { margin: 6px 0 0; font-size: 13.5px; }
+details.seq-text summary { cursor: pointer; color: var(--fg-muted); }
+details.seq-text ol { margin: 8px 0 0; }
+details.seq-text li.seq-text-group, details.seq-text li.seq-text-note { list-style: none; margin-left: -22px; font-style: italic; color: var(--fg-muted); }
+.flow-meta { font-size: 13.5px; color: var(--fg-muted); margin: 8px 0 28px; }
+
 @media (max-width: 900px) {
   .layout { display: block; }
   .chapters { display: none; }
@@ -212,6 +268,7 @@ footer.end { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--li
   main { padding: 28px 16px 80px; }
   .brand-sub, .top-links a.hide-narrow { display: none; }
   .layers { grid-template-columns: 1fr; }
+  .flow-diagram { --flow-width: calc(100vw - 32px); }
 }
 </style>
 </head>
@@ -239,17 +296,17 @@ footer.end { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--li
 
       <p class="hero-eyebrow">Code guide · for new developers</p>
       <h1>How the code works</h1>
-      <p class="lead">A guided tour of the source, in the order you should read it. Every code excerpt on this page is loaded live from the real files, so what you read is what runs. Plan on about two hours, with the demo open in another tab.</p>
+      <p class="lead">A guided tour of the source, in the order you should read it. Every code excerpt on this page is loaded live from the real files, so what you read is what runs. Plan on about two and a half hours, with the demo open in another tab.</p>
 
       <details class="mobile-contents"><summary>Chapters</summary><ol id="chapterListMobile"></ol></details>
 
       <!-- ═════════════ 0 ═════════════ -->
       <section class="chapter" id="before-you-start" data-title="Before you start">
-        <span class="chapter-number">Chapter 0</span>
+        <span class="chapter-number"></span>
         <h2>Before you start</h2>
 
         <h3>What you should already know</h3>
-        <p>Basic JavaScript: variables, functions, objects, arrays and loops. Everything else you will meet (modules, classes, <code>async</code>/<code>await</code>, closures) is explained in <a href="#js-primer">chapter 2</a> with examples from this codebase. You don't need React, a build tool or npm. This project uses none of them.</p>
+        <p>Basic JavaScript: variables, functions, objects, arrays and loops. Everything else you will meet (modules, classes, <code>async</code>/<code>await</code>, closures) is explained in <a href="#js-primer" data-chapter-ref>chapter</a> with examples from this codebase. You don't need React, a build tool or npm. This project uses none of them.</p>
 
         <h3>Run it on your machine</h3>
         <pre class="code"><code class="language-bash">git clone https://github.com/ghchetan/dynamic-form.git
@@ -268,27 +325,13 @@ formRenderer.getDeficientFields().map(f =&gt; f.config.label)</code></pre>
         <h3>Reading order</h3>
         <div class="table-wrap"><table>
           <thead><tr><th>Chapter</th><th>Files</th><th>Time</th></tr></thead>
-          <tbody>
-            <tr><td><a href="#big-picture">1 · The big picture</a></td><td class="mono">sample.html</td><td>10 min</td></tr>
-            <tr><td><a href="#js-primer">2 · JavaScript you will meet</a></td><td>—</td><td>15 min</td></tr>
-            <tr><td><a href="#main-class">3 · The main class</a></td><td class="mono">src/DynamicFormRenderer.js</td><td>20 min</td></tr>
-            <tr><td><a href="#dom">4 · Building HTML safely</a></td><td class="mono">src/utils/dom.js</td><td>5 min</td></tr>
-            <tr><td><a href="#fields">5 · Fields</a></td><td class="mono">src/fields/</td><td>20 min</td></tr>
-            <tr><td><a href="#rules">6 · Rules and statuses</a></td><td class="mono">src/evaluators/, src/core/</td><td>10 min</td></tr>
-            <tr><td><a href="#sections">7 · Sections and widgets</a></td><td class="mono">src/sections/</td><td>10 min</td></tr>
-            <tr><td><a href="#actions">8 · Buttons and actions</a></td><td class="mono">src/actions/</td><td>10 min</td></tr>
-            <tr><td><a href="#offline">9 · Working offline</a></td><td class="mono">src/offline/, service-worker.js</td><td>20 min</td></tr>
-            <tr><td><a href="#styles">10 · Styles</a></td><td class="mono">Accurex-dynamic-form.css</td><td>5 min</td></tr>
-            <tr><td><a href="#tooling">11 · Tools around the code</a></td><td class="mono">dev-server.py, .github/</td><td>5 min</td></tr>
-            <tr><td><a href="#debugging">12 · Debugging recipes</a></td><td>—</td><td>5 min</td></tr>
-            <tr><td><a href="#first-tasks">13 · Your first tasks</a></td><td>—</td><td>1 hour+</td></tr>
-          </tbody>
+          <tbody id="readingOrder"></tbody>
         </table></div>
       </section>
 
       <!-- ═════════════ 1 ═════════════ -->
-      <section class="chapter" id="big-picture" data-title="The big picture">
-        <span class="chapter-number">Chapter 1</span>
+      <section class="chapter" id="big-picture" data-title="The big picture" data-files="sample.html" data-time="10 min">
+        <span class="chapter-number"></span>
         <h2>The big picture</h2>
         <p>The CRM decides <em>what</em> the form asks. This code decides <em>how</em> it looks and behaves. Nobody writes HTML for a form: the code reads a JSON description and builds the page from it.</p>
 
@@ -320,9 +363,234 @@ formRenderer.getDeficientFields().map(f =&gt; f.config.label)</code></pre>
         </ol>
       </section>
 
-      <!-- ═════════════ 2 ═════════════ -->
-      <section class="chapter" id="js-primer" data-title="JavaScript you will meet">
-        <span class="chapter-number">Chapter 2</span>
+
+      <!-- ═════════════ Folder structure ═════════════ -->
+      <section class="chapter" id="folder-structure" data-title="Folder structure" data-files="every folder" data-time="10 min">
+        <span class="chapter-number"></span>
+        <h2>Folder structure</h2>
+        <p>Every folder answers one question. When you need to change something, find the question first, and the folder tells you where to look.</p>
+
+        <div class="table-wrap"><table>
+          <thead><tr><th>Folder</th><th>Answers the question</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">/ (root)</td><td>What does the website load? The entry file, the stylesheet, the service worker, the sample page and sample config.</td></tr>
+            <tr><td class="mono">src/</td><td>The framework. <code>DynamicFormRenderer.js</code> is the main class; everything else is in a subfolder.</td></tr>
+            <tr><td class="mono">src/fields/</td><td>How is <strong>one question</strong> drawn and judged?</td></tr>
+            <tr><td class="mono">src/sections/</td><td>How is a <strong>block of the page</strong> drawn (header, card, unit tabs, deficiency list…)?</td></tr>
+            <tr><td class="mono">src/actions/</td><td>What does a <strong>button</strong> do?</td></tr>
+            <tr><td class="mono">src/evaluators/</td><td>Is an <strong>answer OK</strong> (green, yellow, red)?</td></tr>
+            <tr><td class="mono">src/core/</td><td>Shared logic with no page code: status roll-ups, layout, loading the config, talking to servers.</td></tr>
+            <tr><td class="mono">src/offline/</td><td>How does it <strong>keep working without a network</strong>?</td></tr>
+            <tr><td class="mono">src/utils/</td><td>Small general helpers that know nothing about forms (building elements, formatting, templates, formulas).</td></tr>
+            <tr><td class="mono">docs/</td><td>The documentation portal and this guide.</td></tr>
+            <tr><td class="mono">.github/</td><td>Automation: the check-and-deploy workflow and its scripts.</td></tr>
+          </tbody>
+        </table></div>
+
+        <h3>Every file</h3>
+        <p>The line counts are read live from the files, so you can see at a glance which files are big. Most are under 70 lines.</p>
+        <div class="tree" id="fileTree">
+          <ul>
+            <li><span class="dir">dynamic-form/</span>
+              <ul>
+                <li><code data-path="Accurex-DynamicFormRenderer.js">Accurex-DynamicFormRenderer.js</code><span class="role">Entry point the page loads. Puts the class on <code>window</code> and exports the registries.</span></li>
+                <li><code data-path="Accurex-dynamic-form.css">Accurex-dynamic-form.css</code><span class="role">All styles. Every class starts with <code>dfr-</code>.</span></li>
+                <li><code data-path="service-worker.js">service-worker.js</code><span class="role">Background script that keeps copies of the page's files for offline use.</span></li>
+                <li><code data-path="sample.html">sample.html</code><span class="role">The demo page: creates the form and handles Submit (demo mode when hosted).</span></li>
+                <li><code data-path="accurex-startup-report-config.json">accurex-startup-report-config.json</code><span class="role">Sample form configuration, as the CRM would send it.</span></li>
+                <li><code data-path="index.html">index.html</code><span class="role">Landing page of the hosted site.</span></li>
+                <li><code data-repo-path="dev-server.py">dev-server.py</code><span class="role">Local server that also pretends to be the CRM's submit API.</span></li>
+                <li><code data-repo-path="README.md">README.md</code><span class="role">Overview, file map and how to run it.</span></li>
+                <li><span class="dir">src/</span>
+                  <ul>
+                    <li><code data-path="src/DynamicFormRenderer.js">DynamicFormRenderer.js</code><span class="role">The main class: builds the page, holds every value, runs <code>refresh()</code>.</span></li>
+                    <li><code data-path="src/constants.js">constants.js</code><span class="role">Status words (green, yellow… pass, caution…) in one place.</span></li>
+                    <li><span class="dir">fields/</span>
+                      <ul>
+                        <li><code data-path="src/fields/index.js">index.js</code><span class="role"><code>FIELD_TYPES</code> registry and <code>createField()</code>.</span></li>
+                        <li><code data-path="src/fields/BaseField.js">BaseField.js</code><span class="role">Parent class: label, help, chip, status, refresh. Read this first.</span></li>
+                        <li><code data-path="src/fields/InputField.js">InputField.js</code><span class="role">text, email, number, date and textarea.</span></li>
+                        <li><code data-path="src/fields/SelectField.js">SelectField.js</code><span class="role">Dropdown.</span></li>
+                        <li><code data-path="src/fields/CheckboxField.js">CheckboxField.js</code><span class="role">Tick box with the label beside it.</span></li>
+                        <li><code data-path="src/fields/CalculatedField.js">CalculatedField.js</code><span class="role">Read-only formula, e.g. hours variance.</span></li>
+                        <li><code data-path="src/fields/SegmentedField.js">SegmentedField.js</code><span class="role">Yes · No · N/A buttons.</span></li>
+                        <li><code data-path="src/fields/ToleranceField.js">ToleranceField.js</code><span class="role">Reading vs. reference with the coloured bar.</span></li>
+                        <li><code data-path="src/fields/attachmentPicker.js">attachmentPicker.js</code><span class="role">"Attach photo" button and thumbnails.</span></li>
+                      </ul>
+                    </li>
+                    <li><span class="dir">sections/</span>
+                      <ul>
+                        <li><code data-path="src/sections/index.js">index.js</code><span class="role"><code>SECTION_TYPES</code> registry.</span></li>
+                        <li><code data-path="src/sections/header.js">header.js</code><span class="role">Dark top bar: status pill, title, metrics, Copy button.</span></li>
+                        <li><code data-path="src/sections/cardSection.js">cardSection.js</code><span class="role">Default card with a grid of fields.</span></li>
+                        <li><code data-path="src/sections/deficiencySummary.js">deficiencySummary.js</code><span class="role">Red/green list of problems with View links.</span></li>
+                        <li><code data-path="src/sections/hoursTracker.js">hoursTracker.js</code><span class="role">Time on site: numbers and timer buttons.</span></li>
+                        <li><code data-path="src/sections/units.js">units.js</code><span class="role">Unit tabs and each unit's panel.</span></li>
+                        <li><code data-path="src/sections/accordion.js">accordion.js</code><span class="role">Collapsible section with its "3/7" chip.</span></li>
+                        <li><code data-path="src/sections/summaryPanel.js">summaryPanel.js</code><span class="role">The Summary tab's content.</span></li>
+                        <li><code data-path="src/sections/equipmentSummary.js">equipmentSummary.js</code><span class="role">Per-unit status on the Summary tab.</span></li>
+                        <li><code data-path="src/sections/reviewer.js">reviewer.js</code><span class="role">Approve / Reject card.</span></li>
+                        <li><code data-path="src/sections/actionBar.js">actionBar.js</code><span class="role">Buttons fixed to the bottom of the screen.</span></li>
+                        <li><code data-path="src/sections/draftBanner.js">draftBanner.js</code><span class="role">"Draft restored · Discard draft".</span></li>
+                        <li><code data-path="src/sections/syncStatus.js">syncStatus.js</code><span class="role">"You're offline · 1 report waiting · Send now".</span></li>
+                      </ul>
+                    </li>
+                    <li><span class="dir">actions/</span>
+                      <ul>
+                        <li><code data-path="src/actions/index.js">index.js</code><span class="role"><code>ACTION_HANDLERS</code> registry, <code>runAction()</code>, <code>createActionButton()</code>.</span></li>
+                        <li><code data-path="src/actions/workflowAction.js">workflowAction.js</code><span class="role">Submit / Approve / Reject, with rollback.</span></li>
+                        <li><code data-path="src/actions/saveDraftAction.js">saveDraftAction.js</code><span class="role">Save draft.</span></li>
+                        <li><code data-path="src/actions/emailAction.js">emailAction.js</code><span class="role">Opens a pre-filled email.</span></li>
+                        <li><code data-path="src/actions/timerAction.js">timerAction.js</code><span class="role">Site timer.</span></li>
+                        <li><code data-path="src/actions/dataPullAction.js">dataPullAction.js</code><span class="role">Pull from CAPS.</span></li>
+                      </ul>
+                    </li>
+                    <li><span class="dir">evaluators/</span>
+                      <ul>
+                        <li><code data-path="src/evaluators/index.js">index.js</code><span class="role"><code>EVALUATORS</code> registry, status rules, percent deviation.</span></li>
+                      </ul>
+                    </li>
+                    <li><span class="dir">core/</span>
+                      <ul>
+                        <li><code data-path="src/core/status.js">status.js</code><span class="role">Progress, unit status, deficiency sentence (pure functions).</span></li>
+                        <li><code data-path="src/core/layout.js">layout.js</code><span class="role"><code>config.layout</code> → CSS variables.</span></li>
+                        <li><code data-path="src/core/loadConfig.js">loadConfig.js</code><span class="role">Downloads the JSON, falls back to the offline copy.</span></li>
+                        <li><code data-path="src/core/http.js">http.js</code><span class="role"><code>sendRequest()</code> and "is this failure temporary?".</span></li>
+                      </ul>
+                    </li>
+                    <li><span class="dir">offline/</span>
+                      <ul>
+                        <li><code data-path="src/offline/settings.js">settings.js</code><span class="role">Reads <code>behavior.offline</code> from the config.</span></li>
+                        <li><code data-path="src/offline/database.js">database.js</code><span class="role">Promise wrapper around IndexedDB.</span></li>
+                        <li><code data-path="src/offline/draftStores.js">draftStores.js</code><span class="role">Draft storage: localStorage or IndexedDB.</span></li>
+                        <li><code data-path="src/offline/outbox.js">outbox.js</code><span class="role">Reports waiting to be sent.</span></li>
+                        <li><code data-path="src/offline/OfflineSync.js">OfflineSync.js</code><span class="role">Sends the outbox when the connection is back.</span></li>
+                        <li><code data-path="src/offline/configCopy.js">configCopy.js</code><span class="role">Offline copy of the form configuration.</span></li>
+                        <li><code data-path="src/offline/serviceWorkerSetup.js">serviceWorkerSetup.js</code><span class="role">Registers the service worker and tells it which files to keep.</span></li>
+                      </ul>
+                    </li>
+                    <li><span class="dir">utils/</span>
+                      <ul>
+                        <li><code data-path="src/utils/dom.js">dom.js</code><span class="role"><code>el()</code>, <code>button()</code> and other element helpers.</span></li>
+                        <li><code data-path="src/utils/format.js">format.js</code><span class="role"><code>isEmpty</code>, <code>toNumber</code>, <code>formatNumber</code>, <code>pluralize</code>.</span></li>
+                        <li><code data-path="src/utils/template.js">template.js</code><span class="role">Fills <code>{placeholders}</code>.</span></li>
+                        <li><code data-path="src/utils/formula.js">formula.js</code><span class="role">Safe formulas and conditions.</span></li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+                <li><span class="dir">docs/</span>
+                  <ul>
+                    <li><code data-path="docs/index.html">index.html</code><span class="role">Documentation portal with Cmd+K search.</span></li>
+                    <li><code data-path="docs/code-guide.html">code-guide.html</code><span class="role">This guide.</span></li>
+                    <li><code data-path="docs/theme.js">theme.js</code><span class="role">Light / dark toggle shared by the docs pages.</span></li>
+                  </ul>
+                </li>
+                <li><span class="dir">.github/</span>
+                  <ul>
+                    <li><code data-repo-path=".github/workflows/pages.yml">workflows/pages.yml</code><span class="role">Check and deploy on every push to <code>main</code>.</span></li>
+                    <li><code data-repo-path=".github/scripts/check-code-guide.mjs">scripts/check-code-guide.mjs</code><span class="role">Checks that this guide still matches the code.</span></li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+
+        <h3>Where do I put new code?</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>You want to add…</th><th>Put it in</th><th>Then register it in</th></tr></thead>
+          <tbody>
+            <tr><td>a new kind of question</td><td class="mono">src/fields/MyField.js</td><td class="mono">FIELD_TYPES (src/fields/index.js)</td></tr>
+            <tr><td>a new block on the page</td><td class="mono">src/sections/myBlock.js</td><td class="mono">SECTION_TYPES (src/sections/index.js)</td></tr>
+            <tr><td>a new button behaviour</td><td class="mono">src/actions/myAction.js</td><td class="mono">ACTION_HANDLERS (src/actions/index.js)</td></tr>
+            <tr><td>a new pass/fail rule</td><td class="mono">src/evaluators/index.js</td><td class="mono">EVALUATORS (same file)</td></tr>
+            <tr><td>logic without page code</td><td class="mono">src/core/</td><td>import it where needed</td></tr>
+            <tr><td>a general helper</td><td class="mono">src/utils/</td><td>import it where needed</td></tr>
+          </tbody>
+        </table></div>
+
+        <h3>Who imports whom</h3>
+        <p>This table is computed live from the <code>import</code> lines of every file, so it's always current. "×17" means 17 import lines point that way.</p>
+        <div class="table-wrap"><table class="imports">
+          <thead><tr><th>Folder</th><th>Imports from</th><th>Used by</th></tr></thead>
+          <tbody id="importTable"><tr><td colspan="3">Reading the import lines…</td></tr></tbody>
+        </table></div>
+        <p>Three things to notice:</p>
+        <ul>
+          <li><strong><code>utils/</code> and <code>constants.js</code> import nothing</strong> from the project. They're the foundation, safe to use anywhere.</li>
+          <li><strong><code>fields/</code> imports only <code>constants</code>, <code>evaluators/</code> and <code>utils/</code>.</strong> A field knows nothing about sections, buttons or offline storage, so field types can be written and tested on their own.</li>
+          <li><strong><code>core/</code> and <code>offline/</code> use each other:</strong> <code>core/loadConfig.js</code> falls back to the offline copy of the config, and <code>offline/OfflineSync.js</code> sends reports with <code>core/http.js</code>. Different files, so there's no circular import at file level.</li>
+        </ul>
+      </section>
+
+      <!-- ═════════════ Feature flows ═════════════ -->
+      <section class="chapter" id="feature-flows" data-title="Feature flows" data-files="—" data-time="20 min">
+        <span class="chapter-number"></span>
+        <h2>Feature flows</h2>
+        <p>For each feature, this diagram shows which file does what, in order. Read a diagram top to bottom: each arrow is one function call. Don't worry if a name is new; the chapters after this one explain each piece, and you can come back here as a map.</p>
+
+        <div class="legend" aria-label="How to read the diagrams">
+          <span><svg width="36" height="10" aria-hidden="true"><line x1="0" y1="5" x2="30" y2="5" class="seq-arrow"/><path d="M30 1 L36 5 L30 9 Z" class="seq-head"/></svg> calls</span>
+          <span><svg width="36" height="10" aria-hidden="true"><line x1="0" y1="5" x2="30" y2="5" class="seq-arrow reply"/><path d="M30 1 L36 5 L30 9 Z" class="seq-head"/></svg> answers</span>
+          <span><span class="legend-box"></span> repeats or only sometimes (the label says which)</span>
+        </div>
+
+        <nav class="flow-index" aria-label="Features">
+          <a href="#flow-page-load">Opening the form</a>
+          <a href="#flow-answer">Answering a question</a>
+          <a href="#flow-jump">"View" on a deficiency</a>
+          <a href="#flow-draft">Save and restore a draft</a>
+          <a href="#flow-submit">Submit for review</a>
+          <a href="#flow-offline-submit">Submit offline, sync later</a>
+          <a href="#flow-caps">Pull from CAPS</a>
+          <a href="#flow-timer">Site timer</a>
+          <a href="#flow-offline-open">Open the page offline</a>
+        </nav>
+
+        <h3 id="flow-page-load">Opening the form</h3>
+        <p>From <code>new DynamicFormRenderer()</code> to a finished form on screen.</p>
+        <div class="flow-diagram" data-flow="pageLoad"></div>
+        <p class="flow-meta"><strong>Try it:</strong> reload the demo with a breakpoint in <code>render()</code>. <strong>Read more:</strong> <a href="#big-picture" data-chapter-ref></a>, <a href="#main-class" data-chapter-ref></a>.</p>
+
+        <h3 id="flow-answer">Answering a question</h3>
+        <p>The loop at the heart of the framework: one change, then everything redraws.</p>
+        <div class="flow-diagram" data-flow="answer"></div>
+        <p class="flow-meta"><strong>Try it:</strong> answer No to "Power to lights?" on CP-1. <strong>Read more:</strong> <a href="#main-class" data-chapter-ref></a>, <a href="#fields" data-chapter-ref></a>, <a href="#rules" data-chapter-ref></a>.</p>
+
+        <h3 id="flow-jump">"View" on a deficiency</h3>
+        <div class="flow-diagram" data-flow="jump"></div>
+        <p class="flow-meta"><strong>Try it:</strong> flag something on EF-1, switch to CP-1, then click View. <strong>Read more:</strong> <a href="#sections" data-chapter-ref></a>.</p>
+
+        <h3 id="flow-draft">Save and restore a draft</h3>
+        <div class="flow-diagram" data-flow="draft"></div>
+        <p class="flow-meta"><strong>Try it:</strong> click Save draft, reload, and look in DevTools → Application → IndexedDB. <strong>Read more:</strong> <a href="#actions" data-chapter-ref></a>, <a href="#offline" data-chapter-ref></a>.</p>
+
+        <h3 id="flow-submit">Submit for review</h3>
+        <p>Online, with the local dev server standing in for the CRM.</p>
+        <div class="flow-diagram" data-flow="submit"></div>
+        <p class="flow-meta"><strong>Try it:</strong> run <code>python3 dev-server.py</code>, click Submit for review, and watch the terminal. <strong>Read more:</strong> <a href="#actions" data-chapter-ref></a>.</p>
+
+        <h3 id="flow-offline-submit">Submit offline, sync later</h3>
+        <div class="flow-diagram" data-flow="offlineSubmit"></div>
+        <p class="flow-meta"><strong>Try it:</strong> DevTools → Network → Offline, submit, then go back online. <strong>Read more:</strong> <a href="#offline" data-chapter-ref></a>.</p>
+
+        <h3 id="flow-caps">Pull from CAPS</h3>
+        <div class="flow-diagram" data-flow="caps"></div>
+        <p class="flow-meta"><strong>Try it:</strong> on the hosted demo, click "Pull from CAPS / order data" on any unit. <strong>Read more:</strong> <a href="#actions" data-chapter-ref></a>.</p>
+
+        <h3 id="flow-timer">Site timer</h3>
+        <div class="flow-diagram" data-flow="timer"></div>
+        <p class="flow-meta"><strong>Try it:</strong> start the timer and watch Actual hrs and Variance. <strong>Read more:</strong> <a href="#actions" data-chapter-ref></a>, <a href="#fields" data-chapter-ref></a>.</p>
+
+        <h3 id="flow-offline-open">Open the page offline</h3>
+        <div class="flow-diagram" data-flow="offlineOpen"></div>
+        <p class="flow-meta"><strong>Try it:</strong> open the hosted demo once, tick DevTools → Network → Offline, and reload. <strong>Read more:</strong> <a href="#offline" data-chapter-ref></a>.</p>
+      </section>
+
+      <!-- ═════════════ JavaScript you will meet ═════════════ -->
+      <section class="chapter" id="js-primer" data-title="JavaScript you will meet" data-files="—" data-time="15 min">
+        <span class="chapter-number"></span>
         <h2>JavaScript you will meet</h2>
         <p>Modern JavaScript features used throughout the code, each with a short example. Skim it now and come back when something looks unfamiliar.</p>
 
@@ -399,7 +667,7 @@ for (const [name, value] of Object.entries({ a: 1, b: 2 })) { … }   // loop ov
 }
 const counter = renderCounter();
 counter.refresh(3);   // still updates the same label</code></pre>
-        <p>You'll see this pattern again in <a href="#sections">chapter 7</a>.</p>
+        <p>You'll see this pattern again in <a href="#sections" data-chapter-ref>chapter</a>.</p>
 
         <details class="check"><summary>Check yourself: why must event handlers here be arrow functions?</summary>
           <div><p>Because the browser calls them, and with a normal <code>function</code> the value of <code>this</code> would be the window or the element, not our object. <code>this.form</code> would then be <code>undefined</code>. An arrow function keeps <code>this</code> from where it was written.</p></div>
@@ -407,8 +675,8 @@ counter.refresh(3);   // still updates the same label</code></pre>
       </section>
 
       <!-- ═════════════ 3 ═════════════ -->
-      <section class="chapter" id="main-class" data-title="The main class">
-        <span class="chapter-number">Chapter 3</span>
+      <section class="chapter" id="main-class" data-title="The main class" data-files="src/DynamicFormRenderer.js" data-time="20 min">
+        <span class="chapter-number"></span>
         <h2>The main class</h2>
         <p><code>DynamicFormRenderer</code> is the conductor. It builds the page, owns every value, and tells everything else when to update. Every other part of the code gets a reference to it, usually called <code>form</code>.</p>
 
@@ -452,8 +720,8 @@ counter.refresh(3);   // still updates the same label</code></pre>
       </section>
 
       <!-- ═════════════ 4 ═════════════ -->
-      <section class="chapter" id="dom" data-title="Building HTML safely">
-        <span class="chapter-number">Chapter 4</span>
+      <section class="chapter" id="dom" data-title="Building HTML safely" data-files="src/utils/dom.js" data-time="5 min">
+        <span class="chapter-number"></span>
         <h2>Building HTML safely</h2>
         <p>Every element on the page is created with one small helper, <code>el()</code>, instead of writing HTML strings.</p>
         <figure class="excerpt" data-file="src/utils/dom.js" data-start="export function el(tag, options = {}, children = []) {"></figure>
@@ -466,8 +734,8 @@ counter.refresh(3);   // still updates the same label</code></pre>
       </section>
 
       <!-- ═════════════ 5 ═════════════ -->
-      <section class="chapter" id="fields" data-title="Fields">
-        <span class="chapter-number">Chapter 5</span>
+      <section class="chapter" id="fields" data-title="Fields" data-files="src/fields/" data-time="20 min">
+        <span class="chapter-number"></span>
         <h2>Fields</h2>
         <p>Each question in the form is a <strong>field object</strong>, made from a class in <code>src/fields/</code>. All field classes share one parent, <code>BaseField</code>, which does everything common, and each type changes only what's different.</p>
 
@@ -512,8 +780,8 @@ counter.refresh(3);   // still updates the same label</code></pre>
       </section>
 
       <!-- ═════════════ 6 ═════════════ -->
-      <section class="chapter" id="rules" data-title="Rules and statuses">
-        <span class="chapter-number">Chapter 6</span>
+      <section class="chapter" id="rules" data-title="Rules and statuses" data-files="src/evaluators/, src/core/" data-time="10 min">
+        <span class="chapter-number"></span>
         <h2>Rules and statuses</h2>
         <p>Three small modules decide what's good and what isn't. None of them touch the page. They take data in and return an answer, which makes them easy to read and easy to test.</p>
 
@@ -537,8 +805,8 @@ counter.refresh(3);   // still updates the same label</code></pre>
       </section>
 
       <!-- ═════════════ 7 ═════════════ -->
-      <section class="chapter" id="sections" data-title="Sections and widgets">
-        <span class="chapter-number">Chapter 7</span>
+      <section class="chapter" id="sections" data-title="Sections and widgets" data-files="src/sections/" data-time="10 min">
+        <span class="chapter-number"></span>
         <h2>Sections and widgets</h2>
         <p>Fields are classes; page blocks are plain <strong>functions</strong>. Each one builds its elements and returns an object with two things:</p>
         <pre class="code"><code class="language-js">return {
@@ -548,7 +816,7 @@ counter.refresh(3);   // still updates the same label</code></pre>
         <p>That small object is a <strong>widget</strong>. The section registry works exactly like the field registry: <code>SECTION_TYPES</code> maps <code>"card"</code>, <code>"deficiencySummary"</code>, <code>"hoursTracker"</code> and <code>"equipmentStatusSummary"</code> to their functions.</p>
 
         <h3>A complete widget: the accordion</h3>
-        <p>One collapsible section inside a unit tab, with its "3/7" progress chip. Notice how <code>refresh</code> and <code>setOpen</code> use <code>body</code>, <code>head</code> and <code>fields</code> long after <code>renderAccordion</code> has returned: that's a closure (<a href="#js-primer">chapter 2</a>).</p>
+        <p>One collapsible section inside a unit tab, with its "3/7" progress chip. Notice how <code>refresh</code> and <code>setOpen</code> use <code>body</code>, <code>head</code> and <code>fields</code> long after <code>renderAccordion</code> has returned: that's a closure (<a href="#js-primer" data-chapter-ref>chapter</a>).</p>
         <figure class="excerpt" data-file="src/sections/accordion.js" data-start="export function renderAccordion(form, section, unit) {"></figure>
         <ol class="notes">
           <li><code>const context = { unit, section: { id: section.id, open: () =&gt; setOpen(true) } }</code>: every field in this accordion gets a function that opens it. Later, "View" in the deficiency list calls <code>field.context.section.open()</code> without knowing anything about accordions.</li>
@@ -561,8 +829,8 @@ counter.refresh(3);   // still updates the same label</code></pre>
       </section>
 
       <!-- ═════════════ 8 ═════════════ -->
-      <section class="chapter" id="actions" data-title="Buttons and actions">
-        <span class="chapter-number">Chapter 8</span>
+      <section class="chapter" id="actions" data-title="Buttons and actions" data-files="src/actions/" data-time="10 min">
+        <span class="chapter-number"></span>
         <h2>Buttons and actions</h2>
         <p>Every configured button (Save draft, Email, Start timer, Submit for review…) has a <code>type</code>, and a third registry maps it to a function.</p>
         <figure class="excerpt" data-file="src/actions/index.js" data-start="export const ACTION_HANDLERS = {"></figure>
@@ -584,8 +852,8 @@ counter.refresh(3);   // still updates the same label</code></pre>
       </section>
 
       <!-- ═════════════ 9 ═════════════ -->
-      <section class="chapter" id="offline" data-title="Working offline">
-        <span class="chapter-number">Chapter 9</span>
+      <section class="chapter" id="offline" data-title="Working offline" data-files="src/offline/, service-worker.js" data-time="20 min">
+        <span class="chapter-number"></span>
         <h2>Working offline</h2>
         <p>Technicians work in basements without signal. Three browser features keep the form working:</p>
         <div class="table-wrap"><table>
@@ -631,8 +899,8 @@ counter.refresh(3);   // still updates the same label</code></pre>
       </section>
 
       <!-- ═════════════ 10 ═════════════ -->
-      <section class="chapter" id="styles" data-title="Styles">
-        <span class="chapter-number">Chapter 10</span>
+      <section class="chapter" id="styles" data-title="Styles" data-files="Accurex-dynamic-form.css" data-time="5 min">
+        <span class="chapter-number"></span>
         <h2>Styles</h2>
         <ul>
           <li><strong>One stylesheet</strong>, <code>Accurex-dynamic-form.css</code>. Every class starts with <code>dfr-</code> ("dynamic form renderer"), so it can't clash with the website's own CSS.</li>
@@ -644,8 +912,8 @@ counter.refresh(3);   // still updates the same label</code></pre>
       </section>
 
       <!-- ═════════════ 11 ═════════════ -->
-      <section class="chapter" id="tooling" data-title="Tools around the code">
-        <span class="chapter-number">Chapter 11</span>
+      <section class="chapter" id="tooling" data-title="Tools around the code" data-files="dev-server.py, .github/" data-time="5 min">
+        <span class="chapter-number"></span>
         <h2>Tools around the code</h2>
         <div class="table-wrap"><table>
           <thead><tr><th>File</th><th>What it does</th></tr></thead>
@@ -660,8 +928,8 @@ counter.refresh(3);   // still updates the same label</code></pre>
       </section>
 
       <!-- ═════════════ 12 ═════════════ -->
-      <section class="chapter" id="debugging" data-title="Debugging recipes">
-        <span class="chapter-number">Chapter 12</span>
+      <section class="chapter" id="debugging" data-title="Debugging recipes" data-files="—" data-time="5 min">
+        <span class="chapter-number"></span>
         <h2>Debugging recipes</h2>
         <div class="table-wrap"><table>
           <thead><tr><th>I want to…</th><th>Do this</th></tr></thead>
@@ -680,8 +948,8 @@ counter.refresh(3);   // still updates the same label</code></pre>
       </section>
 
       <!-- ═════════════ 13 ═════════════ -->
-      <section class="chapter" id="first-tasks" data-title="Your first tasks">
-        <span class="chapter-number">Chapter 13</span>
+      <section class="chapter" id="first-tasks" data-title="Your first tasks" data-files="—" data-time="1 hour+">
+        <span class="chapter-number"></span>
         <h2>Your first tasks</h2>
         <p>Small, real changes, in increasing difficulty. Try each one before opening the answer.</p>
 
@@ -917,6 +1185,604 @@ range(rule, value) {
       figure.replaceChildren(message);
     }
   }
+
+
+  // ───────────────────────────── Chapter numbers, reading order, "see chapter N" links ─────────────────────────────
+  // Numbers come from the order of the <section class="chapter"> elements, so adding a chapter renumbers everything.
+
+  const numberedChapters = chapters.filter(chapter => !chapter.hasAttribute('data-unnumbered'));
+  const chapterNumber = new Map(numberedChapters.map((chapter, index) => [chapter.id, index]));
+
+  numberedChapters.forEach((chapter, index) => {
+    const label = chapter.querySelector('.chapter-number');
+    if (label) label.textContent = 'Chapter ' + index;
+  });
+
+  document.querySelectorAll('a[data-chapter-ref]').forEach(link => {
+    const id = link.getAttribute('href').slice(1);
+    if (chapterNumber.has(id)) link.textContent = 'chapter ' + chapterNumber.get(id);
+  });
+
+  const readingOrder = document.getElementById('readingOrder');
+  numberedChapters.slice(1).forEach(chapter => {           // chapter 0 is the page that holds this table
+    const row = make('tr');
+    const titleCell = make('td');
+    const link = make('a', '', chapterNumber.get(chapter.id) + ' · ' + chapter.dataset.title);
+    link.href = '#' + chapter.id;
+    titleCell.append(link);
+    row.append(titleCell, make('td', 'mono', chapter.dataset.files || '—'), make('td', '', chapter.dataset.time || ''));
+    readingOrder.append(row);
+  });
+
+  // ───────────────────────────── Folder tree: live line counts ─────────────────────────────
+
+  document.querySelectorAll('#fileTree code[data-path]').forEach(async code => {
+    try {
+      const text = await loadFile(code.dataset.path);
+      const lineCount = text.replace(/\n$/, '').split('\n').length;
+      code.after(make('span', 'lines', lineCount + ' lines'));
+    } catch (error) {
+      // Not reachable (e.g. opened as a file): the tree still reads fine without counts.
+    }
+  });
+  document.querySelectorAll('#fileTree code[data-repo-path]').forEach(code => {
+    const link = make('a', '', code.textContent);
+    link.href = REPO_FILE_URL + code.dataset.repoPath;
+    link.title = 'Not published on the website; open it on GitHub';
+    code.replaceChildren(link);
+  });
+
+  // ───────────────────────────── Who imports whom (computed from the real import lines) ─────────────────────────────
+
+  const IMPORT_GROUPS = [
+    { id: 'entry', label: 'Accurex-DynamicFormRenderer.js', match: path => path === 'Accurex-DynamicFormRenderer.js' },
+    { id: 'main', label: 'src/DynamicFormRenderer.js', match: path => path === 'src/DynamicFormRenderer.js' },
+    { id: 'sections', label: 'src/sections/', match: path => path.startsWith('src/sections/') },
+    { id: 'fields', label: 'src/fields/', match: path => path.startsWith('src/fields/') },
+    { id: 'actions', label: 'src/actions/', match: path => path.startsWith('src/actions/') },
+    { id: 'offline', label: 'src/offline/', match: path => path.startsWith('src/offline/') },
+    { id: 'core', label: 'src/core/', match: path => path.startsWith('src/core/') },
+    { id: 'evaluators', label: 'src/evaluators/', match: path => path.startsWith('src/evaluators/') },
+    { id: 'utils', label: 'src/utils/', match: path => path.startsWith('src/utils/') },
+    { id: 'constants', label: 'src/constants.js', match: path => path === 'src/constants.js' },
+    { id: 'serviceWorker', label: 'service-worker.js', match: path => path === 'service-worker.js' },
+  ];
+  const groupOf = path => (IMPORT_GROUPS.find(group => group.match(path)) || {}).id;
+
+  /** "src/fields/BaseField.js" + "../utils/dom.js" → "src/utils/dom.js" */
+  function resolvePath(fromPath, relative) {
+    const parts = fromPath.split('/').slice(0, -1);
+    relative.split('/').forEach(part => {
+      if (part === '..') parts.pop();
+      else if (part !== '.') parts.push(part);
+    });
+    return parts.join('/');
+  }
+
+  async function buildImportTable() {
+    const table = document.getElementById('importTable');
+    const jsFiles = Array.from(document.querySelectorAll('#fileTree code[data-path]'))
+      .map(code => code.dataset.path)
+      .filter(path => path.endsWith('.js') && groupOf(path));
+
+    try {
+      const counts = new Map();   // "from→to" → number of import lines
+      await Promise.all(jsFiles.map(async path => {
+        const text = await loadFile(path);
+        const importLine = /^\s*(?:import|export)\s[^;]*?from\s+['"](\.[^'"]+)['"]/gm;
+        let match;
+        while ((match = importLine.exec(text))) {
+          const from = groupOf(path);
+          const to = groupOf(resolvePath(path, match[1]));
+          if (to && from !== to) counts.set(from + '→' + to, (counts.get(from + '→' + to) || 0) + 1);
+        }
+      }));
+
+      const labelOf = id => IMPORT_GROUPS.find(group => group.id === id).label;
+      function chips(entries) {
+        const cell = make('td');
+        if (!entries.length) { cell.append(make('span', 'none', 'nothing')); return cell; }
+        entries.sort((a, b) => b[1] - a[1]).forEach(([id, count]) => cell.append(make('span', 'chip', labelOf(id) + ' ×' + count)));
+        return cell;
+      }
+
+      table.replaceChildren(...IMPORT_GROUPS.map(group => {
+        const uses = [], usedBy = [];
+        counts.forEach((count, key) => {
+          const [from, to] = key.split('→');
+          if (from === group.id) uses.push([to, count]);
+          if (to === group.id) usedBy.push([from, count]);
+        });
+        const row = make('tr');
+        row.append(make('td', 'mono', group.label), chips(uses), chips(usedBy));
+        return row;
+      }));
+    } catch (error) {
+      table.replaceChildren(make('tr'));
+      table.firstChild.append(make('td', '', 'Could not read the source files (' + error.message + '). Open this guide from the website or the dev server.'));
+      table.firstChild.firstChild.colSpan = 3;
+    }
+  }
+  buildImportTable();
+
+  // ───────────────────────────── Feature flow diagrams ─────────────────────────────
+  // Each flow is plain data: "lanes" are the parts of the code involved (left to right), "steps" are the calls
+  // between them, top to bottom. Step kinds:
+  //   { from, to, text }              a call                       { from, to, text, reply: true }  an answer
+  //   { from, text }                  something done inside one lane
+  //   { note, over: [laneA, laneB] }  a note across lanes
+  //   { group: 'loop' | 'alt' | 'opt', label, steps: [...] }  repeated, or only in some cases
+  // To change a diagram, edit the data. The renderer below draws it as SVG.
+
+  /* FLOWS:START (checked in CI: every lane "file" must exist, every name() in a text must exist in the code) */
+  const FLOWS = {
+    pageLoad: {
+      lanes: [
+        { id: 'page', name: 'Host page', file: 'sample.html' },
+        { id: 'form', name: 'DynamicFormRenderer', file: 'src/DynamicFormRenderer.js' },
+        { id: 'loader', name: 'loadConfig', file: 'src/core/loadConfig.js' },
+        { id: 'drafts', name: 'Draft store', file: 'src/offline/draftStores.js' },
+        { id: 'blocks', name: 'Sections + fields', place: 'sections/, fields/' },
+        { id: 'sync', name: 'OfflineSync', file: 'src/offline/OfflineSync.js' },
+      ],
+      steps: [
+        { from: 'page', to: 'form', text: 'new DynamicFormRenderer(options)' },
+        { from: 'form', text: 'stores the options; nothing is drawn yet' },
+        { from: 'page', to: 'form', text: 'await render()' },
+        { from: 'form', to: 'loader', text: 'loadConfig(configUrl)' },
+        { from: 'loader', to: 'form', text: 'config JSON (or the offline copy)', reply: true },
+        { from: 'form', text: 'resetState(), setHeaderValues(), getLayout()' },
+        { from: 'form', to: 'drafts', text: 'chooseDraftStore() → load(formId)' },
+        { from: 'drafts', to: 'form', text: 'saved draft, or null', reply: true },
+        { from: 'form', to: 'blocks', text: 'buildForm(draft)' },
+        { group: 'loop', label: 'for every field in the JSON', steps: [
+          { from: 'blocks', to: 'form', text: 'createField() → registerField(field)' },
+        ] },
+        { group: 'opt', label: 'if a draft was found', steps: [
+          { from: 'form', text: 'applyDraft(draft)' },
+        ] },
+        { from: 'form', to: 'blocks', text: 'refresh(): every field and widget draws itself' },
+        { group: 'opt', label: 'if offline mode is on', steps: [
+          { from: 'form', to: 'sync', text: 'start(): send reports left from last time' },
+        ] },
+        { from: 'form', to: 'page', text: 'the form is on the page', reply: true },
+      ],
+    },
+
+    answer: {
+      lanes: [
+        { id: 'user', name: 'Technician', actor: true },
+        { id: 'field', name: 'SegmentedField', file: 'src/fields/SegmentedField.js' },
+        { id: 'form', name: 'DynamicFormRenderer', file: 'src/DynamicFormRenderer.js' },
+        { id: 'rules', name: 'Evaluators', file: 'src/evaluators/index.js' },
+        { id: 'widgets', name: 'Widgets', place: 'sections/*.js' },
+        { id: 'site', name: 'Host page', file: 'sample.html' },
+      ],
+      steps: [
+        { from: 'user', to: 'field', text: 'taps "No" on "Power to lights?"' },
+        { from: 'field', to: 'form', text: "setValue('u4LightsPower', 'No')" },
+        { from: 'form', text: 'values.u4LightsPower = "No"' },
+        { from: 'form', to: 'site', text: 'onFieldChange(): only if the website passed one' },
+        { from: 'form', text: 'refresh()' },
+        { group: 'loop', label: 'for every field', steps: [
+          { from: 'form', to: 'field', text: 'recalculate(), then refresh()' },
+          { from: 'field', to: 'rules', text: 'evaluateStatus(evaluation, "No")' },
+          { from: 'rules', to: 'field', text: '"red"', reply: true },
+          { from: 'field', text: 'chip shows Flagged; the No button turns red' },
+        ] },
+        { group: 'loop', label: 'for every widget', steps: [
+          { from: 'form', to: 'widgets', text: 'refresh()' },
+          { from: 'widgets', text: 'section chip 1/7, red tab dot, deficiency list, header metric' },
+        ] },
+      ],
+    },
+
+    jump: {
+      lanes: [
+        { id: 'user', name: 'Technician', actor: true },
+        { id: 'list', name: 'Deficiency list', file: 'src/sections/deficiencySummary.js' },
+        { id: 'form', name: 'DynamicFormRenderer', file: 'src/DynamicFormRenderer.js' },
+        { id: 'tabs', name: 'Unit tabs', file: 'src/sections/units.js' },
+        { id: 'accordion', name: 'Accordion', file: 'src/sections/accordion.js' },
+        { id: 'browser', name: 'Browser', place: 'the page' },
+      ],
+      steps: [
+        { from: 'user', to: 'list', text: 'clicks View' },
+        { from: 'list', to: 'form', text: 'jumpToField(field)' },
+        { from: 'form', to: 'tabs', text: 'showUnit(field.context.unit.id)' },
+        { from: 'form', to: 'accordion', text: 'field.context.section.open()' },
+        { from: 'form', text: 'setTimeout(…, 80): let the tab appear first' },
+        { from: 'form', to: 'browser', text: 'scrollIntoView() and add dfr-highlight' },
+        { from: 'form', to: 'browser', text: 'remove dfr-highlight after 1.4 s' },
+      ],
+    },
+
+    draft: {
+      lanes: [
+        { id: 'user', name: 'Technician', actor: true },
+        { id: 'actions', name: 'runAction', file: 'src/actions/index.js' },
+        { id: 'save', name: 'saveDraftAction', file: 'src/actions/saveDraftAction.js' },
+        { id: 'form', name: 'DynamicFormRenderer', file: 'src/DynamicFormRenderer.js' },
+        { id: 'store', name: 'Draft store', file: 'src/offline/draftStores.js' },
+        { id: 'db', name: 'IndexedDB', file: 'src/offline/database.js' },
+      ],
+      steps: [
+        { from: 'user', to: 'actions', text: 'clicks Save draft' },
+        { from: 'actions', to: 'save', text: 'ACTION_HANDLERS.save(form, action, button)' },
+        { from: 'save', to: 'form', text: 'saveDraft()' },
+        { from: 'form', to: 'store', text: 'save(formId, version, values, attachments)' },
+        { from: 'store', to: 'db', text: "putRecord('drafts', { values, photos })" },
+        { group: 'alt', label: 'if IndexedDB fails', steps: [
+          { from: 'store', text: 'save to localStorage instead (no photos)' },
+        ] },
+        { from: 'store', to: 'save', text: 'where it was saved', reply: true },
+        { from: 'save', to: 'user', text: 'flashButtonText(): "Saved ✓"' },
+        { from: 'save', to: 'form', text: 'emitAction({ type: "saved" }) → website onAction' },
+        { note: 'Next visit: render() runs again', over: ['form', 'db'] },
+        { from: 'form', to: 'store', text: 'load(formId)' },
+        { from: 'store', to: 'db', text: "getRecord('drafts', formId)" },
+        { from: 'db', to: 'form', text: 'values and photos', reply: true },
+        { from: 'form', text: 'buildForm(draft) shows the banner, applyDraft(draft), refresh()' },
+      ],
+    },
+
+    submit: {
+      lanes: [
+        { id: 'user', name: 'Technician', actor: true },
+        { id: 'workflow', name: 'runWorkflow', file: 'src/actions/workflowAction.js' },
+        { id: 'form', name: 'DynamicFormRenderer', file: 'src/DynamicFormRenderer.js' },
+        { id: 'site', name: 'Host page', file: 'sample.html' },
+        { id: 'http', name: 'sendRequest', file: 'src/core/http.js' },
+        { id: 'crm', name: 'CRM API', place: 'submission.url' },
+      ],
+      steps: [
+        { from: 'user', to: 'workflow', text: 'clicks Submit for review' },
+        { from: 'workflow', text: 'check validation.requiredFields; disable the button' },
+        { from: 'workflow', to: 'form', text: "setReportStatus('review') → setValue() → refresh()" },
+        { from: 'workflow', to: 'site', text: 'await onWorkflow(action, getData(), form)' },
+        { from: 'site', to: 'form', text: 'form.submit()' },
+        { from: 'form', to: 'http', text: 'buildSubmitRequest() → sendRequest(request)' },
+        { from: 'http', to: 'crm', text: 'POST the report as JSON' },
+        { from: 'crm', to: 'http', text: '200 OK + JSON', reply: true },
+        { from: 'http', to: 'form', text: 'response data', reply: true },
+        { from: 'form', text: 'clearDraftAfterSubmit(), then onSubmitSuccess(response)' },
+        { group: 'alt', label: 'if the CRM refuses: submit() throws', steps: [
+          { from: 'form', to: 'site', text: 'onSubmitError(error), then throw' },
+          { from: 'workflow', to: 'form', text: 'setReportStatus(previousStatus): roll back' },
+        ] },
+        { from: 'workflow', text: 'finally: enable the button again' },
+      ],
+    },
+
+    offlineSubmit: {
+      lanes: [
+        { id: 'form', name: 'DynamicFormRenderer', file: 'src/DynamicFormRenderer.js' },
+        { id: 'sync', name: 'OfflineSync', file: 'src/offline/OfflineSync.js' },
+        { id: 'outbox', name: 'Outbox', file: 'src/offline/outbox.js' },
+        { id: 'db', name: 'IndexedDB', file: 'src/offline/database.js' },
+        { id: 'browser', name: 'Browser', place: '"online" event' },
+        { id: 'crm', name: 'CRM API', place: 'submission.url' },
+      ],
+      steps: [
+        { from: 'form', text: 'submit(): navigator.onLine is false' },
+        { from: 'form', to: 'sync', text: 'queueSubmission() → queue(request)' },
+        { from: 'sync', to: 'outbox', text: 'addToOutbox(formId, request)' },
+        { from: 'outbox', to: 'db', text: "putRecord('outbox', entry)" },
+        { from: 'sync', to: 'form', text: 'refresh(): the bar shows "1 report waiting"' },
+        { from: 'form', text: 'onSubmitQueued(), return { queued: true }' },
+        { note: 'Later: the connection comes back', over: ['form', 'crm'] },
+        { from: 'browser', to: 'sync', text: 'handleOnline() → syncNow()' },
+        { from: 'sync', text: 'withOutboxLock(): one tab at a time' },
+        { group: 'loop', label: 'for every waiting report, oldest first', steps: [
+          { from: 'sync', to: 'crm', text: 'sendRequest(entry.request)' },
+          { from: 'crm', to: 'sync', text: '200 OK', reply: true },
+          { from: 'sync', to: 'outbox', text: 'removeFromOutbox(entry.id)' },
+          { from: 'sync', to: 'form', text: 'clearDraftAfterSubmit(), onSubmitSuccess()' },
+        ] },
+        { group: 'alt', label: 'if there is still no network, or the server is down', steps: [
+          { from: 'sync', text: 'stop; try again in 30 seconds' },
+        ] },
+        { group: 'alt', label: 'if the CRM refuses (e.g. HTTP 400)', steps: [
+          { from: 'sync', to: 'outbox', text: 'markOutboxEntryFailed(): kept, not retried' },
+          { from: 'sync', to: 'form', text: 'onSubmitError(error)' },
+        ] },
+      ],
+    },
+
+    caps: {
+      lanes: [
+        { id: 'user', name: 'Technician', actor: true },
+        { id: 'actions', name: 'runAction', file: 'src/actions/index.js' },
+        { id: 'pull', name: 'pullUnitData', file: 'src/actions/dataPullAction.js' },
+        { id: 'site', name: 'Host page', file: 'sample.html' },
+        { id: 'api', name: 'CAPS API', place: 'dataSources.CAPS.url' },
+        { id: 'form', name: 'DynamicFormRenderer', file: 'src/DynamicFormRenderer.js' },
+      ],
+      steps: [
+        { from: 'user', to: 'actions', text: 'clicks Pull from CAPS (action carries unitId)' },
+        { from: 'actions', to: 'pull', text: 'pullUnitData(form, action, button)' },
+        { group: 'alt', label: 'if the website passed onDataPull (demo mode does)', steps: [
+          { from: 'pull', to: 'site', text: 'onDataPull(action, form)' },
+          { from: 'site', to: 'pull', text: '{ model, serial }', reply: true },
+          { from: 'pull', to: 'form', text: 'applyPulledData(): copy values, then refresh()' },
+        ] },
+        { group: 'alt', label: 'otherwise: use config.dataSources', steps: [
+          { from: 'pull', text: 'button shows "Pulling…"' },
+          { from: 'pull', to: 'api', text: 'fetch(fillTemplate(url, { …values, unitId }))' },
+          { from: 'api', to: 'pull', text: 'JSON', reply: true },
+          { from: 'pull', to: 'form', text: 'applyPulledData(): values[field] = data[prefill.field], refresh()' },
+          { from: 'pull', to: 'user', text: 'button shows "✓ Synced from CAPS"' },
+        ] },
+      ],
+    },
+
+    timer: {
+      lanes: [
+        { id: 'user', name: 'Technician', actor: true },
+        { id: 'timer', name: 'toggleTimer', file: 'src/actions/timerAction.js' },
+        { id: 'form', name: 'DynamicFormRenderer', file: 'src/DynamicFormRenderer.js' },
+        { id: 'calc', name: 'CalculatedField', file: 'src/fields/CalculatedField.js' },
+        { id: 'tracker', name: 'Hours tracker', file: 'src/sections/hoursTracker.js' },
+      ],
+      steps: [
+        { from: 'user', to: 'timer', text: 'clicks Start timer' },
+        { from: 'timer', text: 'seconds = actualHours × 3600, then setInterval(…, 1000)' },
+        { from: 'timer', to: 'form', text: 'form.timers.set(id, intervalId), so destroy() can stop it' },
+        { group: 'loop', label: 'every second', steps: [
+          { from: 'timer', to: 'form', text: "setValue('actualHours', seconds / 3600, { notify: false })" },
+          { from: 'form', to: 'calc', text: 'recalculate(): hoursVariance = actual − expected' },
+          { from: 'form', to: 'tracker', text: 'refresh(): new numbers, variance colour from statusRules' },
+        ] },
+        { from: 'user', to: 'timer', text: 'clicks again' },
+        { from: 'timer', text: 'clearInterval(); the button shows "Resume timer"' },
+      ],
+    },
+
+    offlineOpen: {
+      lanes: [
+        { id: 'page', name: 'Page + render()', file: 'sample.html' },
+        { id: 'setup', name: 'setUpOfflinePage', file: 'src/offline/serviceWorkerSetup.js' },
+        { id: 'sw', name: 'Service worker', file: 'service-worker.js' },
+        { id: 'cache', name: 'Cache storage', place: 'browser' },
+        { id: 'loader', name: 'loadConfig', file: 'src/core/loadConfig.js' },
+        { id: 'db', name: 'IndexedDB', file: 'src/offline/database.js' },
+      ],
+      steps: [
+        { note: 'First visit, online', over: ['page', 'db'] },
+        { from: 'page', to: 'loader', text: 'loadConfig(url)' },
+        { from: 'loader', to: 'db', text: 'saveConfigCopy(url, json)' },
+        { from: 'page', to: 'setup', text: 'setUpOfflinePage("service-worker.js")' },
+        { from: 'setup', to: 'sw', text: 'register(), then wait until ready' },
+        { from: 'setup', to: 'sw', text: 'postMessage(CACHE_FILES, listFilesThisPageUses())' },
+        { from: 'sw', to: 'cache', text: 'storeFiles(): cache.put(url, response)' },
+        { note: 'Later visit, no network', over: ['page', 'db'] },
+        { from: 'page', to: 'sw', text: 'the browser asks for sample.html, CSS, JS' },
+        { from: 'sw', text: 'networkFirst(): fetch fails, or takes over 4 s' },
+        { from: 'sw', to: 'cache', text: 'cache.match(request)' },
+        { from: 'cache', to: 'page', text: 'the saved copy', reply: true },
+        { from: 'page', to: 'loader', text: 'loadConfig(url): fetch throws TypeError' },
+        { from: 'loader', to: 'db', text: 'loadConfigCopy(url)' },
+        { from: 'db', to: 'page', text: 'the saved config: the form renders as normal', reply: true },
+      ],
+    },
+  };
+  /* FLOWS:END */
+
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const measureCanvas = document.createElement('canvas').getContext('2d');
+  const LABEL_FONT = '500 12.5px Geist, system-ui, sans-serif';
+  const LINE_HEIGHT = 16;
+
+  function svg(tag, attributes, text) {
+    const element = document.createElementNS(SVG_NS, tag);
+    Object.entries(attributes || {}).forEach(([name, value]) => element.setAttribute(name, value));
+    if (text !== undefined) element.textContent = text;
+    return element;
+  }
+
+  function textWidth(text) {
+    measureCanvas.font = LABEL_FONT;
+    return measureCanvas.measureText(text).width;
+  }
+
+  /** Split a label into lines no wider than maxWidth. */
+  function wrapText(text, maxWidth) {
+    const lines = [];
+    let line = '';
+    text.split(' ').forEach(word => {
+      const candidate = line ? line + ' ' + word : word;
+      if (line && textWidth(candidate) > maxWidth) { lines.push(line); line = word; }
+      else line = candidate;
+    });
+    if (line) lines.push(line);
+    return lines;
+  }
+
+  /** Every step, groups flattened, in drawing order. */
+  function eachStep(steps, visit) {
+    steps.forEach(step => (step.group ? eachStep(step.steps, visit) : visit(step)));
+  }
+
+  /** Text of the nearest heading above an element, e.g. "Answering a question". */
+  function headingBefore(element) {
+    let node = element.previousElementSibling;
+    while (node && !/^H[1-4]$/.test(node.tagName)) node = node.previousElementSibling;
+    return node ? node.textContent.trim() : 'feature flow';
+  }
+
+  function renderFlow(container, flowId) {
+    const flow = FLOWS[flowId];
+    const laneIndex = new Map(flow.lanes.map((lane, index) => [lane.id, index]));
+    const lastLane = flow.lanes.length - 1;
+
+    // 1. Lane spacing: wide enough for the lane headers. Long step labels wrap onto several lines instead.
+    const laneWhere = lane => {
+      if (!lane.file) return lane.place || '';
+      const parts = lane.file.split('/');
+      const name = parts.pop();
+      return name === 'index.js' ? parts.pop() + '/index.js' : name;   // "evaluators/index.js", "SegmentedField.js"
+    };
+    let spacing = 150;
+    flow.lanes.forEach(lane => {
+      spacing = Math.max(spacing, textWidth(lane.name) + 30, laneWhere(lane).length * 6.6 + 26);
+    });
+    spacing = Math.min(spacing, 185);
+    const marginX = spacing / 2 + 6;
+    const laneX = id => marginX + laneIndex.get(id) * spacing;
+    const SELF_LABEL_WIDTH = spacing - 40;
+    const LAST_LANE_SELF_WIDTH = 210;
+    const rightOverflow = flow.steps.some(function hasSelfOnLast(step) {
+      return step.group ? step.steps.some(hasSelfOnLast) : (!step.to && step.from && laneIndex.get(step.from) === lastLane);
+    }) ? LAST_LANE_SELF_WIDTH : 0;
+    const width = Math.round(marginX * 2 + spacing * lastLane + rightOverflow);
+
+    const root = svg('svg', { class: 'seq', role: 'img', 'aria-label': 'Diagram: ' + headingBefore(container) + '. The steps are also listed under "Read as text".' });
+    const defs = svg('defs');
+    const markerId = 'arrow-' + flowId;
+    const marker = svg('marker', { id: markerId, viewBox: '0 0 10 10', refX: '9', refY: '5', markerWidth: '7', markerHeight: '7', orient: 'auto-start-reverse' });
+    marker.append(svg('path', { d: 'M0 0 L10 5 L0 10 Z', class: 'seq-head' }));
+    defs.append(marker);
+    root.append(defs);
+
+    const background = svg('g');   // lifelines and group boxes go behind everything else
+    const foreground = svg('g');
+    root.append(background, foreground);
+
+    // 2. Lane headers
+    const HEADER_HEIGHT = 46;
+    const boxWidth = Math.min(spacing - 14, 190);
+    flow.lanes.forEach(lane => {
+      const x = laneX(lane.id);
+      const header = svg('g', { class: lane.actor ? 'seq-lane actor' : 'seq-lane' });
+      header.append(svg('rect', { x: x - boxWidth / 2, y: 6, width: boxWidth, height: HEADER_HEIGHT, rx: 7 }));
+      header.append(svg('text', { x, y: lane.actor ? 34 : 26, class: 'seq-lane-name', 'text-anchor': 'middle' }, lane.name));
+      const where = laneWhere(lane);
+      if (where) header.append(svg('text', { x, y: 42, class: 'seq-lane-file', 'text-anchor': 'middle' }, where));
+      if (lane.file) header.append(svg('title', {}, lane.file));
+      foreground.append(header);
+    });
+
+    // 3. Steps, top to bottom
+    let y = HEADER_HEIGHT + 22;
+    let stepNumber = 0;
+    const openGroups = [];               // groups being drawn, to grow their box around their content
+    const textList = [];                 // the same steps as text, for "Read as text"
+
+    function widen(left, right) { openGroups.forEach(group => { group.left = Math.min(group.left, left); group.right = Math.max(group.right, right); }); }
+
+    function drawSteps(steps) {
+      steps.forEach(step => {
+        if (step.group) {
+          const group = { left: Infinity, right: -Infinity, top: y };
+          textList.push({ type: 'group', text: (step.group === 'loop' ? 'Repeats ' : '') + step.label + ':' });
+          openGroups.push(group);
+          y += 24;
+          drawSteps(step.steps);
+          openGroups.pop();
+          y += 4;
+          const left = group.left - 18, right = group.right + 18;
+          widen(left, right);
+          const box = svg('g', { class: 'seq-group ' + step.group });
+          box.append(svg('rect', { x: left, y: group.top, width: right - left, height: y - group.top, rx: 8 }));
+          const tag = step.group === 'loop' ? '↻ ' + step.label : step.label;
+          box.append(svg('text', { x: left + 10, y: group.top + 16, class: 'seq-group-label' }, tag));
+          background.append(box);
+          y += 10;
+          return;
+        }
+
+        if (step.note) {
+          const left = laneX(step.over[0]) - spacing * 0.42;
+          const right = laneX(step.over[step.over.length - 1]) + spacing * 0.42;
+          y += 4;
+          foreground.append(svg('rect', { x: left, y, width: right - left, height: 26, rx: 6, class: 'seq-note' }));
+          foreground.append(svg('text', { x: (left + right) / 2, y: y + 17, class: 'seq-note-text', 'text-anchor': 'middle' }, step.note));
+          textList.push({ type: 'note', text: step.note });
+          y += 40;
+          return;
+        }
+
+        stepNumber += 1;
+        const fromX = laneX(step.from);
+        const label = step.text;
+        /** The step number as a small dot, drawn at the start of the arrow. */
+        const numberDot = (x, dotY) => {
+          const dot = svg('g', { class: 'seq-number' });
+          dot.append(svg('circle', { cx: x, cy: dotY, r: 8 }));
+          dot.append(svg('text', { x, y: dotY + 3.5, 'text-anchor': 'middle' }, String(stepNumber)));
+          return dot;
+        };
+        const fromLane = flow.lanes[laneIndex.get(step.from)].name;
+
+        if (!step.to || step.to === step.from) {
+          // Something done inside one lane: a small loop arrow with the label to its right.
+          const lines = wrapText(label, laneIndex.get(step.from) === lastLane ? LAST_LANE_SELF_WIDTH : SELF_LABEL_WIDTH);
+          const height = Math.max(22, lines.length * LINE_HEIGHT + 4);
+          foreground.append(svg('path', { d: `M${fromX} ${y} h26 v${height - 6} h-24`, class: 'seq-arrow', 'marker-end': `url(#${markerId})` }));
+          foreground.append(numberDot(fromX + 26, y + (height - 6) / 2));
+          lines.forEach((line, index) => foreground.append(svg('text', { x: fromX + 42, y: y + 12 + index * LINE_HEIGHT, class: 'seq-label' }, line)));
+          widen(fromX - 10, fromX + 42 + Math.max(...lines.map(textWidth)));
+          textList.push({ type: 'step', number: stepNumber, text: fromLane + ': ' + step.text });
+          y += height + 14;
+          return;
+        }
+
+        const toX = laneX(step.to);
+        const lines = wrapText(label, Math.abs(toX - fromX) - 24);
+        y += lines.length * LINE_HEIGHT + 5;   // room for the label above the arrow, clear of the number dot
+        lines.forEach((line, index) => foreground.append(svg('text', {
+          x: (fromX + toX) / 2, y: y - 12 - (lines.length - 1 - index) * LINE_HEIGHT, class: 'seq-label', 'text-anchor': 'middle',
+        }, line)));
+        const direction = toX > fromX ? 1 : -1;
+        foreground.append(svg('line', {
+          x1: fromX + direction * 2, y1: y, x2: toX - direction * 3, y2: y,
+          class: step.reply ? 'seq-arrow reply' : 'seq-arrow', 'marker-end': `url(#${markerId})`,
+        }));
+        foreground.append(numberDot(fromX + direction * 14, y));
+        widen(Math.min(fromX, toX), Math.max(fromX, toX));
+        const toLane = flow.lanes[laneIndex.get(step.to)].name;
+        textList.push({ type: 'step', number: stepNumber, text: fromLane + (step.reply ? ' answers ' : ' → ') + toLane + ': ' + step.text });
+        y += 20;
+      });
+    }
+    drawSteps(flow.steps);
+
+    const height = Math.round(y + 8);
+    flow.lanes.forEach(lane => {
+      const x = laneX(lane.id);
+      background.insertBefore(svg('line', { x1: x, y1: HEADER_HEIGHT + 6, x2: x, y2: height - 6, class: 'seq-lifeline' }), background.firstChild);
+    });
+
+    root.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    root.setAttribute('width', width);
+    root.style.minWidth = Math.round(width * 0.72) + 'px';
+    root.style.maxWidth = width + 'px';
+
+    const scroll = make('div', 'seq-scroll');
+    scroll.append(root);
+
+    // The same diagram as a numbered list (screen readers, copying into notes)
+    const details = make('details', 'seq-text');
+    details.append(make('summary', '', 'Read as text'));
+    const list = make('ol');
+    textList.forEach(item => {
+      const entry = make('li', item.type === 'step' ? '' : 'seq-text-' + item.type, item.text);
+      if (item.type === 'step') entry.value = item.number;
+      list.append(entry);
+    });
+    details.append(list);
+
+    container.replaceChildren(scroll, details);
+  }
+
+  function renderAllFlows() {
+    document.querySelectorAll('.flow-diagram[data-flow]').forEach(container => {
+      try { renderFlow(container, container.dataset.flow); }
+      catch (error) { container.textContent = 'Could not draw this diagram: ' + error.message; }
+    });
+  }
+  // Wait for the Geist font so label widths are measured with the real font.
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(renderAllFlows);
 
   document.querySelectorAll('figure.excerpt').forEach(renderExcerpt);
 })();

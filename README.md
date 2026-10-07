@@ -55,7 +55,7 @@ Their parameters are documented in `src/DynamicFormRenderer.js`.
 
 Every push to `main` runs [.github/workflows/pages.yml](.github/workflows/pages.yml):
 
-1. **Check:** every `.js` file must parse, every `.json` file must be valid, `dev-server.py` must compile, and every code excerpt in `docs/code-guide.html` must still point at real code. Pull requests run this step only.
+1. **Check:** every `.js` file must parse, every `.json` file must be valid, `dev-server.py` must compile, and the code guide (`docs/code-guide.html`) must still match the code: its excerpts, folder tree and feature-flow diagrams. Pull requests run this step only.
 2. **Build:** copy only the files the website needs into `_site/`. `dev-server.py`, this README and `.github/` are not published.
 3. **Deploy:** publish `_site/` to GitHub Pages.
 
@@ -96,7 +96,7 @@ index.html                       Landing page of the hosted demo (links to the d
 Accurex-DynamicFormRenderer.js   Entry point (load this on the page)
 dev-server.py                    Local server for the sample (also fakes the CRM submit API)
 docs/index.html                  Developer documentation portal (Cmd+K search); open via the dev server at /docs/
-docs/code-guide.html             Guided tour of the source for new developers, with live excerpts of the real code
+docs/code-guide.html             Guided tour of the source for new developers: folder structure, feature-flow diagrams, live code excerpts
 docs/theme.js                    Light / dark theme toggle shared by the landing page, docs portal and code guide
 .github/workflows/pages.yml      Checks the code and deploys the site to GitHub Pages on every push to main
 service-worker.js                Stores the page's files so it opens offline
