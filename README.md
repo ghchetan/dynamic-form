@@ -97,6 +97,7 @@ Accurex-DynamicFormRenderer.js   Entry point (load this on the page)
 dev-server.py                    Local server for the sample (also fakes the CRM submit API)
 docs/index.html                  Developer documentation portal (Cmd+K search); open via the dev server at /docs/
 docs/code-guide.html             Guided tour of the source for new developers, with live excerpts of the real code
+docs/theme.js                    Light / dark theme toggle shared by the landing page, docs portal and code guide
 .github/workflows/pages.yml      Checks the code and deploys the site to GitHub Pages on every push to main
 service-worker.js                Stores the page's files so it opens offline
 Accurex-dynamic-form.css         Styles (all classes start with "dfr-")

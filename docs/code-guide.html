@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Accurex Dynamic Form Code Guide</title>
+<script src="theme.js"></script>
 <meta name="description" content="A guided tour of the Accurex Dynamic Form source code for new developers.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -72,6 +73,11 @@ button { font: inherit; color: inherit; }
 .top-links { margin-left: auto; display: flex; align-items: center; gap: 4px; }
 .top-links a { padding: 6px 10px; border-radius: 6px; color: var(--fg-muted); font-size: 14px; white-space: nowrap; }
 .top-links a:hover { background: var(--bg-subtle); color: var(--fg); text-decoration: none; }
+.icon-btn {
+  display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px;
+  border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--fg-muted); cursor: pointer;
+}
+.icon-btn:hover { background: var(--bg-subtle); color: var(--fg); border-color: var(--line); }
 .progress { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; background: var(--accent); }
 
 /* Layout */
@@ -217,6 +223,7 @@ footer.end { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--li
     <a href="./">Docs</a>
     <a class="hide-narrow" href="../sample.html">Demo</a>
     <a href="https://github.com/ghchetan/dynamic-form">GitHub</a>
+    <button class="icon-btn" type="button" data-theme-toggle aria-label="Switch colour theme"></button>
   </nav>
   <div class="progress" id="progress" aria-hidden="true"></div>
 </header>
