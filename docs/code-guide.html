@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Accurex Dynamic Form Code Guide</title>
+<meta name="description" content="A guided tour of the Accurex Dynamic Form source code for new developers.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a long-form book — chapter list on the left, one reading column, real code excerpts loaded live
+   from ../src so they never go stale. Same visual language as the docs portal (Geist, hairlines, Accurex blue). */
+:root {
+  --bg: #ffffff; --bg-subtle: #fafafa; --surface: #ffffff;
+  --fg: #0a0a0a; --fg-muted: #5c636e; --fg-faint: #8b919b;
+  --line: #ebebeb; --line-strong: #d6d8dc;
+  --accent: #1d5fa6; --accent-soft: #eaf1f9;
+  --code-bg: #fafafa; --gutter: #a7acb4;
+  --pass: #2e7d46; --pass-soft: #e5f2e9; --caution: #8f6408; --caution-soft: #fbf1db; --fail: #c0392b; --fail-soft: #f9e4e1;
+  --syn-keyword: #b4235a; --syn-string: #0f7a52; --syn-number: #1d5fa6; --syn-comment: #8b919b; --syn-attr: #7a4fc0; --syn-title: #9a4b0a;
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --radius: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0a0a0a; --bg-subtle: #111111; --surface: #0f0f0f;
+    --fg: #ededed; --fg-muted: #a3a8b0; --fg-faint: #70757d;
+    --line: #1f1f1f; --line-strong: #2f3237;
+    --accent: #6fa8e8; --accent-soft: #0f2238;
+    --code-bg: #0f0f0f; --gutter: #50555c;
+    --pass: #4cc38a; --pass-soft: #0e2a1c; --caution: #e5b94e; --caution-soft: #2d2208; --fail: #ff7a6b; --fail-soft: #331512;
+    --syn-keyword: #ff7ab2; --syn-string: #6bd8a5; --syn-number: #7fb6f2; --syn-comment: #70757d; --syn-attr: #c4a2ff; --syn-title: #f0b37a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0a0a0a; --bg-subtle: #111111; --surface: #0f0f0f;
+  --fg: #ededed; --fg-muted: #a3a8b0; --fg-faint: #70757d;
+  --line: #1f1f1f; --line-strong: #2f3237;
+  --accent: #6fa8e8; --accent-soft: #0f2238;
+  --code-bg: #0f0f0f; --gutter: #50555c;
+  --pass: #4cc38a; --pass-soft: #0e2a1c; --caution: #e5b94e; --caution-soft: #2d2208; --fail: #ff7a6b; --fail-soft: #331512;
+  --syn-keyword: #ff7ab2; --syn-string: #6bd8a5; --syn-number: #7fb6f2; --syn-comment: #70757d; --syn-attr: #c4a2ff; --syn-title: #f0b37a;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-padding-top: 72px; scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-sans); font-size: 15.5px; line-height: 1.7; -webkit-font-smoothing: antialiased; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+button { font: inherit; color: inherit; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+
+/* Top bar */
+.topbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  display: flex; align-items: center; gap: 14px; height: 56px; padding-inline: 16px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: saturate(1.6) blur(10px); -webkit-backdrop-filter: saturate(1.6) blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: center; gap: 10px; color: var(--fg); font-weight: 600; white-space: nowrap; }
+.brand:hover { text-decoration: none; }
+.brand-mark { width: 18px; height: 18px; border-radius: 4px; background: var(--accent); position: relative; flex: none; }
+.brand-mark::after { content: ""; position: absolute; inset: 5px; border-radius: 1.5px; background: var(--bg); }
+.brand-sub { color: var(--fg-muted); font-weight: 500; border-left: 1px solid var(--line-strong); padding-left: 10px; }
+.top-links { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+.top-links a { padding: 6px 10px; border-radius: 6px; color: var(--fg-muted); font-size: 14px; white-space: nowrap; }
+.top-links a:hover { background: var(--bg-subtle); color: var(--fg); text-decoration: none; }
+.progress { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; background: var(--accent); }
+
+/* Layout */
+.layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); max-width: 1180px; margin: 0 auto; }
+.chapters {
+  position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto;
+  padding: 28px 16px 40px; border-right: 1px solid var(--line); font-size: 14px;
+}
+.chapters p { margin: 0 0 8px; padding: 0 10px; font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--fg-faint); }
+.chapters ol { list-style: none; margin: 0; padding: 0; counter-reset: ch -1; }
+.chapters li { counter-increment: ch; }
+.chapters a { display: flex; gap: 10px; padding: 5px 10px; border-radius: 6px; color: var(--fg-muted); line-height: 1.45; }
+.chapters a::before { content: counter(ch); min-width: 18px; font-family: var(--font-mono); font-size: 12px; color: var(--fg-faint); padding-top: 1px; }
+.chapters li.glossary-link { counter-increment: none; }
+.chapters li.glossary-link a::before { content: "·"; }
+.chapters a:hover { background: var(--bg-subtle); color: var(--fg); text-decoration: none; }
+.chapters a.active { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
+.chapters a.active::before { color: var(--accent); }
+.mobile-contents { display: none; }
+
+main { min-width: 0; padding: 48px 56px 120px; }
+.read { max-width: 760px; margin: 0 auto; }
+
+/* Typography */
+.hero-eyebrow, .eyebrow { margin: 0 0 8px; font-size: 13px; font-weight: 500; color: var(--accent); }
+h1 { margin: 0 0 14px; font-size: clamp(30px, 5vw, 40px); line-height: 1.12; letter-spacing: -0.03em; text-wrap: balance; }
+.lead { margin: 0 0 28px; font-size: 18px; line-height: 1.6; color: var(--fg-muted); }
+.chapter { padding-top: 56px; margin-top: 56px; border-top: 1px solid var(--line); }
+.chapter:first-of-type { border-top: 0; margin-top: 8px; padding-top: 24px; }
+.chapter-number { display: block; margin-bottom: 4px; font-family: var(--font-mono); font-size: 12.5px; color: var(--fg-faint); }
+h2 { margin: 0 0 12px; font-size: 28px; line-height: 1.2; letter-spacing: -0.02em; text-wrap: balance; }
+h3 { margin: 36px 0 10px; font-size: 19px; line-height: 1.35; letter-spacing: -0.01em; }
+h4 { margin: 24px 0 6px; font-size: 15.5px; }
+p { margin: 0 0 16px; }
+ul, ol { margin: 0 0 16px; padding-left: 22px; }
+li + li { margin-top: 5px; }
+strong { font-weight: 600; }
+:not(pre) > code { padding: 1px 5px; border-radius: 4px; background: var(--bg-subtle); border: 1px solid var(--line); font-family: var(--font-mono); font-size: 0.86em; overflow-wrap: anywhere; }
+kbd { display: inline-block; padding: 0 5px; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 4px; font-family: var(--font-mono); font-size: 12px; background: var(--surface); }
+
+/* Boxes */
+.box { margin: 0 0 20px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-subtle); }
+.box > :last-child { margin-bottom: 0; }
+.box-title { display: block; margin-bottom: 4px; font-size: 13px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; }
+.box.learn .box-title { color: var(--fg-muted); }
+.box.why { border-color: color-mix(in srgb, var(--accent) 30%, var(--line)); background: var(--accent-soft); }
+.box.why .box-title { color: var(--accent); }
+.box.pitfall { border-color: color-mix(in srgb, var(--caution) 35%, var(--line)); background: var(--caution-soft); }
+.box.pitfall .box-title { color: var(--caution); }
+.box.console { border-style: dashed; background: var(--surface); }
+.box.console .box-title { color: var(--pass); }
+details.check { margin: 0 0 16px; border: 1px dashed var(--line-strong); border-radius: var(--radius); padding: 0 16px; }
+details.check > summary { cursor: pointer; padding: 11px 0; font-weight: 500; }
+details.check > summary::marker { color: var(--accent); }
+details.check[open] > summary { color: var(--accent); }
+details.check > div { padding-bottom: 12px; }
+
+/* Static code blocks */
+pre.code { margin: 0 0 20px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--code-bg); overflow-x: auto; font-family: var(--font-mono); font-size: 13px; line-height: 1.65; }
+pre.code code { font-family: inherit; }
+.code-label { display: block; margin: -6px 0 6px; font-size: 12.5px; color: var(--fg-faint); }
+
+/* Live excerpts from the real source */
+figure.excerpt { margin: 0 0 22px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--code-bg); overflow: hidden; }
+figure.excerpt figcaption {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px;
+  padding: 8px 12px; border-bottom: 1px solid var(--line); font-size: 12.5px; color: var(--fg-muted);
+}
+figure.excerpt .path { font-family: var(--font-mono); color: var(--fg); }
+figure.excerpt .range { font-family: var(--font-mono); color: var(--fg-faint); }
+figure.excerpt .github { margin-left: auto; }
+.code-scroll { display: flex; overflow-x: auto; font-family: var(--font-mono); font-size: 13px; line-height: 1.65; }
+.code-scroll.collapsed { max-height: 420px; overflow-y: hidden; position: relative; }
+.gutter { flex: none; padding: 12px 10px 12px 14px; text-align: right; color: var(--gutter); user-select: none; white-space: pre; border-right: 1px solid var(--line); }
+.code-scroll pre { margin: 0; padding: 12px 16px; flex: 1; min-width: max-content; }
+.code-scroll pre code { font-family: inherit; }
+.expand { display: block; width: 100%; padding: 8px; border: 0; border-top: 1px solid var(--line); background: var(--surface); color: var(--accent); font-size: 13px; font-weight: 500; cursor: pointer; }
+.excerpt-loading, .excerpt-error { padding: 14px 16px; font-size: 13.5px; color: var(--fg-muted); }
+.excerpt-error { color: var(--caution); }
+.hljs-keyword, .hljs-literal, .hljs-built_in, .hljs-selector-tag { color: var(--syn-keyword); }
+.hljs-string, .hljs-regexp, .hljs-template-variable, .hljs-subst { color: var(--syn-string); }
+.hljs-number, .hljs-symbol { color: var(--syn-number); }
+.hljs-comment, .hljs-meta { color: var(--syn-comment); font-style: italic; }
+.hljs-attr, .hljs-attribute, .hljs-property, .hljs-variable, .hljs-params { color: var(--syn-attr); }
+.hljs-title, .hljs-name, .hljs-tag, .hljs-class { color: var(--syn-title); }
+
+/* Notes under an excerpt */
+ol.notes { list-style: none; counter-reset: note; padding: 0; margin: -8px 0 22px; }
+ol.notes > li { position: relative; padding-left: 30px; counter-increment: note; }
+ol.notes > li::before {
+  content: counter(note); position: absolute; left: 0; top: 3px; width: 20px; height: 20px; border-radius: 50%;
+  display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+}
+
+/* Tables */
+.table-wrap { margin: 0 0 22px; border: 1px solid var(--line); border-radius: var(--radius); overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.5; }
+th { text-align: left; padding: 8px 12px; background: var(--bg-subtle); border-bottom: 1px solid var(--line); font-weight: 500; font-size: 12.5px; color: var(--fg-muted); white-space: nowrap; }
+td { padding: 9px 12px; border-top: 1px solid var(--line); vertical-align: top; }
+tr:first-child td { border-top: 0; }
+td.mono, td:first-child.mono { font-family: var(--font-mono); font-size: 12.5px; white-space: nowrap; }
+
+/* Startup sequence */
+.sequence { list-style: none; padding: 0; margin: 0 0 24px; counter-reset: seq; border-left: 1px solid var(--line-strong); }
+.sequence > li { position: relative; padding: 0 0 14px 24px; counter-increment: seq; }
+.sequence > li::before {
+  content: counter(seq); position: absolute; left: -11px; top: 1px; width: 22px; height: 22px; border-radius: 50%;
+  display: grid; place-items: center; background: var(--bg); border: 1px solid var(--line-strong);
+  font-family: var(--font-mono); font-size: 11px; color: var(--fg-muted);
+}
+.sequence > li > b { display: block; font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--accent); }
+.sequence > li > span { color: var(--fg-muted); font-size: 14.5px; }
+
+/* Layers diagram */
+.layers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0 0 24px; }
+.layer { padding: 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.layer b { display: block; margin-bottom: 4px; }
+.layer code { font-size: 12px; }
+.layer span { display: block; font-size: 13.5px; color: var(--fg-muted); line-height: 1.5; }
+
+.glossary dt { margin-top: 14px; font-weight: 600; }
+.glossary dd { margin: 2px 0 0; color: var(--fg-muted); }
+
+footer.end { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 13.5px; color: var(--fg-faint); }
+
+@media (max-width: 900px) {
+  .layout { display: block; }
+  .chapters { display: none; }
+  .mobile-contents { display: block; margin: 0 0 24px; border: 1px solid var(--line); border-radius: var(--radius); padding: 0 14px; }
+  .mobile-contents summary { padding: 10px 0; cursor: pointer; font-weight: 500; }
+  .mobile-contents ol { margin: 0 0 12px; }
+  main { padding: 28px 16px 80px; }
+  .brand-sub, .top-links a.hide-narrow { display: none; }
+  .layers { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"></span>Accurex Dynamic Form <span class="brand-sub">Code guide</span></a>
+  <nav class="top-links" aria-label="Other pages">
+    <a href="./">Docs</a>
+    <a class="hide-narrow" href="../sample.html">Demo</a>
+    <a href="https://github.com/ghchetan/dynamic-form">GitHub</a>
+  </nav>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+</header>
+
+<div class="layout">
+  <nav class="chapters" aria-label="Chapters">
+    <p>Chapters</p>
+    <ol id="chapterList"></ol>
+  </nav>
+
+  <main id="top">
+    <div class="read">
+
+      <p class="hero-eyebrow">Code guide · for new developers</p>
+      <h1>How the code works</h1>
+      <p class="lead">A guided tour of the source, in the order you should read it. Every code excerpt on this page is loaded live from the real files, so what you read is what runs. Plan on about two hours, with the demo open in another tab.</p>
+
+      <details class="mobile-contents"><summary>Chapters</summary><ol id="chapterListMobile"></ol></details>
+
+      <!-- ═════════════ 0 ═════════════ -->
+      <section class="chapter" id="before-you-start" data-title="Before you start">
+        <span class="chapter-number">Chapter 0</span>
+        <h2>Before you start</h2>
+
+        <h3>What you should already know</h3>
+        <p>Basic JavaScript: variables, functions, objects, arrays and loops. Everything else you will meet (modules, classes, <code>async</code>/<code>await</code>, closures) is explained in <a href="#js-primer">chapter 2</a> with examples from this codebase. You don't need React, a build tool or npm. This project uses none of them.</p>
+
+        <h3>Run it on your machine</h3>
+        <pre class="code"><code class="language-bash">git clone https://github.com/ghchetan/dynamic-form.git
+cd dynamic-form
+python3 dev-server.py</code></pre>
+        <p>Open <code>http://localhost:8080/sample.html</code>. Then open your browser's developer tools (<kbd>⌥</kbd> <kbd>⌘</kbd> <kbd>I</kbd> on a Mac, <kbd>F12</kbd> on Windows) and keep the <strong>Console</strong> tab open while you read.</p>
+
+        <div class="box console">
+          <span class="box-title">Try it in the console</span>
+          <p>The sample page puts the form on <code>window.formRenderer</code> so you can poke at it:</p>
+          <pre class="code"><code class="language-js">formRenderer.values              // every answer, as one object
+formRenderer.fields.length       // how many field objects were built
+formRenderer.getDeficientFields().map(f =&gt; f.config.label)</code></pre>
+        </div>
+
+        <h3>Reading order</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Chapter</th><th>Files</th><th>Time</th></tr></thead>
+          <tbody>
+            <tr><td><a href="#big-picture">1 · The big picture</a></td><td class="mono">sample.html</td><td>10 min</td></tr>
+            <tr><td><a href="#js-primer">2 · JavaScript you will meet</a></td><td>—</td><td>15 min</td></tr>
+            <tr><td><a href="#main-class">3 · The main class</a></td><td class="mono">src/DynamicFormRenderer.js</td><td>20 min</td></tr>
+            <tr><td><a href="#dom">4 · Building HTML safely</a></td><td class="mono">src/utils/dom.js</td><td>5 min</td></tr>
+            <tr><td><a href="#fields">5 · Fields</a></td><td class="mono">src/fields/</td><td>20 min</td></tr>
+            <tr><td><a href="#rules">6 · Rules and statuses</a></td><td class="mono">src/evaluators/, src/core/</td><td>10 min</td></tr>
+            <tr><td><a href="#sections">7 · Sections and widgets</a></td><td class="mono">src/sections/</td><td>10 min</td></tr>
+            <tr><td><a href="#actions">8 · Buttons and actions</a></td><td class="mono">src/actions/</td><td>10 min</td></tr>
+            <tr><td><a href="#offline">9 · Working offline</a></td><td class="mono">src/offline/, service-worker.js</td><td>20 min</td></tr>
+            <tr><td><a href="#styles">10 · Styles</a></td><td class="mono">Accurex-dynamic-form.css</td><td>5 min</td></tr>
+            <tr><td><a href="#tooling">11 · Tools around the code</a></td><td class="mono">dev-server.py, .github/</td><td>5 min</td></tr>
+            <tr><td><a href="#debugging">12 · Debugging recipes</a></td><td>—</td><td>5 min</td></tr>
+            <tr><td><a href="#first-tasks">13 · Your first tasks</a></td><td>—</td><td>1 hour+</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <!-- ═════════════ 1 ═════════════ -->
+      <section class="chapter" id="big-picture" data-title="The big picture">
+        <span class="chapter-number">Chapter 1</span>
+        <h2>The big picture</h2>
+        <p>The CRM decides <em>what</em> the form asks. This code decides <em>how</em> it looks and behaves. Nobody writes HTML for a form: the code reads a JSON description and builds the page from it.</p>
+
+        <div class="layers">
+          <div class="layer"><b>1 · Configuration</b><code>accurex-startup-report-config.json</code><span>Which questions, which rules, which buttons. Comes from the CRM API.</span></div>
+          <div class="layer"><b>2 · Framework</b><code>src/</code><span>Reads the configuration, builds the page, judges answers, saves and sends.</span></div>
+          <div class="layer"><b>3 · Host page</b><code>sample.html</code><span>The website page. Says where to draw the form and what to do on Submit.</span></div>
+        </div>
+
+        <h3>What happens when the page loads</h3>
+        <p>Follow this once with the debugger and the rest of the codebase will make sense. Each step names the function that does it.</p>
+        <ol class="sequence">
+          <li><b>sample.html loads Accurex-DynamicFormRenderer.js</b><span>The browser downloads it and every file it imports from <code>src/</code>. The entry file puts the class on <code>window</code>.</span></li>
+          <li><b>new DynamicFormRenderer({ container, configUrl, … })</b><span>The constructor only stores the options. Nothing is drawn yet.</span></li>
+          <li><b>render() → loadConfig()</b><span>Downloads the JSON from the CRM (or uses an offline copy).</span></li>
+          <li><b>resetState(), setHeaderValues(), getLayout()</b><span>Empties everything from a previous build and reads the layout.</span></li>
+          <li><b>chooseDraftStore(), new OfflineSync()</b><span>Decides where drafts live and whether there's an offline outbox.</span></li>
+          <li><b>buildForm()</b><span>Creates the header, sections, unit tabs, reviewer card and action bar. Every field in the JSON becomes a field object and registers its default value.</span></li>
+          <li><b>applyDraft()</b><span>If a saved draft exists, its values replace the defaults.</span></li>
+          <li><b>refresh()</b><span>Every field and widget draws its current state: chips, colours, totals.</span></li>
+          <li><b>offlineSync.start(), setUpOfflinePage()</b><span>Sends reports left from last time and stores the page's files for offline use.</span></li>
+        </ol>
+        <p>Here is that sequence in the real code. Read the comments; they say the same thing.</p>
+        <figure class="excerpt" data-file="src/DynamicFormRenderer.js" data-start="    async render() {"></figure>
+        <ol class="notes">
+          <li><code>this.providedConfig || await loadConfig(...)</code>: if the page passed a config object, use it; otherwise download it. <code>await</code> pauses <code>render()</code> until the download finishes, without freezing the page.</li>
+          <li><code>this.offlineSync?.start()</code>: the <code>?.</code> means "only if <code>offlineSync</code> exists". In online-only mode it's <code>null</code> and the call is skipped.</li>
+          <li><code>setUpOfflinePage(...)</code> has no <code>await</code> on purpose: storing files for offline use shouldn't delay showing the form.</li>
+        </ol>
+      </section>
+
+      <!-- ═════════════ 2 ═════════════ -->
+      <section class="chapter" id="js-primer" data-title="JavaScript you will meet">
+        <span class="chapter-number">Chapter 2</span>
+        <h2>JavaScript you will meet</h2>
+        <p>Modern JavaScript features used throughout the code, each with a short example. Skim it now and come back when something looks unfamiliar.</p>
+
+        <h3>Modules: <code>import</code> and <code>export</code></h3>
+        <p>Each file is a module. It shares things with <code>export</code> and uses other files' things with <code>import</code>. Paths are relative and must end in <code>.js</code>, because the browser loads them directly.</p>
+        <pre class="code"><code class="language-js">// src/utils/format.js
+export function isEmpty(value) { /* ... */ }
+
+// src/fields/BaseField.js
+import { isEmpty } from '../utils/format.js';</code></pre>
+        <p>That's why the page needs <code>&lt;script type="module"&gt;</code>: only module scripts may use <code>import</code>.</p>
+
+        <h3>Classes, <code>extends</code> and <code>super</code></h3>
+        <p>A class is a blueprint for objects. <code>extends</code> means "start from this other class"; <code>super(...)</code> runs the parent's constructor or method. Field types use this: <code>SegmentedField</code> starts from <code>BaseField</code> and changes only what's different.</p>
+        <pre class="code"><code class="language-js">export class SegmentedField extends BaseField {
+    constructor(config, form, context) {
+        super(config, form, context);   // let BaseField set up config, form, context…
+        this.showsStatusChip = true;    // …then change one setting
+    }
+}</code></pre>
+
+        <h3>Arrow functions and <code>this</code></h3>
+        <p>Inside a normal <code>function</code>, <code>this</code> depends on who calls it. When the browser calls an event listener, <code>this</code> would be <code>window</code>, not our object. An arrow function (<code>() =&gt; …</code>) keeps the <code>this</code> of the place it was written. That's why event handlers in this code are arrow functions:</p>
+        <pre class="code"><code class="language-js">// src/offline/OfflineSync.js — `this` stays the OfflineSync object
+this.handleOnline = () =&gt; {
+    this.form.refresh();
+    if (this.autoSync) this.syncNow();
+};
+window.addEventListener('online', this.handleOnline);</code></pre>
+
+        <h3><code>?.</code> and <code>??</code></h3>
+        <pre class="code"><code class="language-js">this.callbacks.onFieldChange?.(name, value)   // call it only if the website passed one
+this.config.layout?.columnSpan                // undefined instead of an error if there's no layout
+this.config.defaultValue ?? ''                // '' only when defaultValue is null or undefined</code></pre>
+        <div class="box pitfall"><span class="box-title">Pitfall: <code>??</code> is not <code>||</code></span><p><code>0 || 5</code> is <code>5</code>, but <code>0 ?? 5</code> is <code>0</code>. Use <code>??</code> for defaults when <code>0</code>, <code>false</code> or <code>''</code> are real answers. A checkbox's <code>false</code> or an amp reading of <code>0</code> must not be replaced by a default.</p></div>
+
+        <h3>Destructuring and default parameters</h3>
+        <pre class="code"><code class="language-js">// Pull properties out of an object, with a default for the whole object:
+setValue(name, value, { notify = true } = {}) { ... }
+
+form.setValue('u2Voltage', '480');                    // notify is true
+form.setValue('actualHours', 1.25, { notify: false }); // notify is false</code></pre>
+
+        <h3>Spread: <code>...</code></h3>
+        <pre class="code"><code class="language-js">const sections = [...(this.config.sections || [])];  // a copy of the array…
+sections.sort((a, b) =&gt; (a.order || 0) - (b.order || 0)); // …so sorting doesn't change the config
+
+values: { ...this.values }                            // a copy of an object</code></pre>
+
+        <h3><code>async</code>, <code>await</code> and Promises</h3>
+        <p>Downloading, reading IndexedDB and waiting for a timer take time. A <strong>Promise</strong> is an object meaning "the answer will arrive later". Inside an <code>async</code> function, <code>await</code> waits for it without freezing the page. Errors arrive as exceptions you catch with <code>try</code>/<code>catch</code>.</p>
+        <pre class="code"><code class="language-js">async function loadReport() {
+    try {
+        const response = await fetch('/api/report');   // waits, page stays responsive
+        return await response.json();
+    } catch (error) {
+        console.error('Could not load the report', error);
+    }
+}</code></pre>
+
+        <h3><code>Map</code>, <code>Set</code> and <code>Object.entries</code></h3>
+        <pre class="code"><code class="language-js">this.fieldsByName = new Map();          // key → value, with .get(), .set(), .has()
+this.fieldsByName.set('u4Mark', field);
+this.fieldsByName.get('u4Mark');
+
+for (const [name, value] of Object.entries({ a: 1, b: 2 })) { … }   // loop over an object</code></pre>
+
+        <h3>Closures</h3>
+        <p>A function remembers the variables around it when it was created, even after the outer function has finished. The section code relies on this: each section's <code>refresh</code> remembers its own elements.</p>
+        <pre class="code"><code class="language-js">function renderCounter() {
+    const label = document.createElement('span');   // lives on inside refresh()
+    function refresh(count) { label.textContent = count + ' items'; }
+    return { element: label, refresh };
+}
+const counter = renderCounter();
+counter.refresh(3);   // still updates the same label</code></pre>
+        <p>You'll see this pattern again in <a href="#sections">chapter 7</a>.</p>
+
+        <details class="check"><summary>Check yourself: why must event handlers here be arrow functions?</summary>
+          <div><p>Because the browser calls them, and with a normal <code>function</code> the value of <code>this</code> would be the window or the element, not our object. <code>this.form</code> would then be <code>undefined</code>. An arrow function keeps <code>this</code> from where it was written.</p></div>
+        </details>
+      </section>
+
+      <!-- ═════════════ 3 ═════════════ -->
+      <section class="chapter" id="main-class" data-title="The main class">
+        <span class="chapter-number">Chapter 3</span>
+        <h2>The main class</h2>
+        <p><code>DynamicFormRenderer</code> is the conductor. It builds the page, owns every value, and tells everything else when to update. Every other part of the code gets a reference to it, usually called <code>form</code>.</p>
+
+        <h3>The front door</h3>
+        <p>The page loads only one file. It makes the class available in two ways and exports the registries, so a website can add its own field types without editing the package.</p>
+        <figure class="excerpt" data-file="Accurex-DynamicFormRenderer.js" data-start="import { DynamicFormRenderer } from './src/DynamicFormRenderer.js';"></figure>
+
+        <h3>What the form remembers</h3>
+        <p>All state lives in a handful of properties, reset at the start of every <code>render()</code>. The most important line is the first: <strong>all values live in <code>this.values</code></strong>, a plain object of name → value.</p>
+        <figure class="excerpt" data-file="src/DynamicFormRenderer.js" data-start="    resetState() {"></figure>
+
+        <h3>Two ways things join the form</h3>
+        <p>Fields join by calling <code>registerField()</code>, which also stores their starting values. Blocks that show information collected from many fields (deficiency list, progress chips, tab dots) join with <code>addWidget()</code>.</p>
+        <figure class="excerpt" data-file="src/DynamicFormRenderer.js" data-start="    registerField(field) {"></figure>
+        <ol class="notes">
+          <li><code>if (!(name in this.values))</code>: the first field to claim a name sets its default. Header values such as <code>reportStatus</code> were set earlier by <code>setHeaderValues()</code>, and are not overwritten.</li>
+        </ol>
+        <figure class="excerpt" data-file="src/DynamicFormRenderer.js" data-start="    addWidget(widget) {"></figure>
+        <ol class="notes">
+          <li>It returns <code>widget.element</code> so you can write <code>shell.append(this.addWidget(renderHeader(this)))</code> in one line: register it <em>and</em> put it on the page.</li>
+          <li>A section may return <code>null</code> (for example, no reviewer in the config). <code>addWidget(null)</code> returns <code>null</code>, and <code>appendChildren()</code> skips it.</li>
+        </ol>
+
+        <h3>The loop: <code>setValue</code> → <code>refresh</code></h3>
+        <p>This is the heart of the framework. There is exactly one way to change a value, and after every change everything redraws from <code>this.values</code>.</p>
+        <figure class="excerpt" data-file="src/DynamicFormRenderer.js" data-start="    setValue(name, value, { notify = true } = {}) {"></figure>
+        <figure class="excerpt" data-file="src/DynamicFormRenderer.js" data-start="    refresh() {"></figure>
+        <ol class="notes">
+          <li>Step 1 runs before step 2 so that a calculated value like "Variance" is up to date before anything displays it.</li>
+          <li><code>widget.refresh?.()</code>: some widgets (a plain card) have nothing to update, so they have no <code>refresh</code>. The <code>?.</code> skips them.</li>
+        </ol>
+        <div class="box why"><span class="box-title">Why redraw everything?</span><p>Updating only "what changed" is faster, but every new feature must then remember what to update, and forgetting is how bugs happen. Redrawing from one source of truth is always correct, and with about 85 values it takes well under a millisecond.</p></div>
+
+        <h3>Building the page</h3>
+        <p><code>buildForm()</code> creates the page top to bottom. Read it next to the demo and you'll see each block appear in the same order.</p>
+        <figure class="excerpt" data-file="src/DynamicFormRenderer.js" data-start="    buildForm(draft) {"></figure>
+
+        <details class="check"><summary>Check yourself: you set <code>formRenderer.values.u4Mark = 'CP-9'</code> in the console. Why doesn't the tab change?</summary>
+          <div><p>Nothing called <code>refresh()</code>. Changing the object directly skips the loop. Run <code>formRenderer.refresh()</code> and the tab updates, or use <code>formRenderer.setValue('u4Mark', 'CP-9')</code>, which does both and also tells the website through <code>onFieldChange</code>.</p></div>
+        </details>
+      </section>
+
+      <!-- ═════════════ 4 ═════════════ -->
+      <section class="chapter" id="dom" data-title="Building HTML safely">
+        <span class="chapter-number">Chapter 4</span>
+        <h2>Building HTML safely</h2>
+        <p>Every element on the page is created with one small helper, <code>el()</code>, instead of writing HTML strings.</p>
+        <figure class="excerpt" data-file="src/utils/dom.js" data-start="export function el(tag, options = {}, children = []) {"></figure>
+        <ol class="notes">
+          <li><code>element.textContent = text</code> puts text in as text. If a CRM label contains <code>&lt;img src=x onerror=alert(1)&gt;</code>, the page shows those characters instead of running them. Using <code>innerHTML</code> with config text would run it. This is called an XSS (cross-site scripting) attack.</li>
+          <li><code>appendChildren</code> skips <code>null</code>, so optional parts can be written inline: <code>section.title ? el('h3', …) : null</code>.</li>
+        </ol>
+        <figure class="excerpt" data-file="src/utils/dom.js" data-start="export function button("></figure>
+        <div class="box pitfall"><span class="box-title">Pitfall</span><p>A plain <code>&lt;button&gt;</code> inside a <code>&lt;form&gt;</code> submits the form and reloads the page. Always create buttons with <code>button()</code>, which sets <code>type="button"</code>.</p></div>
+      </section>
+
+      <!-- ═════════════ 5 ═════════════ -->
+      <section class="chapter" id="fields" data-title="Fields">
+        <span class="chapter-number">Chapter 5</span>
+        <h2>Fields</h2>
+        <p>Each question in the form is a <strong>field object</strong>, made from a class in <code>src/fields/</code>. All field classes share one parent, <code>BaseField</code>, which does everything common, and each type changes only what's different.</p>
+
+        <h3>From JSON to the right class: the registry</h3>
+        <p>A <strong>registry</strong> is a plain object that maps a name from the JSON to the code that handles it. To support a new field type, you add one line here.</p>
+        <figure class="excerpt" data-file="src/fields/index.js" data-start="export const FIELD_TYPES = {"></figure>
+        <figure class="excerpt" data-file="src/fields/index.js" data-start="export function createField("></figure>
+        <ol class="notes">
+          <li>An unknown type still works: it falls back to a text box and warns in the console. A typo in the CRM never breaks the whole page.</li>
+          <li><code>new FieldClass(...)</code>: <code>FieldClass</code> is a variable holding a class, chosen at runtime from the registry. Classes are values in JavaScript.</li>
+        </ol>
+
+        <h3>BaseField draws the frame, subclasses fill it in</h3>
+        <p><code>render()</code> fixes the order of the parts. Subclasses override single parts, mostly <code>renderControl()</code>. This is a classic design pattern called a <em>template method</em>.</p>
+        <figure class="excerpt" data-file="src/fields/BaseField.js" data-start="    render() {"></figure>
+        <figure class="excerpt" data-file="src/fields/BaseField.js" data-start="    refresh() {"></figure>
+        <ol class="notes">
+          <li>Every field type gets status chips, the red "required" outline, <code>statusRules</code> colours and photo thumbnails for free, just by calling <code>super.refresh()</code>.</li>
+        </ol>
+
+        <h3>A whole field type, start to finish</h3>
+        <p><code>SegmentedField</code> is the Yes · No · N/A row. It's short, and it shows every idea in this chapter.</p>
+        <figure class="excerpt" data-file="src/fields/SegmentedField.js" data-start="export class SegmentedField extends BaseField {"></figure>
+        <ol class="notes">
+          <li><code>constructor</code>: asks for a status chip and prepares a list for its buttons.</li>
+          <li><code>labelTargetId()</code> returns <code>null</code>: there's no single input for the label's <code>for</code> attribute to point at.</li>
+          <li><code>renderControl()</code>: each button just calls <code>this.form.setValue(...)</code>. The button doesn't change its own colour; <code>refresh()</code> does that, like everything else.</li>
+          <li><code>refresh()</code>: calls <code>super.refresh()</code> first, then marks the chosen button. <code>aria-pressed</code> tells screen readers which one is selected.</li>
+        </ol>
+
+        <h3>A field with two values</h3>
+        <p>A tolerance field stores a reference and a reading. It overrides <code>getDefaultValues()</code> to return both names, and the form registers both.</p>
+        <figure class="excerpt" data-file="src/fields/ToleranceField.js" data-start="    getDefaultValues() {"></figure>
+
+        <h3>A field that calculates</h3>
+        <figure class="excerpt" data-file="src/fields/CalculatedField.js" data-start="    recalculate() {"></figure>
+        <div class="box pitfall"><span class="box-title">Pitfall: infinite loops</span><p><code>setValue()</code> calls <code>refresh()</code>, and <code>refresh()</code> calls <code>recalculate()</code>. If <code>recalculate()</code> used <code>setValue()</code>, the page would loop forever and freeze. That's why it writes to <code>form.values</code> directly. The comment above the method warns about exactly this.</p></div>
+
+        <details class="check"><summary>Check yourself: which methods would a new "rating 1–5" field need?</summary>
+          <div><p>Only <code>renderControl()</code> (draw the five buttons, each calling <code>setValue</code>) and <code>refresh()</code> (call <code>super.refresh()</code>, then highlight the chosen score). Label, help text, status chip, photos and progress tracking all come from <code>BaseField</code>. Then add one line to <code>FIELD_TYPES</code>. The docs walk through it in <a href="./#learn-custom-field">Add a field type</a>.</p></div>
+        </details>
+      </section>
+
+      <!-- ═════════════ 6 ═════════════ -->
+      <section class="chapter" id="rules" data-title="Rules and statuses">
+        <span class="chapter-number">Chapter 6</span>
+        <h2>Rules and statuses</h2>
+        <p>Three small modules decide what's good and what isn't. None of them touch the page. They take data in and return an answer, which makes them easy to read and easy to test.</p>
+
+        <h3>Evaluators: is this answer OK?</h3>
+        <p>Another registry. The JSON says <code>"evaluation": { "type": "expectedValue", "expectedValue": "Yes" }</code>, and <code>type</code> picks the function.</p>
+        <figure class="excerpt" data-file="src/evaluators/index.js" data-start="    expectedValue(rule, value) {"></figure>
+        <figure class="excerpt" data-file="src/evaluators/index.js" data-start="export function evaluateStatus(rule, input) {"></figure>
+
+        <h3>Roll-ups: how is the whole unit doing?</h3>
+        <p>A <strong>pure function</strong> gets everything it needs as arguments and returns a result, with no side effects. That makes it easy to test: same input, same output. Notice the shape too: a list of early <code>return</code>s, most important first. Read it top to bottom like a checklist.</p>
+        <figure class="excerpt" data-file="src/core/status.js" data-start="export function getUnitStatus(fields, hasNotes) {"></figure>
+
+        <h3>Formulas without the danger</h3>
+        <p>Calculated fields run formulas like <code>{actualHours} - {expectedHours}</code> that come from the CRM. Running text as code is normally dangerous, so the code first replaces field names with numbers and then refuses anything that isn't digits and operators.</p>
+        <figure class="excerpt" data-file="src/utils/formula.js" data-start="export function evaluateFormula(formula, values) {"></figure>
+        <figure class="excerpt" data-file="src/utils/formula.js" data-start="function runExpression("></figure>
+        <ol class="notes">
+          <li>The safety comes from <code>ONLY_NUMBERS_AND_OPERATORS</code>: after the check, no letters remain, so no function or variable can be named. <code>Function(...)</code> only ever sees arithmetic.</li>
+          <li><code>try</code>/<code>catch</code> turns a malformed formula into a warning and a safe result (0 or false) instead of a crash.</li>
+        </ol>
+      </section>
+
+      <!-- ═════════════ 7 ═════════════ -->
+      <section class="chapter" id="sections" data-title="Sections and widgets">
+        <span class="chapter-number">Chapter 7</span>
+        <h2>Sections and widgets</h2>
+        <p>Fields are classes; page blocks are plain <strong>functions</strong>. Each one builds its elements and returns an object with two things:</p>
+        <pre class="code"><code class="language-js">return {
+    element,   // what to put on the page
+    refresh,   // optional: called after every change, to update what this block shows
+};</code></pre>
+        <p>That small object is a <strong>widget</strong>. The section registry works exactly like the field registry: <code>SECTION_TYPES</code> maps <code>"card"</code>, <code>"deficiencySummary"</code>, <code>"hoursTracker"</code> and <code>"equipmentStatusSummary"</code> to their functions.</p>
+
+        <h3>A complete widget: the accordion</h3>
+        <p>One collapsible section inside a unit tab, with its "3/7" progress chip. Notice how <code>refresh</code> and <code>setOpen</code> use <code>body</code>, <code>head</code> and <code>fields</code> long after <code>renderAccordion</code> has returned: that's a closure (<a href="#js-primer">chapter 2</a>).</p>
+        <figure class="excerpt" data-file="src/sections/accordion.js" data-start="export function renderAccordion(form, section, unit) {"></figure>
+        <ol class="notes">
+          <li><code>const context = { unit, section: { id: section.id, open: () =&gt; setOpen(true) } }</code>: every field in this accordion gets a function that opens it. Later, "View" in the deficiency list calls <code>field.context.section.open()</code> without knowing anything about accordions.</li>
+          <li><code>refresh()</code> asks <code>summarizeFields()</code> from <code>core/status.js</code> for the numbers. The widget only displays them; the rules live elsewhere.</li>
+        </ol>
+
+        <h3>A performance trick: skip when nothing changed</h3>
+        <p>The site timer calls <code>refresh()</code> every second. Rebuilding the deficiency list every second would swap its "View" buttons out from under the user's finger. So the list first builds a short text "signature" of what it would show, and does nothing if it matches last time.</p>
+        <figure class="excerpt" data-file="src/sections/deficiencySummary.js" data-start="    function refresh() {"></figure>
+      </section>
+
+      <!-- ═════════════ 8 ═════════════ -->
+      <section class="chapter" id="actions" data-title="Buttons and actions">
+        <span class="chapter-number">Chapter 8</span>
+        <h2>Buttons and actions</h2>
+        <p>Every configured button (Save draft, Email, Start timer, Submit for review…) has a <code>type</code>, and a third registry maps it to a function.</p>
+        <figure class="excerpt" data-file="src/actions/index.js" data-start="export const ACTION_HANDLERS = {"></figure>
+        <figure class="excerpt" data-file="src/actions/index.js" data-start="export function runAction("></figure>
+        <ol class="notes">
+          <li>Unknown types aren't errors: they're handed to the website's <code>onAction</code> callback, so a site can add special buttons without changing the package.</li>
+        </ol>
+
+        <h3>Workflow: <code>try</code>, <code>catch</code>, <code>finally</code></h3>
+        <p>"Submit for review" changes the status, then asks the website to send the report. If sending fails, the status is put back. <code>finally</code> runs whether it worked or not, so the button is always re-enabled.</p>
+        <figure class="excerpt" data-file="src/actions/workflowAction.js" data-start="export async function runWorkflow("></figure>
+
+        <h3>Timers: <code>setInterval</code></h3>
+        <figure class="excerpt" data-file="src/actions/timerAction.js" data-start="export function toggleTimer("></figure>
+        <ol class="notes">
+          <li>The interval id is stored in <code>form.timers</code> so a second click can stop it, and so <code>destroy()</code> can stop every timer. A timer that's never cleared keeps running after the form is gone.</li>
+          <li><code>{ notify: false }</code> stops the website from receiving an <code>onFieldChange</code> call every second.</li>
+        </ol>
+      </section>
+
+      <!-- ═════════════ 9 ═════════════ -->
+      <section class="chapter" id="offline" data-title="Working offline">
+        <span class="chapter-number">Chapter 9</span>
+        <h2>Working offline</h2>
+        <p>Technicians work in basements without signal. Three browser features keep the form working:</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Browser feature</th><th>Stores</th><th>Code</th></tr></thead>
+          <tbody>
+            <tr><td>IndexedDB</td><td>Drafts with photos, the outbox of unsent reports, a copy of the config</td><td class="mono">src/offline/</td></tr>
+            <tr><td>localStorage</td><td>Drafts without photos, when IndexedDB isn't in use</td><td class="mono">src/offline/draftStores.js</td></tr>
+            <tr><td>Service worker</td><td>The page's files, so it opens with no network</td><td class="mono">service-worker.js</td></tr>
+          </tbody>
+        </table></div>
+
+        <h3>Turning events into promises</h3>
+        <p>IndexedDB is old and reports results through events (<code>onsuccess</code>, <code>onerror</code>). <code>database.js</code> wraps those events in Promises once, so the rest of the code can simply <code>await</code>.</p>
+        <figure class="excerpt" data-file="src/offline/database.js" data-start="function openDatabase() {"></figure>
+        <ol class="notes">
+          <li><code>databasePromise</code> is kept in a module variable, so the database is opened once and shared by every call.</li>
+          <li><code>onupgradeneeded</code> runs the first time on a device and creates the "tables" (object stores).</li>
+        </ol>
+        <figure class="excerpt" data-file="src/offline/database.js" data-start="async function runInStore("></figure>
+
+        <h3>Same interface, two storages</h3>
+        <p>Drafts can live in IndexedDB (with photos) or localStorage (text only). Both store objects have the same three methods, <code>save</code>, <code>load</code> and <code>remove</code>, so the form doesn't care which one it got. This is the <em>strategy</em> pattern.</p>
+        <figure class="excerpt" data-file="src/offline/draftStores.js" data-start="export function chooseDraftStore("></figure>
+
+        <h3>The outbox and sync</h3>
+        <p>When <code>submit()</code> can't reach the server, the report goes into the outbox. <code>OfflineSync</code> sends it later: when the browser says it's online again, every 30 seconds, or when the user taps "Send now".</p>
+        <figure class="excerpt" data-file="src/offline/OfflineSync.js" data-start="    async sendWaitingEntries() {"></figure>
+        <ol class="notes">
+          <li><code>for…of</code> with <code>await</code> sends one report at a time, oldest first, so the CRM receives them in order.</li>
+          <li>A temporary failure (no network, server down) <code>return</code>s and tries again later. A refusal (e.g. HTTP 400) is kept but marked failed, so one bad report can't block the others forever.</li>
+        </ol>
+        <figure class="excerpt" data-file="src/offline/OfflineSync.js" data-start="function withOutboxLock("></figure>
+
+        <h3>The service worker</h3>
+        <p>A service worker is a script the browser keeps running in the background for a site. It can answer the page's requests itself. Ours answers from saved copies when the network is down. It runs separately from the page, so it can't see <code>form</code> or the DOM; the page talks to it with <code>postMessage</code>.</p>
+        <figure class="excerpt" data-file="service-worker.js" data-start="async function networkFirst(event) {"></figure>
+        <ol class="notes">
+          <li>"Network first": always try for the newest file, so a release reaches users straight away, but fall back to the saved copy after 4 seconds or when offline.</li>
+          <li><code>event.waitUntil(...)</code> tells the browser to keep the worker alive until the copy is saved, even after the answer has been sent.</li>
+        </ol>
+        <p>Which files get saved? The page tells the worker, using the browser's list of everything it downloaded:</p>
+        <figure class="excerpt" data-file="src/offline/serviceWorkerSetup.js" data-start="function listFilesThisPageUses() {"></figure>
+      </section>
+
+      <!-- ═════════════ 10 ═════════════ -->
+      <section class="chapter" id="styles" data-title="Styles">
+        <span class="chapter-number">Chapter 10</span>
+        <h2>Styles</h2>
+        <ul>
+          <li><strong>One stylesheet</strong>, <code>Accurex-dynamic-form.css</code>. Every class starts with <code>dfr-</code> ("dynamic form renderer"), so it can't clash with the website's own CSS.</li>
+          <li><strong>Colours are variables</strong> at the top (<code>--dfr-brand</code>, <code>--dfr-pass</code>…). A website can restyle the form by overriding them.</li>
+          <li><strong>JavaScript picks classes, CSS picks looks.</strong> The code says <code>`dfr-chip dfr-${status}`</code>, producing <code>dfr-chip dfr-red</code>, and the stylesheet decides what red looks like.</li>
+          <li><strong>Layout comes from the config</strong> through two variables, <code>--dfr-max-width</code> and <code>--dfr-columns</code>, set on the form by <code>src/core/layout.js</code>.</li>
+          <li><strong>Showing and hiding</strong> uses the <code>hidden</code> property (<code>element.hidden = true</code>), not inline styles.</li>
+        </ul>
+      </section>
+
+      <!-- ═════════════ 11 ═════════════ -->
+      <section class="chapter" id="tooling" data-title="Tools around the code">
+        <span class="chapter-number">Chapter 11</span>
+        <h2>Tools around the code</h2>
+        <div class="table-wrap"><table>
+          <thead><tr><th>File</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td class="mono"><a href="https://github.com/ghchetan/dynamic-form/blob/main/dev-server.py">dev-server.py</a></td><td>Serves the files locally and pretends to be the CRM's <code>POST /api/startup-report</code>, so Submit works on your machine. Each received report is printed in the terminal.</td></tr>
+            <tr><td class="mono"><a href="https://github.com/ghchetan/dynamic-form/blob/main/.github/workflows/pages.yml">.github/workflows/pages.yml</a></td><td>On every push to <code>main</code>, GitHub checks every JavaScript and JSON file, checks that the excerpts on this page still match the code, and publishes the site to GitHub Pages.</td></tr>
+            <tr><td class="mono"><a href="https://github.com/ghchetan/dynamic-form/blob/main/.github/scripts/check-code-guide.mjs">.github/scripts/check-code-guide.mjs</a></td><td>The excerpt check. If you rename a method this guide shows, the build fails and names the excerpt to fix.</td></tr>
+            <tr><td class="mono">sample.html</td><td>The demo page. On the hosted site it runs in demo mode: Submit and "Pull from CAPS" are simulated.</td></tr>
+          </tbody>
+        </table></div>
+        <div class="box why"><span class="box-title">No build step</span><p>There's no npm, bundler or compiler. The browser runs the files exactly as written. What you see in <code>src/</code> is what runs, and debugging shows your real code with real line numbers.</p></div>
+      </section>
+
+      <!-- ═════════════ 12 ═════════════ -->
+      <section class="chapter" id="debugging" data-title="Debugging recipes">
+        <span class="chapter-number">Chapter 12</span>
+        <h2>Debugging recipes</h2>
+        <div class="table-wrap"><table>
+          <thead><tr><th>I want to…</th><th>Do this</th></tr></thead>
+          <tbody>
+            <tr><td>see every answer</td><td><code>formRenderer.values</code></td></tr>
+            <tr><td>find the object behind a question</td><td><code>formRenderer.getField('u4LightsPower')</code>, then look at its <code>config</code>, <code>context</code> and <code>getStatus()</code></td></tr>
+            <tr><td>know why a question is red</td><td><code>formRenderer.getField('u4LightsPower').config.evaluation</code></td></tr>
+            <tr><td>change a value like the user would</td><td><code>formRenderer.setValue('u4Mark', 'CP-9')</code></td></tr>
+            <tr><td>pause when something changes</td><td>Put a breakpoint in <code>setValue</code> (Sources tab), or type <code>debugger;</code> in the code</td></tr>
+            <tr><td>see saved drafts and the outbox</td><td>DevTools → Application → IndexedDB → <code>AccurexDynamicForms</code></td></tr>
+            <tr><td>test offline</td><td>DevTools → Network → throttling → "Offline"</td></tr>
+            <tr><td>clear stale cached files</td><td>DevTools → Application → Service workers → Unregister, then Storage → Clear site data</td></tr>
+          </tbody>
+        </table></div>
+        <div class="box pitfall"><span class="box-title">Read the console first</span><p>Most mistakes in a config don't crash the page. They log a warning that names the problem: an unknown field type, an invalid formula, a bad <code>columnSpan</code>. When something looks wrong, the console usually already says why.</p></div>
+      </section>
+
+      <!-- ═════════════ 13 ═════════════ -->
+      <section class="chapter" id="first-tasks" data-title="Your first tasks">
+        <span class="chapter-number">Chapter 13</span>
+        <h2>Your first tasks</h2>
+        <p>Small, real changes, in increasing difficulty. Try each one before opening the answer.</p>
+
+        <h3>1 · Change a question (5 minutes)</h3>
+        <p>In <code>accurex-startup-report-config.json</code>, rename "Power to lights?" to "Lighting circuit powered?". Reload the demo. Which code did you change? (None: that's the point of a config-driven form.)</p>
+
+        <h3>2 · Follow a tap with the debugger (15 minutes)</h3>
+        <p>Set a breakpoint inside <code>setValue</code>, tap <strong>No</strong> on "Power to lights?", and step through <code>refresh()</code>. Write down, in order, which fields and widgets change.</p>
+
+        <h3>3 · Add a "range" rule (20 minutes)</h3>
+        <p>Voltage to the exhaust fan should be between 460 and 500 V. Add an evaluator so the config can say:</p>
+        <pre class="code"><code class="language-json">{ "name": "u2Voltage", "label": "Voltage to fan", "type": "number", "unit": "V",
+  "evaluation": { "type": "range", "min": 460, "max": 500 } }</code></pre>
+        <details class="check"><summary>Show a solution</summary>
+          <div>
+            <p>Add one function to <code>EVALUATORS</code> in <code>src/evaluators/index.js</code>:</p>
+            <pre class="code"><code class="language-js">/** Pass when the number is between min and max, e.g. { "type": "range", "min": 460, "max": 500 }. */
+range(rule, value) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return FIELD_STATUS.NONE;
+    return number &gt;= rule.min &amp;&amp; number &lt;= rule.max ? FIELD_STATUS.PASS : FIELD_STATUS.FAIL;
+},</code></pre>
+            <p>Because the field now has an <code>evaluation</code>, it counts in the EF-1 progress chip, and 430 V shows up in the deficiency list. No other file changes.</p>
+          </div>
+        </details>
+
+        <h3>4 · Explain a behaviour (10 minutes)</h3>
+        <p>Start the site timer. <code>actualHours</code> changes every second, but a website listening to <code>onFieldChange</code> isn't called. Why?</p>
+        <details class="check"><summary>Show the answer</summary>
+          <div><p><code>toggleTimer</code> calls <code>form.setValue(…, { notify: false })</code>, and <code>setValue</code> only calls <code>onFieldChange</code> when <code>notify</code> is true. Otherwise the website would be called once a second for as long as the technician is on site.</p></div>
+        </details>
+
+        <h3>5 · Add a field type (1 hour)</h3>
+        <p>Build a 1–5 rating field for "Grease filter condition", using <a href="./#learn-custom-field">Add a field type</a> in the docs. Then write a <code>minimumScore</code> evaluator and use both from the JSON.</p>
+      </section>
+
+      <!-- ═════════════ Glossary ═════════════ -->
+      <section class="chapter" id="glossary" data-title="Glossary" data-unnumbered>
+        <h2>Glossary</h2>
+        <dl class="glossary">
+          <dt>Configuration (config)</dt><dd>The JSON from the CRM that describes one form: fields, rules, units, buttons.</dd>
+          <dt>Field</dt><dd>One question, and the object (made from a <code>BaseField</code> subclass) that draws it and judges its answer.</dd>
+          <dt>Value name</dt><dd>A field's key in <code>form.values</code>, from its <code>name</code>. Tolerance fields have two.</dd>
+          <dt>Tracked field</dt><dd>A field with an <code>evaluation</code> rule. It counts in progress chips and can be a deficiency.</dd>
+          <dt>Status</dt><dd>green, yellow, red or gray for a field; pass, caution, fail or pending for a section or unit.</dd>
+          <dt>Deficiency</dt><dd>A tracked field whose status is red or yellow.</dd>
+          <dt>Evaluator</dt><dd>A function that turns an answer into a status, picked by <code>evaluation.type</code>.</dd>
+          <dt>Unit</dt><dd>One piece of equipment (CP-1, HD-1, EF-1, MUA-1), shown as a tab.</dd>
+          <dt>Mark</dt><dd>A unit's display name, taken from its identity field whose name contains "mark".</dd>
+          <dt>Widget</dt><dd>An object <code>{ element, refresh }</code> for a page block that shows information collected from many fields.</dd>
+          <dt>Registry</dt><dd>An object mapping a <code>type</code> from the JSON to code: <code>FIELD_TYPES</code>, <code>SECTION_TYPES</code>, <code>ACTION_HANDLERS</code>, <code>EVALUATORS</code>.</dd>
+          <dt>Refresh</dt><dd>Redrawing everything from <code>form.values</code> after a change.</dd>
+          <dt>Draft</dt><dd>A copy of the answers (and, offline, photos) saved on the device with "Save draft".</dd>
+          <dt>Outbox</dt><dd>Reports saved in IndexedDB because they couldn't be sent yet.</dd>
+          <dt>Service worker</dt><dd>A background script that serves saved copies of the page's files when there's no network.</dd>
+        </dl>
+      </section>
+
+      <footer class="end">Spotted something out of date? The excerpts update themselves, but the text doesn't. Fix it in <code>docs/code-guide.html</code> and open a pull request.</footer>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  const REPO_FILE_URL = 'https://github.com/ghchetan/dynamic-form/blob/main/';
+  const SOURCE_ROOT = '../';            // this page lives in docs/, the code one folder up
+  const COLLAPSE_AFTER_LINES = 40;
+
+  function make(tag, className, text) {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    if (text !== undefined) element.textContent = text;
+    return element;
+  }
+
+  // ───────────────────────────── Chapter list, progress bar, active chapter ─────────────────────────────
+
+  const chapters = Array.from(document.querySelectorAll('section.chapter'));
+  [document.getElementById('chapterList'), document.getElementById('chapterListMobile')].forEach(list => {
+    chapters.forEach(chapter => {
+      const item = make('li', chapter.hasAttribute('data-unnumbered') ? 'glossary-link' : '');
+      const link = make('a', '', chapter.dataset.title);
+      link.href = '#' + chapter.id;
+      link.dataset.target = chapter.id;
+      item.append(link);
+      list.append(item);
+    });
+  });
+  document.querySelectorAll('.mobile-contents a').forEach(link => {
+    link.addEventListener('click', () => { link.closest('details').open = false; });
+  });
+
+  const progress = document.getElementById('progress');
+  let queued = false;
+  function onScroll() {
+    queued = false;
+    const max = document.documentElement.scrollHeight - innerHeight;
+    progress.style.width = (max > 0 ? Math.min(100, (scrollY / max) * 100) : 0) + '%';
+
+    let current = chapters[0];
+    for (const chapter of chapters) {
+      if (chapter.getBoundingClientRect().top - 120 <= 0) current = chapter;
+    }
+    document.querySelectorAll('.chapters a').forEach(link => link.classList.toggle('active', link.dataset.target === current.id));
+  }
+  window.addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  onScroll();
+
+  // ───────────────────────────── Static code blocks ─────────────────────────────
+
+  if (window.hljs) {
+    document.querySelectorAll('pre.code code[class*="language-"]').forEach(code => {
+      const language = code.className.replace(/.*language-(\w+).*/, '$1');
+      if (window.hljs.getLanguage(language)) window.hljs.highlightElement(code);
+    });
+  }
+
+  // ───────────────────────────── Live excerpts from the real source files ─────────────────────────────
+  // Markup: a figure with class "excerpt", plus
+  //   data-file   path from the repo root, e.g. src/fields/BaseField.js
+  //   data-start  text that appears in exactly one line of that file (checked in CI)
+  //   data-lines  optional: show this many lines instead of finding the end automatically
+  // The excerpt ends at the first later line with the same indentation that starts with "}".
+  // A comment block directly above the start line is included, because it explains the code.
+
+  const fileCache = new Map();
+  function loadFile(path) {
+    if (!fileCache.has(path)) {
+      fileCache.set(path, fetch(SOURCE_ROOT + path, { cache: 'no-cache' }).then(response => {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response.text();
+      }));
+    }
+    return fileCache.get(path);
+  }
+
+  function indentOf(line) { return line.match(/^\s*/)[0].length; }
+
+  function findRange(lines, marker, lineCount) {
+    let start = marker ? lines.findIndex(line => line.includes(marker)) : 0;
+    if (start < 0) return null;
+
+    let end;
+    if (lineCount) {
+      end = Math.min(lines.length - 1, start + lineCount - 1);
+    } else {
+      const indent = indentOf(lines[start]);
+      end = Math.min(lines.length - 1, start + 30);
+      for (let index = start + 1; index < lines.length; index++) {
+        if (lines[index].trim().startsWith('}') && indentOf(lines[index]) === indent) { end = index; break; }
+      }
+    }
+
+    // Include the comment directly above (/** … */ or // lines)
+    let above = start - 1;
+    if (above >= 0 && lines[above].trim().endsWith('*/')) {
+      while (above >= 0 && !lines[above].trim().startsWith('/*')) above--;
+      if (above >= 0) start = above;
+    } else {
+      while (above >= 0 && lines[above].trim().startsWith('//')) { start = above; above--; }
+    }
+    return { start, end };
+  }
+
+  function languageFor(path) {
+    if (path.endsWith('.html')) return 'xml';
+    if (path.endsWith('.css')) return 'css';
+    if (path.endsWith('.json')) return 'json';
+    return 'javascript';
+  }
+
+  function dedent(lines) {
+    const indents = lines.filter(line => line.trim()).map(indentOf);
+    const smallest = indents.length ? Math.min(...indents) : 0;
+    return lines.map(line => line.slice(smallest));
+  }
+
+  async function renderExcerpt(figure) {
+    const path = figure.dataset.file;
+    const githubBase = REPO_FILE_URL + path;
+    figure.replaceChildren(make('div', 'excerpt-loading', 'Loading ' + path + '…'));
+
+    try {
+      const text = await loadFile(path);
+      const lines = text.replace(/\r\n/g, '\n').split('\n');
+      const range = findRange(lines, figure.dataset.start, Number(figure.dataset.lines) || 0);
+      if (!range) throw new Error('the excerpt start "' + figure.dataset.start.trim() + '" is no longer in this file');
+      while (range.end > range.start && !lines[range.end].trim()) range.end--; // no empty lines at the bottom
+
+      const shown = dedent(lines.slice(range.start, range.end + 1));
+      const firstLine = range.start + 1;
+      const lastLine = range.end + 1;
+
+      const caption = make('figcaption');
+      const github = make('a', 'github', 'View on GitHub ↗');
+      github.href = githubBase + '#L' + firstLine + '-L' + lastLine;
+      caption.append(make('span', 'path', path), make('span', 'range', 'lines ' + firstLine + '–' + lastLine), github);
+
+      const scroll = make('div', 'code-scroll');
+      const gutter = make('div', 'gutter');
+      gutter.setAttribute('aria-hidden', 'true');
+      gutter.textContent = shown.map((line, index) => firstLine + index).join('\n');
+      const pre = make('pre');
+      const code = make('code', 'hljs');
+      const source = shown.join('\n');
+      if (window.hljs) code.innerHTML = window.hljs.highlight(source, { language: languageFor(path) }).value; // hljs escapes HTML
+      else code.textContent = source;
+      pre.append(code);
+      scroll.append(gutter, pre);
+
+      figure.replaceChildren(caption, scroll);
+
+      if (shown.length > COLLAPSE_AFTER_LINES) {
+        scroll.classList.add('collapsed');
+        const expand = make('button', 'expand', 'Show all ' + shown.length + ' lines');
+        expand.type = 'button';
+        expand.addEventListener('click', () => {
+          const collapsed = scroll.classList.toggle('collapsed');
+          expand.textContent = collapsed ? 'Show all ' + shown.length + ' lines' : 'Show less';
+        });
+        figure.append(expand);
+      }
+    } catch (error) {
+      const message = make('div', 'excerpt-error');
+      message.append('Couldn\'t load this excerpt (' + error.message + '). Open this guide from the website or the dev server, or ');
+      const link = make('a', '', 'read ' + path + ' on GitHub');
+      link.href = githubBase;
+      message.append(link, '.');
+      figure.replaceChildren(message);
+    }
+  }
+
+  document.querySelectorAll('figure.excerpt').forEach(renderExcerpt);
+})();
+</script>
+</body>
+</html>

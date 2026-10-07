@@ -1,6 +1,7 @@
 # Check the code and publish the site to GitHub Pages.
 #
 #   Push to main        → check → build → deploy   (site: https://ghchetan.github.io/dynamic-form/)
+#   "Check" also verifies that every live code excerpt in docs/code-guide.html still points at real code.
 #   Pull request        → check only, so mistakes are caught before they reach main
 #   "Run workflow" button (Actions tab) → same as a push to main
 #
@@ -55,6 +56,9 @@ jobs:
 
       - name: Check that the dev server compiles
         run: python3 -m py_compile dev-server.py
+
+      - name: Check that the code guide's excerpts still match the code
+        run: node .github/scripts/check-code-guide.mjs
 
       - name: Collect the files the website needs
         if: github.event_name != 'pull_request'

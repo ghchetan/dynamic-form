@@ -41,7 +41,7 @@ a { color: var(--accent); }
 .brand-mark::after { content: ""; position: absolute; inset: 5px; border-radius: 1.5px; background: var(--bg); }
 h1 { margin: 0 0 12px; font-size: clamp(30px, 6vw, 42px); line-height: 1.1; letter-spacing: -0.03em; text-wrap: balance; }
 .lead { margin: 0; max-width: 60ch; font-size: 17px; color: var(--fg-muted); }
-.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
 .card {
   display: grid; gap: 6px; padding: 20px; border: 1px solid var(--line); border-radius: 10px;
   color: var(--fg); text-decoration: none; transition: border-color 0.12s, box-shadow 0.12s;
@@ -86,6 +86,12 @@ footer { padding-top: 20px; border-top: 1px solid var(--line); font-size: 13px; 
       <strong>Developer docs</strong>
       <span>Tutorials, configuration and JavaScript API reference, and deployment guides. Press ⌘K to search.</span>
       <span class="go">Read the docs →</span>
+    </a>
+    <a class="card" href="docs/code-guide.html">
+      <span class="card-kicker">For developers</span>
+      <strong>Code guide</strong>
+      <span>How the source works, chapter by chapter, with live excerpts of the real code. Written for new team members.</span>
+      <span class="go">Start reading →</span>
     </a>
   </section>
 
