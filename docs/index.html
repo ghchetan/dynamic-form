@@ -1,0 +1,2942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- /skeleton -->
+<title>Accurex Dynamic Form Docs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: Stripe-style three panes — product tabs on top, sidebar nav · reading column · "On this page" rail;
+   API pages split prose | code. Vercel look: Geist, hairlines, monochrome with the Accurex brand blue as the one accent. */
+:root {
+  --bg: #ffffff;
+  --bg-subtle: #fafafa;
+  --surface: #ffffff;
+  --fg: #0a0a0a;
+  --fg-muted: #5c636e;
+  --fg-faint: #8b919b;
+  --line: #ebebeb;
+  --line-strong: #d6d8dc;
+  --accent: #1d5fa6;          /* Accurex brand blue, same as --dfr-brand in the package */
+  --accent-soft: #eaf1f9;
+  --code-bg: #fafafa;
+  --overlay: rgba(10, 10, 10, 0.32);
+  --shadow: 0 1px 2px rgba(10, 10, 10, 0.04), 0 8px 24px rgba(10, 10, 10, 0.08);
+
+  /* Semantic status colours: the same four states the form itself shows */
+  --pass: #2e7d46;     --pass-soft: #e5f2e9;
+  --caution: #8f6408;  --caution-soft: #fbf1db;
+  --fail: #c0392b;     --fail-soft: #f9e4e1;
+  --none: #6b7280;     --none-soft: #eef0f2;
+
+  /* Syntax colours */
+  --syn-keyword: #b4235a;
+  --syn-string: #0f7a52;
+  --syn-number: #1d5fa6;
+  --syn-comment: #8b919b;
+  --syn-attr: #7a4fc0;
+  --syn-title: #9a4b0a;
+
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --topbar-h: 56px;
+  --sidebar-w: 264px;
+  --toc-w: 224px;
+  --read-w: 720px;
+  --radius: 8px;
+  --radius-sm: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0a0a0a; --bg-subtle: #111111; --surface: #0f0f0f;
+    --fg: #ededed; --fg-muted: #a3a8b0; --fg-faint: #70757d;
+    --line: #1f1f1f; --line-strong: #2f3237;
+    --accent: #6fa8e8; --accent-soft: #0f2238;
+    --code-bg: #0f0f0f; --overlay: rgba(0, 0, 0, 0.6);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.5);
+    --pass: #4cc38a; --pass-soft: #0e2a1c;
+    --caution: #e5b94e; --caution-soft: #2d2208;
+    --fail: #ff7a6b; --fail-soft: #331512;
+    --none: #9aa1ab; --none-soft: #1b1d20;
+    --syn-keyword: #ff7ab2; --syn-string: #6bd8a5; --syn-number: #7fb6f2;
+    --syn-comment: #70757d; --syn-attr: #c4a2ff; --syn-title: #f0b37a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0a0a0a; --bg-subtle: #111111; --surface: #0f0f0f;
+  --fg: #ededed; --fg-muted: #a3a8b0; --fg-faint: #70757d;
+  --line: #1f1f1f; --line-strong: #2f3237;
+  --accent: #6fa8e8; --accent-soft: #0f2238;
+  --code-bg: #0f0f0f; --overlay: rgba(0, 0, 0, 0.6);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.5);
+  --pass: #4cc38a; --pass-soft: #0e2a1c;
+  --caution: #e5b94e; --caution-soft: #2d2208;
+  --fail: #ff7a6b; --fail-soft: #331512;
+  --none: #9aa1ab; --none-soft: #1b1d20;
+  --syn-keyword: #ff7ab2; --syn-string: #6bd8a5; --syn-number: #7fb6f2;
+  --syn-comment: #70757d; --syn-attr: #c4a2ff; --syn-title: #f0b37a;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-padding-top: calc(var(--topbar-h) + 24px); }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+button { font: inherit; color: inherit; }
+code, kbd, pre { font-family: var(--font-mono); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+
+/* ───────── Top bar ───────── */
+.topbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30;
+  height: var(--topbar-h);
+  display: flex; align-items: center; gap: 16px;
+  padding-inline: 16px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: saturate(1.6) blur(10px);
+  -webkit-backdrop-filter: saturate(1.6) blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: center; gap: 10px; color: var(--fg); font-weight: 600; white-space: nowrap; }
+.brand:hover { text-decoration: none; }
+.brand-mark { width: 18px; height: 18px; border-radius: 4px; background: var(--accent); position: relative; flex: none; }
+.brand-mark::after { content: ""; position: absolute; inset: 5px; border-radius: 1.5px; background: var(--bg); }
+.brand-docs { font-weight: 500; color: var(--fg-muted); border-left: 1px solid var(--line-strong); padding-left: 10px; }
+.tabs { display: flex; gap: 2px; margin-left: 12px; overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  padding: 6px 10px; border-radius: var(--radius-sm);
+  color: var(--fg-muted); font-size: 14px; white-space: nowrap;
+}
+.tab:hover { color: var(--fg); background: var(--bg-subtle); text-decoration: none; }
+.tab[aria-current="true"] { color: var(--fg); font-weight: 500; }
+.topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.search-trigger {
+  display: flex; align-items: center; gap: 10px;
+  width: 240px; height: 34px; padding: 0 8px 0 10px;
+  border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+  background: var(--bg-subtle); color: var(--fg-faint); font-size: 14px; cursor: pointer;
+}
+.search-trigger:hover { border-color: var(--fg-faint); color: var(--fg-muted); }
+.search-trigger span { flex: 1; text-align: left; }
+.kbd, kbd {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 20px; height: 20px; padding: 0 5px;
+  border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 4px;
+  background: var(--surface); color: var(--fg-muted);
+  font-family: var(--font-mono); font-size: 11px; line-height: 1;
+}
+.icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: var(--radius-sm);
+  border: 1px solid transparent; background: transparent; cursor: pointer; color: var(--fg-muted);
+}
+.icon-btn:hover { background: var(--bg-subtle); color: var(--fg); border-color: var(--line); }
+.icon-btn svg { width: 18px; height: 18px; }
+.menu-btn { display: none; }
+
+/* ───────── Three-pane layout ───────── */
+.layout {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr) var(--toc-w);
+  max-width: 1440px; margin: 0 auto;
+}
+.sidebar {
+  position: sticky; top: calc(env(safe-area-inset-top, 0px) + var(--topbar-h));
+  height: calc(100vh - var(--topbar-h));
+  overflow-y: auto; overscroll-behavior: contain;
+  padding: 24px 16px 48px;
+  border-right: 1px solid var(--line);
+}
+.nav-group + .nav-group { margin-top: 22px; }
+.nav-group-title {
+  margin: 0 0 6px; padding: 0 10px;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-faint);
+}
+.nav-link {
+  display: block; padding: 5px 10px; border-radius: var(--radius-sm);
+  color: var(--fg-muted); font-size: 14px; line-height: 1.45;
+}
+.nav-link:hover { color: var(--fg); background: var(--bg-subtle); text-decoration: none; }
+.nav-link[aria-current="page"] { color: var(--accent); background: var(--accent-soft); font-weight: 500; }
+
+.content { min-width: 0; padding: 40px 48px 96px; }
+.doc { max-width: var(--read-w); margin: 0 auto; }
+.doc.wide { max-width: 1040px; }
+
+.toc {
+  position: sticky; top: calc(env(safe-area-inset-top, 0px) + var(--topbar-h));
+  height: calc(100vh - var(--topbar-h)); overflow-y: auto;
+  padding: 40px 16px 48px 8px; font-size: 13px;
+}
+.toc-title { margin: 0 0 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg-faint); }
+.toc a { display: block; padding: 3px 0 3px 12px; border-left: 1px solid var(--line); color: var(--fg-muted); line-height: 1.45; }
+.toc a.depth-3 { padding-left: 24px; }
+.toc a:hover { color: var(--fg); text-decoration: none; }
+.toc a.active { color: var(--accent); border-left-color: var(--accent); }
+
+/* ───────── Typography inside docs ───────── */
+.eyebrow { margin: 0 0 8px; font-size: 13px; font-weight: 500; color: var(--accent); }
+.doc h1 { margin: 0 0 12px; font-size: 34px; line-height: 1.15; letter-spacing: -0.025em; font-weight: 700; text-wrap: balance; }
+.doc h2 { margin: 48px 0 12px; font-size: 22px; line-height: 1.3; letter-spacing: -0.015em; font-weight: 600; text-wrap: balance; }
+.doc h3 { margin: 32px 0 8px; font-size: 17px; line-height: 1.4; font-weight: 600; }
+.doc h4 { margin: 24px 0 6px; font-size: 15px; font-weight: 600; }
+.doc p, .doc li { color: var(--fg); }
+.doc p { margin: 0 0 16px; }
+.doc ul, .doc ol { margin: 0 0 16px; padding-left: 22px; }
+.doc li + li { margin-top: 4px; }
+.doc .lead { font-size: 17px; line-height: 1.6; color: var(--fg-muted); margin-bottom: 28px; }
+.doc strong { font-weight: 600; }
+.anchor { margin-left: 8px; color: var(--fg-faint); opacity: 0; font-weight: 400; }
+h2:hover .anchor, h3:hover .anchor, .anchor:focus-visible { opacity: 1; }
+.anchor:hover { color: var(--accent); text-decoration: none; }
+
+:not(pre) > code {
+  padding: 1px 5px; border-radius: 4px;
+  background: var(--bg-subtle); border: 1px solid var(--line);
+  font-size: 0.86em; word-break: break-word;
+}
+a > code { color: var(--accent); }
+
+/* Code blocks */
+.code-block { position: relative; margin: 0 0 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--code-bg); }
+.code-block .code-title {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 7px 12px; border-bottom: 1px solid var(--line);
+  font-family: var(--font-mono); font-size: 12px; color: var(--fg-muted);
+}
+.code-block pre { margin: 0; padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.65; tab-size: 4; }
+.code-block pre code { background: none; border: 0; padding: 0; }
+.copy-btn {
+  position: absolute; top: 7px; right: 8px;
+  height: 26px; padding: 0 8px; border-radius: 5px;
+  border: 1px solid var(--line-strong); background: var(--surface); color: var(--fg-muted);
+  font-size: 12px; cursor: pointer; opacity: 0; transition: opacity 0.12s;
+}
+.code-block:hover .copy-btn, .copy-btn:focus-visible { opacity: 1; }
+.code-block .code-title + .copy-btn, .code-block:has(.code-title) .copy-btn { top: 4px; height: 24px; }
+@media (hover: none) { .copy-btn { opacity: 1; } }
+.hljs-keyword, .hljs-literal, .hljs-built_in, .hljs-selector-tag { color: var(--syn-keyword); }
+.hljs-string, .hljs-regexp, .hljs-template-variable { color: var(--syn-string); }
+.hljs-number, .hljs-symbol { color: var(--syn-number); }
+.hljs-comment, .hljs-meta { color: var(--syn-comment); font-style: italic; }
+.hljs-attr, .hljs-attribute, .hljs-property, .hljs-selector-class, .hljs-variable { color: var(--syn-attr); }
+.hljs-title, .hljs-name, .hljs-tag, .hljs-params { color: var(--syn-title); }
+
+/* Callouts (React-docs style) */
+.callout { margin: 0 0 20px; padding: 14px 16px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--bg-subtle); }
+.callout > :last-child { margin-bottom: 0; }
+.callout-title { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; font-weight: 600; font-size: 14px; }
+.callout.note { border-color: color-mix(in srgb, var(--accent) 30%, var(--line)); background: var(--accent-soft); }
+.callout.note .callout-title { color: var(--accent); }
+.callout.pitfall { border-color: color-mix(in srgb, var(--caution) 35%, var(--line)); background: var(--caution-soft); }
+.callout.pitfall .callout-title { color: var(--caution); }
+.learn-box { margin: 0 0 28px; padding: 18px 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-subtle); }
+.learn-box h2 { margin: 0 0 8px !important; font-size: 13px !important; text-transform: uppercase; letter-spacing: 0.05em; color: var(--fg-muted); }
+.learn-box ul { margin: 0; }
+details.deep-dive { margin: 0 0 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+details.deep-dive > summary {
+  display: flex; align-items: center; gap: 10px; cursor: pointer; list-style: none;
+  padding: 12px 16px; font-weight: 600; font-size: 14px;
+}
+details.deep-dive > summary::-webkit-details-marker { display: none; }
+details.deep-dive > summary::before { content: "Deep dive"; font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); }
+details.deep-dive > summary::after { content: "+"; margin-left: auto; color: var(--fg-faint); font-weight: 400; font-size: 18px; line-height: 1; }
+details.deep-dive[open] > summary::after { content: "−"; }
+details.deep-dive > .deep-body { padding: 0 16px 4px; }
+details.challenge { margin: 0 0 16px; border: 1px dashed var(--line-strong); border-radius: var(--radius); padding: 0 16px; }
+details.challenge > summary { cursor: pointer; padding: 10px 0; font-weight: 500; color: var(--accent); }
+
+/* Steps (tutorials) */
+.steps { list-style: none; padding: 0 !important; counter-reset: step; margin: 0 0 24px; }
+.steps > li { position: relative; padding: 0 0 8px 44px; counter-increment: step; }
+.steps > li + li { margin-top: 12px; }
+.steps > li::before {
+  content: counter(step); position: absolute; left: 0; top: 0;
+  width: 28px; height: 28px; border-radius: 50%;
+  display: grid; place-items: center;
+  border: 1px solid var(--line-strong); background: var(--surface);
+  font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--fg-muted);
+}
+.steps > li::after { content: ""; position: absolute; left: 14px; top: 32px; bottom: -8px; width: 1px; background: var(--line); }
+.steps > li:last-child::after { display: none; }
+.steps > li > h3, .steps > li > h4 { margin-top: 2px !important; }
+
+/* Tables (Tailwind-style reference) */
+.table-wrap { margin: 0 0 24px; border: 1px solid var(--line); border-radius: var(--radius); overflow-x: auto; }
+table.ref { width: 100%; border-collapse: collapse; font-size: 13.5px; line-height: 1.5; }
+table.ref th {
+  position: sticky; top: 0; text-align: left; font-weight: 500; color: var(--fg-muted);
+  background: var(--bg-subtle); padding: 8px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; font-size: 12.5px;
+}
+table.ref td { padding: 9px 12px; border-top: 1px solid var(--line); vertical-align: top; }
+table.ref tr:first-child td { border-top: 0; }
+table.ref td:first-child { font-family: var(--font-mono); font-size: 12.5px; color: var(--accent); white-space: nowrap; }
+table.ref td.type, table.ref td.def { font-family: var(--font-mono); font-size: 12px; color: var(--fg-muted); white-space: nowrap; }
+table.ref td p { margin: 0 0 6px; }
+table.ref td p:last-child { margin: 0; }
+table.ref tr:target td, table.ref tr.flash td { background: var(--accent-soft); }
+table.ref tr.hidden-row { display: none; }
+.badge {
+  display: inline-block; padding: 0 6px; margin-left: 6px; border-radius: 999px;
+  font-family: var(--font-sans); font-size: 11px; font-weight: 500; line-height: 18px; vertical-align: 1px;
+  border: 1px solid var(--line-strong); color: var(--fg-muted); background: var(--surface); white-space: nowrap;
+}
+.badge.req { border-color: color-mix(in srgb, var(--fail) 40%, var(--line)); color: var(--fail); }
+.badge.info { border-style: dashed; }
+
+/* Status pills — the exact states the form shows */
+.pill {
+  display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border-radius: 999px;
+  font-size: 12px; font-weight: 600; white-space: nowrap; vertical-align: 1px;
+}
+.pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.pill.pass { color: var(--pass); background: var(--pass-soft); }
+.pill.caution { color: var(--caution); background: var(--caution-soft); }
+.pill.fail { color: var(--fail); background: var(--fail-soft); }
+.pill.none { color: var(--none); background: var(--none-soft); }
+
+/* Cards / link grid */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin: 0 0 28px; }
+.link-card {
+  display: block; padding: 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface);
+  color: var(--fg); transition: border-color 0.12s, box-shadow 0.12s;
+}
+.link-card:hover { text-decoration: none; border-color: var(--line-strong); box-shadow: var(--shadow); }
+.link-card strong { display: block; margin-bottom: 4px; font-size: 14.5px; }
+.link-card span { display: block; color: var(--fg-muted); font-size: 13.5px; line-height: 1.5; }
+.link-card .arrow { color: var(--fg-faint); float: right; }
+
+/* Data-flow diagram */
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; margin: 0 0 24px; padding: 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg-subtle); }
+.flow-step { flex: 1 1 120px; min-width: 0; padding: 10px 12px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--surface); }
+.flow-step b { display: block; font-family: var(--font-mono); font-size: 12.5px; font-weight: 500; color: var(--accent); }
+.flow-step span { display: block; font-size: 12.5px; color: var(--fg-muted); line-height: 1.45; margin-top: 2px; }
+.flow-arrow { display: flex; align-items: center; color: var(--fg-faint); font-family: var(--font-mono); }
+.flow-loop { flex-basis: 100%; font-size: 12.5px; color: var(--fg-muted); text-align: center; font-family: var(--font-mono); }
+
+/* Stripe-style API rows: prose | code */
+.api-entry { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px 32px; padding: 28px 0; border-top: 1px solid var(--line); }
+.api-entry:first-of-type { border-top: 0; padding-top: 8px; }
+.api-entry h3 { margin-top: 0 !important; font-family: var(--font-mono); font-size: 15px !important; font-weight: 500 !important; }
+.api-entry h3 .ret { color: var(--fg-faint); font-weight: 400; }
+.api-code { min-width: 0; }
+@media (min-width: 1280px) {
+  .doc.wide .api-entry { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .doc.wide .api-code { position: sticky; top: calc(var(--topbar-h) + 24px); align-self: start; }
+}
+.sig { display: block; margin: 0 0 12px; font-family: var(--font-mono); font-size: 13px; color: var(--fg-muted); }
+
+/* Folder tree */
+.tree { font-size: 12.5px; }
+.tree .dir { color: var(--fg); font-weight: 500; }
+.tree .note { color: var(--fg-faint); }
+
+/* Pager */
+.pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--line); }
+.pager a { display: block; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius); color: var(--fg); }
+.pager a:hover { border-color: var(--line-strong); text-decoration: none; }
+.pager small { display: block; font-size: 12px; color: var(--fg-faint); }
+.pager .next { text-align: right; grid-column: 2; }
+
+/* Cheat sheet filter */
+.filter-input {
+  width: 100%; height: 40px; margin: 0 0 12px; padding: 0 12px;
+  border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+  background: var(--surface); color: var(--fg); font: inherit; font-size: 14px;
+}
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.filter-count { margin: -4px 0 12px; font-size: 12.5px; color: var(--fg-faint); }
+
+/* ───────── Search dialog ───────── */
+.search-overlay {
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: calc(env(safe-area-inset-top, 0px) + 10vh) 16px 16px;
+  background: var(--overlay);
+}
+.search-panel {
+  width: 100%; max-width: 640px; max-height: 70vh;
+  display: flex; flex-direction: column;
+  border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.search-head { display: flex; align-items: center; gap: 10px; padding: 0 14px; border-bottom: 1px solid var(--line); }
+.search-head svg { width: 18px; height: 18px; color: var(--fg-faint); flex: none; }
+.search-input { flex: 1; min-width: 0; height: 52px; border: 0; outline: 0; background: transparent; color: var(--fg); font: inherit; font-size: 16px; }
+.search-results { overflow-y: auto; padding: 8px; overscroll-behavior: contain; }
+.search-group-title { padding: 10px 10px 4px; font-size: 12px; font-weight: 600; color: var(--fg-faint); }
+.search-item {
+  display: flex; align-items: flex-start; gap: 12px; width: 100%;
+  padding: 9px 10px; border: 0; border-radius: var(--radius-sm); background: transparent;
+  color: var(--fg); text-align: left; cursor: pointer;
+}
+.search-item[aria-selected="true"] { background: var(--accent-soft); }
+.search-item[aria-selected="true"] .search-kind { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); color: var(--accent); }
+.search-kind {
+  flex: none; width: 66px; margin-top: 1px; padding: 1px 0; border: 1px solid var(--line-strong); border-radius: 4px;
+  font-family: var(--font-mono); font-size: 10.5px; text-align: center; color: var(--fg-muted); text-transform: lowercase;
+}
+.search-text { min-width: 0; flex: 1; }
+.search-title { display: block; font-size: 14px; font-weight: 500; line-height: 1.4; overflow-wrap: anywhere; }
+.search-snippet { display: block; margin-top: 2px; font-size: 12.5px; color: var(--fg-muted); line-height: 1.45; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.search-item mark { background: transparent; color: var(--accent); font-weight: 600; }
+.search-empty { padding: 28px 16px; text-align: center; color: var(--fg-muted); font-size: 14px; }
+.search-foot { display: flex; flex-wrap: wrap; gap: 14px; padding: 9px 14px; border-top: 1px solid var(--line); background: var(--bg-subtle); font-size: 12px; color: var(--fg-faint); }
+.search-foot span { display: inline-flex; align-items: center; gap: 5px; }
+
+/* ───────── Responsive ───────── */
+@media (max-width: 1180px) {
+  .layout { grid-template-columns: var(--sidebar-w) minmax(0, 1fr); }
+  .toc { display: none; }
+}
+@media (max-width: 860px) {
+  .layout { display: block; }
+  .tabs { display: none; }
+  .menu-btn { display: inline-flex; }
+  .search-trigger { width: 34px; padding: 0; justify-content: center; }
+  .search-trigger span, .search-trigger .kbd { display: none; }
+  .brand-docs { display: none; }
+  .sidebar {
+    position: fixed; z-index: 40; top: calc(env(safe-area-inset-top, 0px) + var(--topbar-h)); left: 0; bottom: 0;
+    width: min(300px, 86vw); height: auto;
+    background: var(--bg); box-shadow: var(--shadow);
+    transform: translateX(-102%); transition: transform 0.18s ease;
+  }
+  body.nav-open .sidebar { transform: none; }
+  .nav-scrim { position: fixed; inset: var(--topbar-h) 0 0 0; z-index: 35; background: var(--overlay); }
+  .content { padding: 28px 16px 72px; }
+  .doc h1 { font-size: 28px; }
+  .pager { grid-template-columns: 1fr; }
+  .pager .next { grid-column: 1; }
+}
+</style>
+<!-- skeleton -->
+</head>
+<body>
+<!-- /skeleton -->
+<header class="topbar">
+  <button class="icon-btn menu-btn" id="menuButton" type="button" aria-label="Open navigation" aria-expanded="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <a class="brand" href="#introduction"><span class="brand-mark" aria-hidden="true"></span>Accurex Dynamic Form <span class="brand-docs">Docs</span></a>
+  <nav class="tabs" id="tabs" aria-label="Sections"></nav>
+  <div class="topbar-actions">
+    <button class="search-trigger" id="searchButton" type="button" aria-label="Search documentation">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <span>Search docs…</span><kbd class="kbd" id="searchShortcut">⌘K</kbd>
+    </button>
+    <button class="icon-btn" id="themeButton" type="button" aria-label="Switch colour theme">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="Documentation"></nav>
+  <main class="content" id="content">
+
+<!-- ═════════════════════════════ GET STARTED ═════════════════════════════ -->
+
+<article class="doc" id="introduction" data-group="Get started" data-title="Introduction">
+  <p class="eyebrow">Get started</p>
+  <h1>Accurex Dynamic Form</h1>
+  <p class="lead">Business users design a form in the CRM. The CRM API sends that design as JSON. This package turns the JSON into a working form on the corporate website. You don't write any HTML for a form.</p>
+
+  <div class="flow" aria-label="From CRM to website">
+    <div class="flow-step"><b>CRM</b><span>Business users configure fields, rules and buttons</span></div>
+    <div class="flow-arrow" aria-hidden="true">→</div>
+    <div class="flow-step"><b>API (JSON)</b><span>One form configuration, e.g. the start-up report</span></div>
+    <div class="flow-arrow" aria-hidden="true">→</div>
+    <div class="flow-step"><b>DynamicFormRenderer</b><span>Reads the JSON and builds the page</span></div>
+    <div class="flow-arrow" aria-hidden="true">→</div>
+    <div class="flow-step"><b>Website</b><span>Technicians fill it in, online or offline</span></div>
+  </div>
+
+  <p>The sample in this package is the <strong>Accurex Start-Up Report</strong>, which technicians fill in on site when commissioning kitchen ventilation equipment. Each piece of equipment is a <em>unit</em>: control panels (CP-1), hoods (HD-1), exhaust fans (EF-1) and make-up air units (MUA-1). Each unit has checks such as "Power to control panel?" and readings such as "Motor amp draw: 12.9 A against a nameplate FLA of 12.4 A". The form judges every answer as <span class="pill pass">Pass</span> <span class="pill caution">Check</span> <span class="pill fail">Flagged</span> or <span class="pill none">—</span> (not answered) and lists every problem in one place before the report is submitted.</p>
+
+  <h2 id="intro-what-you-get">What the package does</h2>
+  <ul>
+    <li><strong>Draws the form from JSON:</strong> 10 field types, 4 section types, unit tabs, a header and an action bar.</li>
+    <li><strong>Judges answers:</strong> it checks answers against rules from the config (expected value, tolerance in %, exact match, value map, and conditions such as <code>value &gt; expectedHours * 0.25</code>).</li>
+    <li><strong>Rolls up status:</strong> progress chips ("3/7"), a coloured dot per unit, and a deficiency list with a <em>View</em> link that jumps to each problem.</li>
+    <li><strong>Runs workflow:</strong> save draft, email, print, timer, "Pull from CAPS", Submit for review, and Approve / Reject.</li>
+    <li><strong>Works offline:</strong> drafts with photos, an outbox that sends reports when the connection returns, and a service worker so the page itself opens without a network.</li>
+  </ul>
+
+  <h2 id="intro-where-to-start">Where to start</h2>
+  <div class="card-grid">
+    <a class="link-card" href="#quick-start"><strong>Quick start <span class="arrow">→</span></strong><span>Put a form on a page in five steps.</span></a>
+    <a class="link-card" href="#learn-data-flow"><strong>How the form thinks <span class="arrow">→</span></strong><span>The one idea that explains the whole codebase.</span></a>
+    <a class="link-card" href="#config-fields"><strong>Field reference <span class="arrow">→</span></strong><span>Every field type and property the JSON accepts.</span></a>
+    <a class="link-card" href="#api-constructor"><strong>JavaScript API <span class="arrow">→</span></strong><span>Options, methods and callbacks for the host page.</span></a>
+  </div>
+
+  <div class="callout note">
+    <p class="callout-title">New to the team?</p>
+    <p>Read the <a href="#learn-data-flow">Learn</a> pages in order. They assume you know basic JavaScript (functions, objects, classes, <code>async</code>/<code>await</code>) and nothing about this codebase. Press <kbd>⌘</kbd> <kbd>K</kbd> (or <kbd>Ctrl</kbd> <kbd>K</kbd>) at any time to search, including every config property by name.</p>
+  </div>
+</article>
+
+<article class="doc" id="quick-start" data-group="Get started" data-title="Quick start" hidden>
+  <p class="eyebrow">Get started</p>
+  <h1>Quick start</h1>
+  <p class="lead">Put the sample start-up report on a page and run it locally. This takes about five minutes.</p>
+
+  <ol class="steps">
+    <li>
+      <h3 id="qs-files">Copy the package</h3>
+      <p>Copy these into the website, keeping the folder structure:</p>
+      <div class="code-block"><pre><code class="language-plaintext">Accurex-DynamicFormRenderer.js   ← the file the page loads
+Accurex-dynamic-form.css
+service-worker.js                ← only if you want the page to open offline
+src/                             ← all the framework code</code></pre></div>
+    </li>
+    <li>
+      <h3 id="qs-html">Add the stylesheet, the script and a container</h3>
+      <div class="code-block"><div class="code-title">your-page.html</div><pre><code class="language-html">&lt;link rel="stylesheet" href="Accurex-dynamic-form.css"&gt;
+
+&lt;div id="formHost"&gt;&lt;/div&gt;
+
+&lt;script type="module" src="Accurex-DynamicFormRenderer.js"&gt;&lt;/script&gt;</code></pre></div>
+      <div class="callout pitfall">
+        <p class="callout-title">Pitfall</p>
+        <p><code>type="module"</code> is required. Without it, the browser can't load the files under <code>src/</code> and the page shows nothing.</p>
+      </div>
+    </li>
+    <li>
+      <h3 id="qs-render">Create the form and render it</h3>
+      <div class="code-block"><div class="code-title">your-page.html</div><pre><code class="language-html">&lt;script&gt;
+  document.addEventListener('DOMContentLoaded', async () =&gt; {
+    const form = new DynamicFormRenderer({
+      container: '#formHost',
+      configUrl: '/api/forms/startup-report',   // the CRM API that returns the JSON
+      serviceWorkerUrl: 'service-worker.js',    // optional: open offline
+      onWorkflow: (action, data, form) =&gt; form.submit(),
+    });
+    await form.render();
+  });
+&lt;/script&gt;</code></pre></div>
+      <p>This is a normal (non-module) script, which is why it uses <code>window.DynamicFormRenderer</code> by its plain name. Module scripts run before <code>DOMContentLoaded</code>, so the class is always ready by then.</p>
+    </li>
+    <li>
+      <h3 id="qs-serve">Serve it over http</h3>
+      <p>Opening the HTML file directly (<code>file://</code>) doesn't work: browsers block modules and <code>fetch()</code> there. In the package folder, run the development server:</p>
+      <div class="code-block"><pre><code class="language-bash">python3 dev-server.py</code></pre></div>
+      <p>Then open <code>http://localhost:8080/sample.html</code>. The dev server also stands in for the CRM's <code>POST /api/startup-report</code>, so Submit, Approve and Reject work, and every report it receives is printed in the terminal.</p>
+    </li>
+    <li>
+      <h3 id="qs-try">Try it</h3>
+      <ul>
+        <li>On CP-1, answer <strong>No</strong> to "Power to lights?". The chip turns <span class="pill fail">Flagged</span>, the unit tab gets a red dot, and the deficiency box at the top lists it. Click <strong>View</strong> to jump back.</li>
+        <li>Enter <code>18.2</code> and <code>19.5</code> in "EF Fan 1 overload setting". That's a 7.1% deviation: <span class="pill caution">Check</span>.</li>
+        <li>Click <strong>Save draft</strong>, reload, and the answers come back with a "Draft restored" banner.</li>
+        <li>Click <strong>Submit for review</strong> and watch the dev server's terminal.</li>
+      </ul>
+    </li>
+  </ol>
+
+  <h2 id="qs-next">Next steps</h2>
+  <div class="card-grid">
+    <a class="link-card" href="#learn-first-form"><strong>Build your first form <span class="arrow">→</span></strong><span>Write a config from scratch and see each part appear.</span></a>
+    <a class="link-card" href="#guide-deploy"><strong>Deploy <span class="arrow">→</span></strong><span>https, service worker scope and cache headers for the live site.</span></a>
+  </div>
+</article>
+
+<article class="doc" id="project-structure" data-group="Get started" data-title="Project structure" hidden>
+  <p class="eyebrow">Get started</p>
+  <h1>Project structure</h1>
+  <p class="lead">Every file has one job, and most are under 100 lines. When you need to change something, this map tells you which file to open.</p>
+
+  <div class="code-block tree"><pre><code class="language-plaintext"><span class="dir">Accurex-DynamicForm-Package/</span>
+├── Accurex-DynamicFormRenderer.js   <span class="note">entry point: sets window.DynamicFormRenderer, exports registries</span>
+├── Accurex-dynamic-form.css         <span class="note">all styles; classes start with "dfr-"</span>
+├── service-worker.js                <span class="note">stores the page's files so it opens offline</span>
+├── dev-server.py                    <span class="note">local server + fake CRM submit API</span>
+├── accurex-startup-report-config.json  <span class="note">sample configuration</span>
+├── sample.html                      <span class="note">sample page</span>
+└── <span class="dir">src/</span>
+    ├── DynamicFormRenderer.js       <span class="note">the main class: builds the form, holds values, refreshes</span>
+    ├── constants.js                 <span class="note">status words (green/yellow/red/gray, pass/caution/fail/pending)</span>
+    ├── <span class="dir">core/</span>
+    │   ├── loadConfig.js            <span class="note">download the JSON (falls back to the offline copy)</span>
+    │   ├── http.js                  <span class="note">sendRequest(), "is this failure temporary?"</span>
+    │   ├── layout.js                <span class="note">config.layout → CSS variables</span>
+    │   └── status.js                <span class="note">progress, unit status, deficiency text (pure functions)</span>
+    ├── <span class="dir">evaluators/</span>index.js         <span class="note">pass/fail rules + statusRules</span>
+    ├── <span class="dir">fields/</span>                      <span class="note">one class per field type, all extend BaseField</span>
+    │   ├── index.js                 <span class="note">FIELD_TYPES registry + createField()</span>
+    │   ├── BaseField.js  InputField.js  SelectField.js  CheckboxField.js
+    │   ├── CalculatedField.js  SegmentedField.js  ToleranceField.js
+    │   └── attachmentPicker.js      <span class="note">"Attach photo" button + thumbnails</span>
+    ├── <span class="dir">sections/</span>                    <span class="note">one function per page block, each returns { element, refresh }</span>
+    │   ├── index.js                 <span class="note">SECTION_TYPES registry</span>
+    │   ├── header.js  cardSection.js  deficiencySummary.js  hoursTracker.js
+    │   ├── units.js  accordion.js  summaryPanel.js  equipmentSummary.js
+    │   └── reviewer.js  actionBar.js  draftBanner.js  syncStatus.js
+    ├── <span class="dir">actions/</span>                     <span class="note">one function per button type</span>
+    │   ├── index.js                 <span class="note">ACTION_HANDLERS registry</span>
+    │   └── timerAction.js  emailAction.js  saveDraftAction.js  workflowAction.js  dataPullAction.js
+    ├── <span class="dir">offline/</span>                     <span class="note">IndexedDB, drafts, outbox, sync, service worker setup</span>
+    └── <span class="dir">utils/</span>                       <span class="note">dom.js (el, button), format.js, template.js, formula.js</span></code></pre></div>
+
+  <h2 id="ps-four-kinds">Four kinds of building block</h2>
+  <p>Almost everything you will add fits one of four kinds. Each kind has a <strong>registry</strong>: a plain object that maps the <code>type</code> written in the JSON to the code that handles it.</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Kind</th><th>Shape</th><th>Registry</th></tr></thead>
+    <tbody>
+      <tr><td>Field</td><td>class that <code>extends BaseField</code></td><td><a href="#api-registries"><code>FIELD_TYPES</code></a> in <code>src/fields/index.js</code></td></tr>
+      <tr><td>Section</td><td>function returning <code>{ element, refresh? }</code></td><td><code>SECTION_TYPES</code> in <code>src/sections/index.js</code></td></tr>
+      <tr><td>Action</td><td>function <code>(form, action, button)</code></td><td><code>ACTION_HANDLERS</code> in <code>src/actions/index.js</code></td></tr>
+      <tr><td>Rule</td><td>function <code>(rule, input) → status</code></td><td><code>EVALUATORS</code> in <code>src/evaluators/index.js</code></td></tr>
+    </tbody>
+  </table></div>
+  <p>To add a new one, you write one file and add one line to the registry. Nothing else in the framework changes. <a href="#learn-custom-field">Add a field type</a> walks through it.</p>
+
+  <h2 id="ps-rules">House rules</h2>
+  <ul>
+    <li><strong>One source of truth:</strong> values live only in <code>form.values</code>. Fields never keep their own copy.</li>
+    <li><strong>No <code>innerHTML</code> with config text:</strong> build elements with <code>el()</code> from <code>src/utils/dom.js</code>, which uses <code>textContent</code>.</li>
+    <li><strong>Comment the why:</strong> every file starts with a comment saying what it is for and showing a config example.</li>
+  </ul>
+</article>
+
+<!-- ═════════════════════════════ LEARN ═════════════════════════════ -->
+
+<article class="doc" id="learn-data-flow" data-group="Learn" data-title="How the form thinks" hidden>
+  <p class="eyebrow">Learn</p>
+  <h1>How the form thinks</h1>
+  <p class="lead">The whole framework follows one loop. Once you know it, you can find your way around any file.</p>
+
+  <div class="learn-box">
+    <h2>You will learn</h2>
+    <ul>
+      <li>Where every value is kept, and why there is only one place</li>
+      <li>What happens, step by step, when a technician taps a button</li>
+      <li>The difference between a <em>field</em> and a <em>widget</em></li>
+    </ul>
+  </div>
+
+  <h2 id="flow-loop">The loop</h2>
+  <div class="flow" aria-label="Data flow">
+    <div class="flow-step"><b>user input</b><span>types, taps, picks a photo</span></div>
+    <div class="flow-arrow" aria-hidden="true">→</div>
+    <div class="flow-step"><b>form.setValue()</b><span>the only way to change a value</span></div>
+    <div class="flow-arrow" aria-hidden="true">→</div>
+    <div class="flow-step"><b>form.values</b><span>one object: name → value</span></div>
+    <div class="flow-arrow" aria-hidden="true">→</div>
+    <div class="flow-step"><b>form.refresh()</b><span>everything redraws from values</span></div>
+    <div class="flow-arrow" aria-hidden="true">→</div>
+    <div class="flow-step"><b>screen</b><span>chips, dots, lists, totals</span></div>
+    <div class="flow-loop">↺ and back to the user</div>
+  </div>
+  <p>All values live in one object, <code>form.values</code>. A field never keeps its own copy. When you debug, there is exactly one place to look:</p>
+  <div class="code-block"><div class="code-title">browser console</div><pre><code class="language-js">form.values.u4LightsPower        // "No"
+form.values.u4OverloadReading    // "19.5"
+form.values.reportStatus         // "draft"</code></pre></div>
+
+  <h2 id="flow-trace">Following one tap</h2>
+  <p>A technician on CP-1 taps <strong>No</strong> for "Power to lights?". Here is everything that happens, in order.</p>
+  <ol class="steps">
+    <li><h4>The button calls <code>setValue</code></h4>
+      <p>The <code>SegmentedField</code> built that button with a click handler. It calls the form, nothing else:</p>
+      <div class="code-block"><div class="code-title">src/fields/SegmentedField.js</div><pre><code class="language-js">button(option.label, 'dfr-seg-btn', () =&gt; this.form.setValue(this.name, option.value))</code></pre></div>
+    </li>
+    <li><h4><code>setValue</code> stores it, tells the website, and refreshes</h4>
+      <div class="code-block"><div class="code-title">src/DynamicFormRenderer.js</div><pre><code class="language-js">setValue(name, value, { notify = true } = {}) {
+    this.values[name] = value;
+    if (notify) this.callbacks.onFieldChange?.(name, value, this.getField(name)?.config || null, this);
+    this.refresh();
+}</code></pre></div>
+    </li>
+    <li><h4><code>refresh</code> runs three steps</h4>
+      <div class="code-block"><div class="code-title">src/DynamicFormRenderer.js</div><pre><code class="language-js">refresh() {
+    // Step 1: calculated fields work out their numbers first
+    this.fields.forEach(field =&gt; field.recalculate());
+    // Step 2: every field updates its own look
+    this.fields.forEach(field =&gt; field.refresh());
+    // Step 3: every widget updates what it collects from many fields
+    this.widgets.forEach(widget =&gt; widget.refresh?.());
+}</code></pre></div>
+    </li>
+    <li><h4>The screen catches up</h4>
+      <ul>
+        <li>The field: its chip shows <span class="pill fail">Flagged</span> and the <strong>No</strong> button turns red.</li>
+        <li>The Control Panel accordion: its chip shows a red "1/7".</li>
+        <li>The CP-1 tab: its dot turns red.</li>
+        <li>The deficiency box: it turns red and lists "Power to lights? · CP-1 · RED · View".</li>
+        <li>The header: "Open deficiencies" shows "1 item".</li>
+      </ul>
+    </li>
+  </ol>
+
+  <h2 id="flow-fields-widgets">Fields and widgets</h2>
+  <p>Two kinds of things refresh.</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Kind</th><th>What it is</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>Field</td><td>One question in the form. An object made from a class in <code>src/fields/</code>. Knows its config, its form and where it sits.</td><td>"Power to lights?"</td></tr>
+      <tr><td>Widget</td><td>Any block that shows information <em>collected from many fields</em>. A plain object <code>{ element, refresh }</code> registered with <code>form.addWidget()</code>.</td><td>Deficiency list, accordion progress chip, unit tabs, header metrics</td></tr>
+    </tbody>
+  </table></div>
+
+  <details class="deep-dive">
+    <summary>Why redraw everything after every change?</summary>
+    <div class="deep-body">
+      <p>Targeted updates ("this field changed, so update these three things") are faster, but every new feature must remember which things to update. That is where bugs come from. Refreshing everything is simple and always correct. The sample form has 85 values, so a full refresh takes well under a millisecond.</p>
+      <p>There is one place where it matters: the site timer refreshes the form every second. The deficiency list and the equipment summary therefore compare a short "signature" of what they would show, and only rebuild when it changed. Otherwise the <em>View</em> buttons would be replaced under the user's finger mid-click.</p>
+    </div>
+  </details>
+
+  <div class="callout pitfall">
+    <p class="callout-title">Pitfall</p>
+    <p>Inside <code>recalculate()</code>, write to <code>this.form.values</code> directly, never with <code>setValue()</code>. <code>setValue()</code> calls <code>refresh()</code>, which calls <code>recalculate()</code>, which calls <code>setValue()</code>... and the page freezes.</p>
+  </div>
+
+  <h2 id="flow-challenge">Try it yourself</h2>
+  <details class="challenge">
+    <summary>Challenge: change a value from the console. Does the screen update?</summary>
+    <p>Run <code>form.values.u4Mark = 'CP-9'</code>. The tab still says CP-1, because nothing called <code>refresh()</code>. Now run <code>form.refresh()</code> and the tab updates. <code>form.setValue('u4Mark', 'CP-9')</code> does both in one call. That is why code should always use <code>setValue</code>.</p>
+  </details>
+
+  <h2 id="flow-recap">Recap</h2>
+  <ul>
+    <li>Values live in <code>form.values</code>, and only there.</li>
+    <li>Change values with <code>form.setValue(name, value)</code>.</li>
+    <li><code>refresh()</code> runs three steps: recalculate, refresh fields, refresh widgets.</li>
+  </ul>
+</article>
+
+<article class="doc" id="learn-first-form" data-group="Learn" data-title="Build your first form" hidden>
+  <p class="eyebrow">Learn</p>
+  <h1>Build your first form</h1>
+  <p class="lead">Write a configuration from an empty object to a working inspection form, one block at a time.</p>
+
+  <div class="learn-box">
+    <h2>You will learn</h2>
+    <ul>
+      <li>The smallest config that renders</li>
+      <li>How header, sections, units and actions map to the page</li>
+      <li>How to give a question a pass/fail rule</li>
+    </ul>
+  </div>
+
+  <p>While you experiment, pass the config as an object with the <code>config</code> option instead of <code>configUrl</code>. Then you don't need an API.</p>
+  <div class="code-block"><pre><code class="language-js">const form = new DynamicFormRenderer({ container: '#formHost', config: myConfig });
+await form.render();</code></pre></div>
+
+  <ol class="steps">
+    <li>
+      <h3 id="ff-minimal">The smallest valid form</h3>
+      <p>Only <code>id</code> is required. It names the <code>&lt;form&gt;</code> element, prefixes every input id, and keys drafts and the offline outbox.</p>
+      <div class="code-block"><pre><code class="language-json">{
+  "form": {
+    "id": "fanCheck",
+    "name": "Exhaust fan check",
+    "version": "1.0"
+  }
+}</code></pre></div>
+      <p>This renders an empty form. The outer <code>"form"</code> wrapper is optional: the renderer accepts the form object on its own too.</p>
+    </li>
+    <li>
+      <h3 id="ff-header">Add a header</h3>
+      <div class="code-block"><pre><code class="language-json">"header": {
+  "brand": "Accurex start-up",
+  "status": {
+    "field": "reportStatus",
+    "defaultValue": "draft",
+    "values": [
+      { "value": "draft", "label": "Draft" },
+      { "value": "review", "label": "Review" }
+    ]
+  },
+  "title": { "field": "jobTitle", "defaultValue": "Riverside Prep Kitchen — Bldg C" },
+  "subtitleTemplate": "{salesOrder} · Tech: {technicianName}",
+  "fields": [
+    { "name": "salesOrder", "type": "text", "defaultValue": "SO-9904213", "hidden": true },
+    { "name": "technicianName", "type": "text", "defaultValue": "J. Alvarez", "hidden": true }
+  ]
+}</code></pre></div>
+      <p>Hidden fields are not drawn, but their values exist, so the subtitle can use them in <code>{curly braces}</code>.</p>
+    </li>
+    <li>
+      <h3 id="ff-card">Add a card of contact fields</h3>
+      <div class="code-block"><pre><code class="language-json">"sections": [
+  {
+    "id": "contacts", "type": "card", "title": "Project contacts", "order": 1,
+    "fields": [
+      { "name": "leadName", "label": "Project lead — name", "type": "text" },
+      { "name": "leadEmail", "label": "Project lead — email", "type": "email" },
+      { "name": "servicerEmail", "label": "Servicer email", "type": "email",
+        "layout": { "columnSpan": "full" } }
+    ]
+  }
+]</code></pre></div>
+      <p>Cards lay fields out in a grid (2 columns by default). <code>"columnSpan": "full"</code> gives a field the whole row.</p>
+    </li>
+    <li>
+      <h3 id="ff-unit">Add a unit with a pass/fail question</h3>
+      <div class="code-block"><pre><code class="language-json">"units": {
+  "items": [
+    {
+      "id": "u1", "tabLabel": "EF-1", "defaultActive": true,
+      "sections": [
+        {
+          "id": "u1Install", "title": "Installation", "defaultExpanded": true,
+          "fields": [
+            {
+              "name": "u1Belt", "label": "Belt tension correct?", "type": "segmented",
+              "options": [
+                { "label": "Yes", "value": "Yes" },
+                { "label": "No", "value": "No" },
+                { "label": "N/A", "value": "N/A" }
+              ],
+              "evaluation": { "type": "expectedValue", "expectedValue": "Yes" }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}</code></pre></div>
+      <p>The <code>evaluation</code> block does two things: it turns the answer into a status (Yes → <span class="pill pass">Pass</span>, No → <span class="pill fail">Flagged</span>, N/A → <span class="pill none">N/A</span>), and it makes the question <a href="#learn-statuses">tracked</a>, so it counts in the "0/1" chip.</p>
+    </li>
+    <li>
+      <h3 id="ff-tolerance">Add a measured reading</h3>
+      <div class="code-block"><pre><code class="language-json">{
+  "name": "u1AmpDraw", "label": "Motor amp draw", "type": "tolerance", "unit": "A",
+  "reference": { "name": "u1AmpDrawReference", "label": "Nameplate FLA" },
+  "reading":   { "name": "u1AmpDrawReading",   "label": "Measured" },
+  "evaluation": { "type": "percentTolerance", "greenPercent": 5, "redPercent": 15 }
+}</code></pre></div>
+      <p>Within ±5% is <span class="pill pass">In range</span>, up to ±15% is <span class="pill caution">Check</span>, and beyond that is <span class="pill fail">Out of range</span> (the labels come from <code>evaluation.statuses</code>; without them the defaults are Pass, Check and Flagged). A tolerance field stores two values: <code>u1AmpDrawReference</code> and <code>u1AmpDrawReading</code>.</p>
+    </li>
+    <li>
+      <h3 id="ff-actions">Add a deficiency list and buttons</h3>
+      <div class="code-block"><pre><code class="language-json">"sections": [
+  { "id": "deficiencies", "type": "deficiencySummary", "order": 0 },
+  ...
+],
+"actions": [
+  { "id": "saveDraft", "type": "save", "label": "Save draft" },
+  { "id": "submit", "type": "workflow", "label": "Submit for review",
+    "targetStatus": "review", "style": "primary" }
+],
+"submission": { "url": "/api/fan-check", "method": "POST" }</code></pre></div>
+      <p>With <code>onWorkflow: (action, data, form) =&gt; form.submit()</code> on the page, <em>Submit for review</em> sets the status to Review and posts the report to <code>/api/fan-check</code>.</p>
+    </li>
+  </ol>
+
+  <div class="callout note">
+    <p class="callout-title">Names must be unique</p>
+    <p>Every <code>name</code> is a key in <code>form.values</code>, across the whole form. Prefix unit fields with the unit id (<code>u1Belt</code>, <code>u2Belt</code>) so two units never share a value.</p>
+  </div>
+
+  <h2 id="ff-recap">Recap</h2>
+  <ul>
+    <li>Only <code>id</code> is required; every other block is optional.</li>
+    <li>Header, top-level <code>sections</code>, <code>units</code>, <code>summary</code>, <code>reviewer</code> and <code>actions</code> each map to one area of the page, top to bottom.</li>
+    <li>Add <code>evaluation</code> to a field to judge it and count it towards progress.</li>
+  </ul>
+</article>
+
+<article class="doc" id="learn-statuses" data-group="Learn" data-title="Statuses and deficiencies" hidden>
+  <p class="eyebrow">Learn</p>
+  <h1>Statuses and deficiencies</h1>
+  <p class="lead">How one answer becomes a colour, and how colours roll up to sections, units and the deficiency list.</p>
+
+  <div class="learn-box">
+    <h2>You will learn</h2>
+    <ul>
+      <li>The four field statuses and where they come from</li>
+      <li>What makes a field "tracked", and what "complete" means for each type</li>
+      <li>The exact rules for section chips and unit dots</li>
+    </ul>
+  </div>
+
+  <h2 id="st-field">Field status</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Status</th><th>Chip</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>green</td><td><span class="pill pass">Pass</span></td><td>The answer meets the rule.</td></tr>
+      <tr><td>yellow</td><td><span class="pill caution">Check</span></td><td>Close to the limit; someone should look.</td></tr>
+      <tr><td>red</td><td><span class="pill fail">Flagged</span></td><td>The answer fails the rule: a deficiency.</td></tr>
+      <tr><td>gray</td><td><span class="pill none">—</span></td><td>Not answered yet, or nothing to judge (e.g. N/A).</td></tr>
+    </tbody>
+  </table></div>
+  <p>A field gets its status from the first of these that applies:</p>
+  <ol>
+    <li>No answer → gray.</li>
+    <li>The field has <a href="#config-evaluation"><code>statusRules</code></a> → the first rule whose condition is true.</li>
+    <li>The field has an <a href="#config-evaluation"><code>evaluation</code></a> → the evaluator named in <code>evaluation.type</code>.</li>
+    <li>Otherwise → gray.</li>
+  </ol>
+
+  <h2 id="st-tracked">Tracked and complete</h2>
+  <p>A field is <strong>tracked</strong> when its config has an <code>evaluation</code> block. Only tracked fields count in progress chips and can appear in the deficiency list. This depends on the config, not on the field type: a dropdown with a <code>valueMap</code> evaluation is tracked; a plain text box isn't.</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Field type</th><th>Counts as complete when</th></tr></thead>
+    <tbody>
+      <tr><td>checkbox</td><td>Ticked (<code>true</code>).</td></tr>
+      <tr><td>tolerance</td><td>Both reference and reading are numbers.</td></tr>
+      <tr><td>all others</td><td>The value is not empty. "N/A" is an answer, so it counts as complete.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout note">
+    <p class="callout-title"><code>statusRules</code> only colour</p>
+    <p>A field with <code>statusRules</code> but no <code>evaluation</code> (like the hours Variance) changes colour but is not tracked. Running 30 minutes over the expected time is not an equipment deficiency.</p>
+  </div>
+
+  <h2 id="st-section">Section chips</h2>
+  <p>Each accordion shows <code>completed/total</code> for its tracked fields. Its colour is the first that applies:</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Rule</th><th>Chip</th></tr></thead>
+    <tbody>
+      <tr><td>any field red</td><td><span class="pill fail">2/7</span></td></tr>
+      <tr><td>any field yellow</td><td><span class="pill caution">5/7</span></td></tr>
+      <tr><td>all complete</td><td><span class="pill pass">7/7</span></td></tr>
+      <tr><td>otherwise</td><td><span class="pill none">3/7</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 id="st-unit">Unit status</h2>
+  <p>Shown as the dot on each unit tab, on the Summary tab, and in <code>getData().units</code>. The first rule that applies wins:</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Rule</th><th>status</th><th>label</th></tr></thead>
+    <tbody>
+      <tr><td>any tracked field red</td><td class="type">fail</td><td>Red — deficiency found</td></tr>
+      <tr><td>any tracked field yellow</td><td class="type">caution</td><td>Yellow — needs a look</td></tr>
+      <tr><td>nothing answered and no notes</td><td class="type">pending</td><td>Not started</td></tr>
+      <tr><td>some tracked fields not complete</td><td class="type">pending</td><td>In progress</td></tr>
+      <tr><td>everything complete</td><td class="type">pass</td><td>Green — no issues</td></tr>
+    </tbody>
+  </table></div>
+  <p>Writing unit notes counts as "started", so a unit with only notes shows <em>In progress</em>.</p>
+
+  <h2 id="st-deficiencies">The deficiency list</h2>
+  <p>Every tracked field that is red or yellow, unit by unit in tab order, with the unit's <em>mark</em> (its name, e.g. EF-1) and a <em>View</em> button. View switches to the right tab, opens the accordion, scrolls to the field and flashes it. The same count feeds the header metric "Open deficiencies" and the email placeholder <code>{deficiencyStatusText}</code>.</p>
+  <details class="deep-dive">
+    <summary>Where does the unit name ("mark") come from?</summary>
+    <div class="deep-body">
+      <p>From the unit's identity field whose <code>name</code> contains "mark" (case-insensitive), e.g. <code>u2Mark</code>. The technician can rename a unit by editing that field, and every tab, summary row and deficiency line follows. Without such a field, the tab label is used.</p>
+    </div>
+  </details>
+
+  <h2 id="st-recap">Recap</h2>
+  <ul>
+    <li><code>evaluation</code> both colours a field and makes it tracked; <code>statusRules</code> only colours.</li>
+    <li>Red beats yellow beats complete, at every level.</li>
+    <li>The rules live in plain functions in <code>src/core/status.js</code>, with no page code, so they are easy to read and test.</li>
+  </ul>
+</article>
+
+<article class="doc" id="learn-custom-field" data-group="Learn" data-title="Add a field type" hidden>
+  <p class="eyebrow">Learn</p>
+  <h1>Add a field type</h1>
+  <p class="lead">Build a 1–5 rating field for "Grease filter condition", register it, and use it from JSON.</p>
+
+  <div class="learn-box">
+    <h2>You will learn</h2>
+    <ul>
+      <li>What <code>BaseField</code> gives you for free</li>
+      <li>The two methods most field types override</li>
+      <li>How to register a type inside the package or from the website</li>
+    </ul>
+  </div>
+
+  <h2 id="cf-free">What you get for free</h2>
+  <p>Extend <code>BaseField</code> and you already have: the label, the "?" help box, the optional status chip, the "Attach photo" button, the default value, status from <code>evaluation</code>/<code>statusRules</code>, progress tracking, and grid placement. Usually you only write <code>renderControl()</code> and sometimes <code>refresh()</code>.</p>
+
+  <ol class="steps">
+    <li>
+      <h3 id="cf-class">Create the class</h3>
+      <div class="code-block"><div class="code-title">src/fields/RatingField.js</div><pre><code class="language-js">import { el, button } from '../utils/dom.js';
+import { BaseField } from './BaseField.js';
+
+/**
+ * RatingField — a score from 1 to `max` (default 5), shown as a row of buttons.
+ *
+ * Config example:
+ *   { "type": "rating", "name": "u3FilterCondition", "label": "Grease filter condition", "max": 5 }
+ */
+export class RatingField extends BaseField {
+    constructor(config, form, context) {
+        super(config, form, context);
+        this.showsStatusChip = true;   // show Pass / Flagged when the config has an evaluation
+        this.scoreButtons = [];
+    }
+
+    /** Several buttons, no single input for the &lt;label&gt; to point to. */
+    labelTargetId() {
+        return null;
+    }
+}</code></pre></div>
+    </li>
+    <li>
+      <h3 id="cf-render">Draw the control</h3>
+      <p><code>renderControl()</code> returns the element that goes under the label. Clicking a button calls <code>setValue</code>, exactly like every other field.</p>
+      <div class="code-block"><div class="code-title">src/fields/RatingField.js</div><pre><code class="language-js">renderControl() {
+    const max = this.config.max || 5;
+
+    for (let score = 1; score &lt;= max; score++) {
+        const scoreButton = button(String(score), 'dfr-seg-btn', () =&gt; this.form.setValue(this.name, score));
+        this.scoreButtons.push(scoreButton);
+    }
+    return el('div', { className: 'dfr-segmented' }, this.scoreButtons);
+}</code></pre></div>
+    </li>
+    <li>
+      <h3 id="cf-refresh">Show the current value</h3>
+      <p><code>refresh()</code> runs after every change. Call <code>super.refresh()</code> first so the chip and photo picker update, then add your own part.</p>
+      <div class="code-block"><div class="code-title">src/fields/RatingField.js</div><pre><code class="language-js">refresh() {
+    super.refresh();
+    const current = Number(this.value || 0);
+    this.scoreButtons.forEach((scoreButton, index) =&gt; {
+        scoreButton.classList.toggle('is-active', index &lt; current);
+    });
+}</code></pre></div>
+    </li>
+    <li>
+      <h3 id="cf-register">Register it</h3>
+      <div class="code-block"><div class="code-title">src/fields/index.js</div><pre><code class="language-js">import { RatingField } from './RatingField.js';
+
+export const FIELD_TYPES = {
+    // ...the existing types
+    rating: RatingField,
+};</code></pre></div>
+    </li>
+    <li>
+      <h3 id="cf-use">Use it in the JSON</h3>
+      <div class="code-block"><pre><code class="language-json">{ "type": "rating", "name": "u3FilterCondition", "label": "Grease filter condition", "max": 5 }</code></pre></div>
+      <p>To give it a pass/fail rule, add an evaluator. <a href="#learn-extend">The next page</a> adds <code>minimumScore</code>.</p>
+    </li>
+  </ol>
+
+  <h2 id="cf-from-website">Register from the website instead</h2>
+  <p>If you can't edit the package (for example it's shared between sites), the registries are exported. Register before <code>render()</code>:</p>
+  <div class="code-block"><div class="code-title">your-page.html</div><pre><code class="language-html">&lt;script type="module"&gt;
+  import { FIELD_TYPES, BaseField } from './Accurex-DynamicFormRenderer.js';
+
+  class RatingField extends BaseField { /* ... as above ... */ }
+  FIELD_TYPES.rating = RatingField;
+&lt;/script&gt;</code></pre></div>
+  <p>Module scripts run in order and before <code>DOMContentLoaded</code>, so the type exists by the time the page calls <code>render()</code>.</p>
+
+  <details class="deep-dive">
+    <summary>A field that stores more than one value</summary>
+    <div class="deep-body">
+      <p>Override <code>getDefaultValues()</code> and return every name. The form registers each name, so <code>form.getField(name)</code> and <code>onFieldChange</code> work for all of them. <code>ToleranceField</code> does this for its reference and reading:</p>
+      <div class="code-block"><pre><code class="language-js">getDefaultValues() {
+    const { reference, reading } = this.config;
+    return {
+        [reference.name]: reference.defaultValue ?? '',
+        [reading.name]: reading.defaultValue ?? '',
+    };
+}</code></pre></div>
+      <p>Then also override <code>isComplete()</code> and <code>getStatus()</code>, because the base versions look at <code>this.value</code> (the single value under <code>this.name</code>).</p>
+    </div>
+  </details>
+
+  <div class="callout pitfall">
+    <p class="callout-title">Pitfall</p>
+    <p>If you set <code>this.control</code>, the base <code>refresh()</code> copies <code>form.values[this.name]</code> into it with <code>setInputValue()</code>. That's right for inputs, selects and textareas. For anything else, leave <code>this.control</code> as <code>null</code> or override <code>syncControlValue()</code>.</p>
+  </div>
+
+  <h2 id="cf-recap">Recap</h2>
+  <ul>
+    <li>Extend <code>BaseField</code>; override <code>renderControl()</code> and, when needed, <code>refresh()</code>.</li>
+    <li>Change values only with <code>this.form.setValue()</code>.</li>
+    <li>One line in <code>FIELD_TYPES</code> makes the type available to every config.</li>
+  </ul>
+</article>
+
+<article class="doc" id="learn-extend" data-group="Learn" data-title="Add sections, actions and rules" hidden>
+  <p class="eyebrow">Learn</p>
+  <h1>Add sections, actions and rules</h1>
+  <p class="lead">The other three registries work the same way as fields: write a function, add one line.</p>
+
+  <div class="learn-box">
+    <h2>You will learn</h2>
+    <ul>
+      <li>The shape each registry expects</li>
+      <li>When a section needs a <code>refresh</code></li>
+      <li>How unknown types behave, so a typo never breaks the page</li>
+    </ul>
+  </div>
+
+  <h2 id="ext-rule">A pass/fail rule</h2>
+  <p>An evaluator receives the <code>evaluation</code> object from the JSON and the field's answer, and returns <code>'green'</code>, <code>'yellow'</code>, <code>'red'</code> or <code>'gray'</code>.</p>
+  <div class="code-block"><div class="code-title">src/evaluators/index.js</div><pre><code class="language-js">export const EVALUATORS = {
+    // ...the existing rules
+
+    /** Pass when the score is at least `minimum`, e.g. { "type": "minimumScore", "minimum": 3 }. */
+    minimumScore(rule, value) {
+        return Number(value) &gt;= rule.minimum ? FIELD_STATUS.PASS : FIELD_STATUS.FAIL;
+    },
+};</code></pre></div>
+  <div class="code-block"><pre><code class="language-json">{ "type": "rating", "name": "u3FilterCondition", "label": "Grease filter condition",
+  "evaluation": { "type": "minimumScore", "minimum": 3 } }</code></pre></div>
+  <p>Because the field now has an <code>evaluation</code>, it is tracked: it counts in progress and a score of 1 or 2 appears in the deficiency list.</p>
+
+  <h2 id="ext-section">A section</h2>
+  <p>A section function receives the form and the section's config, and returns <code>{ element }</code>. Add <code>refresh</code> only when the section shows information that changes with the answers.</p>
+  <div class="code-block"><div class="code-title">src/sections/noticeSection.js</div><pre><code class="language-js">import { el } from '../utils/dom.js';
+
+/**
+ * Notice — a box of instructions, e.g. a safety reminder.
+ * Config: { "type": "notice", "title": "Before you start", "text": "Lock out power at the panel." }
+ */
+export function renderNotice(form, section) {
+    const element = el('section', { className: 'dfr-card' }, [
+        el('h3', { className: 'dfr-card-title', text: section.title }),
+        el('p', { className: 'dfr-smallnote', text: section.text }),
+    ]);
+    return { element };   // nothing changes, so no refresh
+}</code></pre></div>
+  <div class="code-block"><div class="code-title">src/sections/index.js</div><pre><code class="language-js">export const SECTION_TYPES = {
+    // ...the existing types
+    notice: renderNotice,
+};</code></pre></div>
+  <p>Sections listed in <code>sections</code> or <code>summary.sections</code> are registered as widgets automatically, so a <code>refresh</code> you return is called after every change.</p>
+
+  <h2 id="ext-action">A button action</h2>
+  <p>An action function receives the form, the action from the JSON and the clicked button.</p>
+  <div class="code-block"><div class="code-title">src/actions/openUrlAction.js</div><pre><code class="language-js">import { fillTemplate } from '../utils/template.js';
+
+/**
+ * "Open manual" — opens a link built from form values.
+ * Config: { "type": "openUrl", "label": "Open manual", "urlTemplate": "/manuals/{u1Model}.pdf" }
+ */
+export function openUrl(form, action) {
+    window.open(fillTemplate(action.urlTemplate, form.values), '_blank', 'noopener');
+}</code></pre></div>
+  <div class="code-block"><div class="code-title">src/actions/index.js</div><pre><code class="language-js">export const ACTION_HANDLERS = {
+    // ...the existing actions
+    openUrl,
+};</code></pre></div>
+
+  <h2 id="ext-unknown">What unknown types do</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Unknown…</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>field type</td><td>Drawn as a text box, with a console warning naming the field.</td></tr>
+      <tr><td>section type</td><td>Drawn as a normal card.</td></tr>
+      <tr><td>action type</td><td>Passed to the website's <a href="#api-callbacks"><code>onAction</code></a> callback, so the site can handle special buttons without changing the package.</td></tr>
+      <tr><td>evaluation type</td><td>Status gray, with a console warning.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 id="ext-recap">Recap</h2>
+  <ul>
+    <li>Rules: <code>(rule, input) → status</code>. Sections: <code>(form, section) → { element, refresh? }</code>. Actions: <code>(form, action, button)</code>.</li>
+    <li>One line in the matching registry makes it available to every config.</li>
+    <li>Typos never break the page; check the console for warnings.</li>
+  </ul>
+</article>
+
+<!-- ═════════════════════════════ CONFIGURATION ═════════════════════════════ -->
+
+<article class="doc" id="config-overview" data-group="Configuration" data-title="Form object" hidden>
+  <p class="eyebrow">Configuration</p>
+  <h1>Form object</h1>
+  <p class="lead">The top level of the JSON the CRM API returns. The renderer accepts <code>{ "form": { … } }</code> or the form object on its own.</p>
+
+  <div class="callout note">
+    <p class="callout-title">Badges in these tables</p>
+    <p><span class="badge req">required</span> must be present. <span class="badge info">informational</span> appears in the sample JSON but the renderer does not read it today. It is safe to keep, but changing it has no effect.</p>
+  </div>
+
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="id"><td>id <span class="badge req">required</span></td><td class="type">string</td><td class="def">—</td><td>Unique form id. Becomes the <code>&lt;form&gt;</code> id, prefixes every input id (<code>accurexStartupReport__leadName</code>), and keys the saved draft and offline outbox.</td></tr>
+      <tr data-key="name"><td>name</td><td class="type">string</td><td class="def">—</td><td>Form name. Used as the header brand and title when the header doesn't set them.</td></tr>
+      <tr data-key="version"><td>version</td><td class="type">string</td><td class="def">—</td><td>Copied into <code>getData().version</code> and into saved drafts.</td></tr>
+      <tr data-key="description"><td>description <span class="badge info">informational</span></td><td class="type">string</td><td class="def">—</td><td>Free text for the CRM. Not shown.</td></tr>
+      <tr data-key="layout"><td>layout</td><td class="type">object</td><td class="def">—</td><td>Width and columns. <a href="#config-layout">Layout &amp; theme</a>.</td></tr>
+      <tr data-key="theme"><td>theme</td><td class="type">object</td><td class="def">—</td><td>Extra CSS class. <a href="#config-layout">Layout &amp; theme</a>.</td></tr>
+      <tr data-key="header"><td>header</td><td class="type">object</td><td class="def">—</td><td>Dark top bar. <a href="#config-header">Header</a>.</td></tr>
+      <tr data-key="sections"><td>sections</td><td class="type">array</td><td class="def">[]</td><td>Blocks above the unit tabs, sorted by <code>order</code>. <a href="#config-sections">Sections</a>.</td></tr>
+      <tr data-key="units"><td>units</td><td class="type">object</td><td class="def">—</td><td>Equipment tabs. <a href="#config-units">Units, summary &amp; reviewer</a>.</td></tr>
+      <tr data-key="summary"><td>summary</td><td class="type">object</td><td class="def">—</td><td>Content of the Summary tab. <a href="#config-units">Units, summary &amp; reviewer</a>.</td></tr>
+      <tr data-key="reviewer"><td>reviewer</td><td class="type">object</td><td class="def">—</td><td>Approve / Reject card. <a href="#config-units">Units, summary &amp; reviewer</a>.</td></tr>
+      <tr data-key="actions"><td>actions</td><td class="type">array</td><td class="def">[]</td><td>Buttons fixed to the bottom of the screen. <a href="#config-actions">Actions</a>.</td></tr>
+      <tr data-key="submission"><td>submission</td><td class="type">object</td><td class="def">—</td><td>Where <code>submit()</code> sends the report. <a href="#config-data">Submission &amp; data sources</a>.</td></tr>
+      <tr data-key="dataSources"><td>dataSources</td><td class="type">object</td><td class="def">—</td><td>APIs for "Pull from CAPS". <a href="#config-data">Submission &amp; data sources</a>.</td></tr>
+      <tr data-key="behavior"><td>behavior</td><td class="type">object</td><td class="def">—</td><td>Offline mode. <a href="#config-behavior">Behavior &amp; offline</a>.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 id="co-order">Page order</h2>
+  <p>The page is always built in this order, top to bottom. Blocks that are missing from the config are skipped.</p>
+  <ol>
+    <li><code>header</code></li>
+    <li>offline status bar and "Draft restored" banner (when they apply)</li>
+    <li><code>sections</code>, sorted by <code>order</code></li>
+    <li><code>units</code> tabs, with <code>summary</code> as the last tab when <code>units.summaryTab.enabled</code> is true</li>
+    <li><code>summary</code> below the units, when there is no Summary tab</li>
+    <li><code>reviewer</code></li>
+    <li><code>actions</code> (fixed bar at the bottom)</li>
+  </ol>
+
+  <h2 id="co-templates">Placeholders</h2>
+  <p>Several text properties accept <code>{fieldName}</code> placeholders, which are filled with current form values: <code>header.subtitleTemplate</code>, email <code>subjectTemplate</code> / <code>bodyTemplate</code>, and data source <code>url</code>. An unknown placeholder is left as written, so missing data is easy to spot.</p>
+</article>
+
+<article class="doc" id="config-layout" data-group="Configuration" data-title="Layout &amp; theme" hidden>
+  <p class="eyebrow">Configuration</p>
+  <h1>Layout &amp; theme</h1>
+  <p class="lead">How wide the form gets and how many columns field grids use. The renderer turns these into two CSS variables on the <code>&lt;form&gt;</code>; all sizing stays in the stylesheet.</p>
+
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="layout.maxWidth"><td>layout.maxWidth</td><td class="type">number | string</td><td class="def">640</td><td>Maximum width. A number means pixels; a CSS length such as <code>"48rem"</code> or <code>"100%"</code> is used as is. Sets <code>--dfr-max-width</code>.</td></tr>
+      <tr data-key="layout.columns"><td>layout.columns</td><td class="type">integer ≥ 1</td><td class="def">2</td><td>Columns in every field grid on wider screens. Sets <code>--dfr-columns</code>. Phones (≤ 520px) always show one column.</td></tr>
+      <tr data-key="layout.labelPosition"><td>layout.labelPosition <span class="badge info">informational</span></td><td class="type">"top"</td><td class="def">"top"</td><td>Labels are always above inputs.</td></tr>
+      <tr data-key="layout.mode"><td>layout.mode <span class="badge info">informational</span></td><td class="type">string</td><td class="def">—</td><td>The CSS is mobile-first regardless.</td></tr>
+      <tr data-key="theme.cssClass"><td>theme.cssClass</td><td class="type">string</td><td class="def">—</td><td>Added to the <code>&lt;form&gt;</code> element's classes, so a website can scope its own CSS overrides to one form.</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>Invalid values (<code>"banana"</code>, <code>2.5</code>, <code>0</code>) fall back to the default, with a console warning.</p>
+
+  <h2 id="cl-columns">Columns and <code>columnSpan</code></h2>
+  <p>A field takes one column unless its own <code>layout.columnSpan</code> says otherwise:</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>columnSpan</th><th>2 columns</th><th>3 columns</th><th>1 column</th></tr></thead>
+    <tbody>
+      <tr><td>(not set)</td><td>half</td><td>a third</td><td>full</td></tr>
+      <tr><td>2</td><td>full</td><td>two thirds</td><td>full (capped)</td></tr>
+      <tr><td>"full"</td><td>full</td><td>full</td><td>full</td></tr>
+    </tbody>
+  </table></div>
+  <p>A span larger than <code>columns</code> is reduced to <code>columns</code>. Use <code>"full"</code> for long fields (emails, notes, narratives) so they still fill the row if the column count changes later.</p>
+
+  <div class="code-block"><pre><code class="language-json">"layout": { "maxWidth": 960, "columns": 3 },
+"theme": { "cssClass": "accurex-startup-report" }</code></pre></div>
+</article>
+
+<article class="doc" id="config-header" data-group="Configuration" data-title="Header" hidden>
+  <p class="eyebrow">Configuration</p>
+  <h1>Header</h1>
+  <p class="lead">The dark bar at the top: brand, report status, job title, a subtitle built from values, optional fields, and metric boxes.</p>
+
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="header.brand"><td>header.brand</td><td class="type">string</td><td class="def">form.name</td><td>Small uppercase text, top left.</td></tr>
+      <tr data-key="header.status.field"><td>header.status.field</td><td class="type">string</td><td class="def">"reportStatus"</td><td>Name of the value that holds the report status. Workflow actions change it.</td></tr>
+      <tr data-key="header.status.defaultValue"><td>header.status.defaultValue</td><td class="type">string</td><td class="def">"draft"</td><td>Starting status.</td></tr>
+      <tr data-key="header.status.values"><td>header.status.values</td><td class="type">{ value, label }[]</td><td class="def">—</td><td>Labels for the status pill. Without a match, the value is capitalised ("review" → "Review"). The pill colour comes from the CSS class <code>dfr-status-{value}</code>, defined for draft, review, approved and rejected.</td></tr>
+      <tr data-key="header.status.values[].style"><td>header.status.values[].style <span class="badge info">informational</span></td><td class="type">string</td><td class="def">—</td><td>The colour follows the value, not this property.</td></tr>
+      <tr data-key="header.title.field"><td>header.title.field</td><td class="type">string</td><td class="def">—</td><td>Name of the value shown as the job title (e.g. <code>jobTitle</code>). The value is created automatically and appears in <code>getData().values</code>.</td></tr>
+      <tr data-key="header.title.defaultValue"><td>header.title.defaultValue</td><td class="type">string</td><td class="def">""</td><td>The job title's starting text. Without <code>title.field</code>, the title shows <code>form.name</code>.</td></tr>
+      <tr data-key="header.subtitleTemplate"><td>header.subtitleTemplate</td><td class="type">string</td><td class="def">—</td><td>Grey line under the title with <code>{placeholders}</code>, e.g. <code>"{salesOrder} · Tech: {technicianName} · {visitDate}"</code>. Updates live.</td></tr>
+      <tr data-key="header.fields"><td>header.fields</td><td class="type">field[]</td><td class="def">[]</td><td>Fields shown in the header as compact inputs. Fields with <code>"hidden": true</code> are not drawn but their values exist, which is how the subtitle gets its data.</td></tr>
+      <tr data-key="header.fields[].action"><td>header.fields[].action</td><td class="type">{ type: "copy", label }</td><td class="def">—</td><td>Adds a button next to the field that copies its value to the clipboard and shows "Copied". If the clipboard is blocked, the text is selected instead.</td></tr>
+      <tr data-key="header.metrics"><td>header.metrics</td><td class="type">metric[]</td><td class="def">[]</td><td>Boxes under the title. See below.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 id="ch-metrics">Metrics</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="header.metrics[].id"><td>metrics[].id</td><td class="type">string</td><td class="def">—</td><td>Identifier.</td></tr>
+      <tr data-key="header.metrics[].label"><td>metrics[].label</td><td class="type">string</td><td class="def">—</td><td>Small text above the number.</td></tr>
+      <tr data-key="header.metrics[].source"><td>metrics[].source</td><td class="type">"units" | "deficiencies"</td><td class="def">—</td><td><code>units</code>: number of units. <code>deficiencies</code>: number of red or yellow tracked fields, shown as "None" in green or "3 items" in amber. Other sources show "—".</td></tr>
+      <tr data-key="header.metrics[].display"><td>metrics[].display</td><td class="type">"startedOfTotal"</td><td class="def">—</td><td>For <code>units</code>: <code>"startedOfTotal"</code> shows "2 of 4 started"; anything else shows the total only.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="code-block"><div class="code-title">accurex-startup-report-config.json</div><pre><code class="language-json">"metrics": [
+  { "id": "unitCount", "label": "Units on this project", "source": "units", "display": "startedOfTotal" },
+  { "id": "openDeficiencies", "label": "Open deficiencies", "source": "deficiencies", "display": "count" }
+]</code></pre></div>
+</article>
+
+<article class="doc" id="config-sections" data-group="Configuration" data-title="Sections" hidden>
+  <p class="eyebrow">Configuration</p>
+  <h1>Sections</h1>
+  <p class="lead">Blocks of the page. Used in the top-level <code>sections</code> array and in <code>summary.sections</code>. The <code>type</code> picks how the block is drawn.</p>
+
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="sections[].id"><td>sections[].id</td><td class="type">string</td><td class="def">—</td><td>Identifier.</td></tr>
+      <tr data-key="sections[].type"><td>sections[].type</td><td class="type">string</td><td class="def">"card"</td><td><code>card</code>, <code>deficiencySummary</code>, <code>hoursTracker</code> or <code>equipmentStatusSummary</code>. Unknown types are drawn as a card.</td></tr>
+      <tr data-key="sections[].title"><td>sections[].title</td><td class="type">string</td><td class="def">—</td><td>Heading of the block.</td></tr>
+      <tr data-key="sections[].order"><td>sections[].order</td><td class="type">number</td><td class="def">0</td><td>Top-level sections are sorted by this, smallest first.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 id="cs-card">card</h2>
+  <p>A white box with a title and its fields in a grid.</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="card.fields"><td>fields</td><td class="type">field[]</td><td class="def">[]</td><td>The fields. See <a href="#config-fields">Fields</a>.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 id="cs-deficiency">deficiencySummary</h2>
+  <p>Lists every red or yellow tracked field with a <em>View</em> link. Red border and title when there are deficiencies, green when there are none. Clicking the heading collapses it.</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="deficiencySummary.title"><td>title</td><td class="type">string</td><td class="def">"Deficiencies — review before submitting"</td><td>Heading when there are deficiencies.</td></tr>
+      <tr data-key="deficiencySummary.emptyTitle"><td>emptyTitle</td><td class="type">string</td><td class="def">"No deficiencies identified — clean so far"</td><td>Heading when there are none.</td></tr>
+      <tr data-key="deficiencySummary.defaultExpanded"><td>defaultExpanded</td><td class="type">boolean</td><td class="def">true</td><td>Only <code>false</code> starts it collapsed.</td></tr>
+      <tr data-key="deficiencySummary.source"><td>source, collapsible, styles <span class="badge info">informational</span></td><td class="type">—</td><td class="def">—</td><td>The list always covers all tracked fields and is always collapsible.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 id="cs-hours">hoursTracker</h2>
+  <p>Big read-only numbers (e.g. Expected / Actual / Variance) and a row of action buttons, typically a site timer and "Notify project lead".</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="hoursTracker.title"><td>title</td><td class="type">string</td><td class="def">"Time on site"</td><td>Heading.</td></tr>
+      <tr data-key="hoursTracker.fields"><td>fields</td><td class="type">field[]</td><td class="def">[]</td><td>Shown as numbers, not inputs, using each field's <code>format</code> (default <code>"0.00"</code>); empty values show "—". A field with <code>statusRules</code> colours its box green, amber or red.</td></tr>
+      <tr data-key="hoursTracker.actions"><td>actions</td><td class="type">action[]</td><td class="def">[]</td><td>Buttons under the numbers. A <code>timer</code> action gets the blue primary style. See <a href="#config-actions">Actions</a>.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="code-block"><div class="code-title">accurex-startup-report-config.json</div><pre><code class="language-json">{
+  "id": "timeOnSite", "type": "hoursTracker", "title": "Time on site", "order": 3,
+  "fields": [
+    { "name": "expectedHours", "label": "Expected hrs", "type": "number", "defaultValue": 4.5, "readOnly": true },
+    { "name": "actualHours", "label": "Actual hrs", "type": "number", "defaultValue": 0, "readOnly": true },
+    { "name": "hoursVariance", "label": "Variance", "type": "calculated",
+      "formula": "{actualHours} - {expectedHours}", "format": "0.00",
+      "statusRules": [
+        { "when": "value &lt;= 0", "status": "pass" },
+        { "when": "value &gt; 0 &amp;&amp; value &lt;= expectedHours * 0.25", "status": "caution" },
+        { "when": "value &gt; expectedHours * 0.25", "status": "fail" }
+      ] }
+  ],
+  "actions": [ { "id": "siteTimer", "type": "timer", "label": "Start timer", "targetField": "actualHours" } ]
+}</code></pre></div>
+
+  <h2 id="cs-equipment">equipmentStatusSummary</h2>
+  <p>One row per unit with its status label. Units with red or yellow fields also list those fields and, if written, the technician's notes. Used on the Summary tab.</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="equipmentStatusSummary.title"><td>title</td><td class="type">string</td><td class="def">—</td><td>Heading.</td></tr>
+      <tr data-key="equipmentStatusSummary.includeFlaggedFields"><td>source, includeFlaggedFields, includeUnitNotes <span class="badge info">informational</span></td><td class="type">—</td><td class="def">—</td><td>Flagged fields and notes are always included.</td></tr>
+    </tbody>
+  </table></div>
+</article>
+
+<article class="doc" id="config-units" data-group="Configuration" data-title="Units, summary &amp; reviewer" hidden>
+  <p class="eyebrow">Configuration</p>
+  <h1>Units, summary &amp; reviewer</h1>
+  <p class="lead">Units are the pieces of equipment, one tab each. The summary is the last tab. The reviewer card is for whoever approves the report.</p>
+
+  <h2 id="cu-units">units</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="units.items"><td>units.items</td><td class="type">unit[]</td><td class="def">[]</td><td>The units, in tab order. Without items, no tabs are drawn.</td></tr>
+      <tr data-key="units.summaryTab.enabled"><td>units.summaryTab.enabled</td><td class="type">boolean</td><td class="def">false</td><td>Adds a tab that shows <code>summary</code>. Without it, the summary is drawn below the units.</td></tr>
+      <tr data-key="units.summaryTab.label"><td>units.summaryTab.label</td><td class="type">string</td><td class="def">"Summary"</td><td>Tab text.</td></tr>
+      <tr data-key="units.allowAdd"><td>units.allowAdd</td><td class="type">boolean</td><td class="def">false</td><td>Shows a dashed "+ Add unit" button. Clicking it calls the website's <code>onAction</code> with <code>{ id: "addUnit", type: "addUnit" }</code>; the website decides what to do.</td></tr>
+      <tr data-key="units.addLabel"><td>units.addLabel</td><td class="type">string</td><td class="def">"+ Add unit"</td><td>Button text.</td></tr>
+      <tr data-key="units.type"><td>units.type, units.id <span class="badge info">informational</span></td><td class="type">string</td><td class="def">—</td><td>Not read.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 id="cu-unit">A unit</h3>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="unit.id"><td>id <span class="badge req">required</span></td><td class="type">string</td><td class="def">—</td><td>Unique unit id, e.g. <code>u4</code>. Also available as <code>{unitId}</code> in data source URLs.</td></tr>
+      <tr data-key="unit.tabLabel"><td>tabLabel</td><td class="type">string</td><td class="def">id</td><td>Tab text until the technician edits the unit's mark field.</td></tr>
+      <tr data-key="unit.defaultActive"><td>defaultActive</td><td class="type">boolean</td><td class="def">false</td><td>The tab shown first. Without one, the first unit.</td></tr>
+      <tr data-key="unit.identity.fields"><td>identity.fields</td><td class="type">field[]</td><td class="def">[]</td><td>Model, serial, mark name… in a grid at the top of the tab. The field whose name contains "mark" becomes the unit's display name.</td></tr>
+      <tr data-key="unit.identity.actions"><td>identity.actions</td><td class="type">action[]</td><td class="def">[]</td><td>Buttons under the identity fields, typically <code>dataPull</code>. The renderer adds <code>unitId</code> to each action.</td></tr>
+      <tr data-key="unit.sections"><td>sections</td><td class="type">accordion[]</td><td class="def">[]</td><td>Collapsible sections with a progress chip. See below.</td></tr>
+      <tr data-key="unit.notes"><td>notes</td><td class="type">field</td><td class="def">—</td><td>A field (usually <code>textarea</code>) shown in a card at the bottom. Its <code>label</code> becomes the card title. Notes count as "started" for the unit status and appear on the Summary tab.</td></tr>
+      <tr data-key="unit.unitType"><td>unitType <span class="badge info">informational</span></td><td class="type">string</td><td class="def">—</td><td>e.g. <code>"exhaustFan"</code>. Not read.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 id="cu-accordion">An accordion section</h3>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="accordion.id"><td>id</td><td class="type">string</td><td class="def">—</td><td>Identifier.</td></tr>
+      <tr data-key="accordion.title"><td>title</td><td class="type">string</td><td class="def">—</td><td>Heading, e.g. "Control Panel".</td></tr>
+      <tr data-key="accordion.subtitle"><td>subtitle</td><td class="type">string</td><td class="def">—</td><td>Small grey italic note after the title.</td></tr>
+      <tr data-key="accordion.defaultExpanded"><td>defaultExpanded</td><td class="type">boolean</td><td class="def">false</td><td>Only <code>true</code> starts it open. (The opposite default from <code>deficiencySummary</code>.)</td></tr>
+      <tr data-key="accordion.fields"><td>fields</td><td class="type">field[]</td><td class="def">[]</td><td>Listed one per row. The chip shows <code>completed/total</code> of the tracked fields.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 id="cu-summary">summary</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="summary.sections"><td>summary.sections</td><td class="type">section[]</td><td class="def">[]</td><td>Any <a href="#config-sections">section types</a>. The sample uses <code>equipmentStatusSummary</code> and a card with the narrative and signature.</td></tr>
+      <tr data-key="summary.id"><td>summary.id, summary.title <span class="badge info">informational</span></td><td class="type">string</td><td class="def">—</td><td>The tab text comes from <code>units.summaryTab.label</code>.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 id="cu-reviewer">reviewer</h2>
+  <p>A "Switch to reviewer view →" button that shows a card with a note and decision buttons.</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="reviewer.enabled"><td>reviewer.enabled</td><td class="type">boolean</td><td class="def">false</td><td>Must be <code>true</code> to show the reviewer card.</td></tr>
+      <tr data-key="reviewer.title"><td>reviewer.title</td><td class="type">string</td><td class="def">"Reviewer actions"</td><td>Card heading.</td></tr>
+      <tr data-key="reviewer.description"><td>reviewer.description</td><td class="type">string</td><td class="def">—</td><td>Small text under the heading.</td></tr>
+      <tr data-key="reviewer.fields"><td>reviewer.fields</td><td class="type">field[]</td><td class="def">[]</td><td>Usually one <code>textarea</code> note. The <strong>first</strong> field's value is quoted in the "Sent back to vendor" banner.</td></tr>
+      <tr data-key="reviewer.actions"><td>reviewer.actions</td><td class="type">workflow action[]</td><td class="def">[]</td><td>Decision buttons. <code>targetStatus: "rejected"</code> is drawn red, anything else green. After success, a banner shows "Sent back to vendor — “note”" or "Approved — forwarded to next stakeholder."</td></tr>
+    </tbody>
+  </table></div>
+  <div class="code-block"><pre><code class="language-json">"reviewer": {
+  "enabled": true,
+  "fields": [ { "name": "reviewerNote", "label": "Reviewer note", "type": "textarea",
+                "layout": { "columnSpan": "full" } } ],
+  "actions": [
+    { "id": "reject", "type": "workflow", "label": "Reject — send back", "targetStatus": "rejected",
+      "validation": { "requiredFields": ["reviewerNote"] } },
+    { "id": "approve", "type": "workflow", "label": "Approve — forward", "targetStatus": "approved" }
+  ]
+}</code></pre></div>
+</article>
+
+<article class="doc" id="config-fields" data-group="Configuration" data-title="Fields" hidden>
+  <p class="eyebrow">Configuration</p>
+  <h1>Fields</h1>
+  <p class="lead">One question in the form. The same field object is used everywhere: cards, unit identity, accordions, notes, header, hours tracker and reviewer.</p>
+
+  <h2 id="cf-common">Common properties</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="field.name"><td>name <span class="badge req">required</span></td><td class="type">string</td><td class="def">—</td><td>Key in <code>form.values</code>. Must be unique across the whole form; prefix unit fields with the unit id (<code>u2Voltage</code>).</td></tr>
+      <tr data-key="field.type"><td>type</td><td class="type">string</td><td class="def">"text"</td><td>One of the types below. Unknown types are drawn as a text box with a console warning.</td></tr>
+      <tr data-key="field.label"><td>label</td><td class="type">string</td><td class="def">name</td><td>Text above the input (next to it for checkboxes).</td></tr>
+      <tr data-key="field.id"><td>id</td><td class="type">string</td><td class="def">—</td><td>Set as the id of the field's wrapper element. The input itself gets <code>{formId}__{name}</code>.</td></tr>
+      <tr data-key="field.defaultValue"><td>defaultValue</td><td class="type">any</td><td class="def">"" (false for checkbox)</td><td>Starting value. A restored draft overrides it.</td></tr>
+      <tr data-key="field.placeholder"><td>placeholder</td><td class="type">string</td><td class="def">—</td><td>Grey hint text inside empty inputs. For <code>select</code>, the text of the empty first option.</td></tr>
+      <tr data-key="field.hidden"><td>hidden</td><td class="type">boolean</td><td class="def">false</td><td>The value exists (for templates, formulas and <code>getData()</code>) but nothing is drawn.</td></tr>
+      <tr data-key="field.readOnly"><td>readOnly</td><td class="type">boolean</td><td class="def">false</td><td>Can't be typed in; shown with a blue tint. Still updated by data pulls.</td></tr>
+      <tr data-key="field.disabled"><td>disabled</td><td class="type">boolean</td><td class="def">false</td><td>Greyed out and not editable.</td></tr>
+      <tr data-key="field.step"><td>step</td><td class="type">number</td><td class="def">—</td><td>Step for number inputs, e.g. <code>0.1</code>.</td></tr>
+      <tr data-key="field.unit"><td>unit</td><td class="type">string</td><td class="def">—</td><td>Unit shown inside the right edge of number and tolerance inputs, e.g. <code>"V"</code>, <code>"A"</code>.</td></tr>
+      <tr data-key="field.help.text"><td>help.text</td><td class="type">string</td><td class="def">—</td><td>Adds a "?" button next to the label that shows this text in a yellow box.</td></tr>
+      <tr data-key="field.layout.columnSpan"><td>layout.columnSpan</td><td class="type">integer | "full"</td><td class="def">1</td><td>Grid columns this field takes. <code>"full"</code> fills the row. Capped at <a href="#config-layout"><code>layout.columns</code></a>.</td></tr>
+      <tr data-key="field.evaluation"><td>evaluation</td><td class="type">object</td><td class="def">—</td><td>Pass/fail rule. Also makes the field <a href="#learn-statuses">tracked</a>. See <a href="#config-evaluation">Evaluation</a>.</td></tr>
+      <tr data-key="field.statusRules"><td>statusRules</td><td class="type">rule[]</td><td class="def">—</td><td>Conditions that colour the field. Not tracked. See <a href="#config-evaluation">Evaluation</a>.</td></tr>
+      <tr data-key="field.attachments"><td>attachments</td><td class="type">object</td><td class="def">—</td><td>Photo picker under the field. See below.</td></tr>
+      <tr data-key="field.prefill.field"><td>prefill.field</td><td class="type">string</td><td class="def">—</td><td>Identity fields only: the key in the data-pull response to copy into this field, e.g. <code>"serial"</code>. See <a href="#config-data">Data sources</a>.</td></tr>
+      <tr data-key="field.prefill.source"><td>prefill.source <span class="badge info">informational</span></td><td class="type">string</td><td class="def">—</td><td>The source comes from the button's action, not from the field.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 id="cf-attachments">Attachments</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="attachments.enabled"><td>attachments.enabled</td><td class="type">boolean</td><td class="def">false</td><td>Must be <code>true</code> to show the picker.</td></tr>
+      <tr data-key="attachments.type"><td>attachments.type</td><td class="type">"image" | other</td><td class="def">—</td><td><code>"image"</code> accepts images only and shows thumbnails. Anything else accepts any file.</td></tr>
+      <tr data-key="attachments.multiple"><td>attachments.multiple</td><td class="type">boolean</td><td class="def">false</td><td>Allow picking several files at once.</td></tr>
+      <tr data-key="attachments.capture"><td>attachments.capture</td><td class="type">"environment" | "user"</td><td class="def">—</td><td>On phones, <code>"environment"</code> opens the back camera directly.</td></tr>
+      <tr data-key="attachments.label"><td>attachments.label</td><td class="type">string</td><td class="def">"Attach photo"</td><td>Button text. After picking, the button reads "✓ 2 photos attached".</td></tr>
+    </tbody>
+  </table></div>
+  <p>Files stay in the browser. <code>getData().attachments</code> lists their names, types and sizes; drafts in offline mode keep the files themselves. See <a href="#guide-offline">Offline &amp; sync</a>.</p>
+
+  <h2 id="cf-types">Field types</h2>
+
+  <h3 id="ft-text">text · email · number · date</h3>
+  <p>A single-line <code>&lt;input&gt;</code> of that HTML type. Values are stored as strings, exactly as typed.</p>
+  <div class="code-block"><pre><code class="language-json">{ "name": "u2Voltage", "label": "Voltage to fan", "type": "number", "unit": "V", "placeholder": "Volts" }</code></pre></div>
+
+  <h3 id="ft-textarea">textarea</h3>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="textarea.rows"><td>rows</td><td class="type">integer</td><td class="def">3</td><td>Visible lines. The user can drag it taller.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 id="ft-select">select</h3>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="select.options"><td>options</td><td class="type">{ label, value }[]</td><td class="def">[]</td><td>The choices. An empty first option ("Select..." or <code>placeholder</code>) is always added, so nothing is pre-selected.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="code-block"><pre><code class="language-json">{ "name": "u2WheelRotation", "label": "Wheel rotation", "type": "select",
+  "options": [ { "label": "CW — matches order", "value": "match" },
+               { "label": "CCW — does not match order", "value": "mismatch" } ],
+  "evaluation": { "type": "valueMap", "map": { "match": "green", "mismatch": "red" } } }</code></pre></div>
+
+  <h3 id="ft-checkbox">checkbox</h3>
+  <p>A tick box with the label on its right; the whole row is clickable. Value <code>true</code> or <code>false</code>. Complete only when ticked. Use <code>"evaluation": { "type": "checkedIsComplete" }</code> to count it in progress without a pass/fail colour.</p>
+
+  <h3 id="ft-calculated">calculated</h3>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="calculated.formula"><td>formula</td><td class="type">string</td><td class="def">—</td><td>Arithmetic with field names in braces: <code>"{actualHours} - {expectedHours}"</code>. After the values are filled in, only numbers and operators may be left; anything else (a name without braces, quotes) gives 0 and a warning. Empty fields count as 0.</td></tr>
+      <tr data-key="calculated.format"><td>format</td><td class="type">string</td><td class="def">—</td><td>Decimal places: <code>"0.00"</code> → 2, <code>"0"</code> → none. Without it, the number is shown as is.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Read-only. Recalculated before every refresh, so it always reflects the latest values.</p>
+
+  <h3 id="ft-segmented">segmented</h3>
+  <p>A row of buttons where exactly one can be chosen, e.g. <strong>Yes · No · N/A</strong>. Shows a status chip. The chosen button turns green when it passes and red when it fails.</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="segmented.options"><td>options</td><td class="type">{ label, value }[]</td><td class="def">[]</td><td>The buttons. A value of exactly <code>"N/A"</code> shows "N/A" in the chip and uses <code>notApplicableStatus</code>.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 id="ft-tolerance">tolerance</h3>
+  <p>Compares a measured <strong>reading</strong> with a <strong>reference</strong> (usually a nameplate value) and shows a coloured bar with a marker, a status chip and a sentence such as "Reading 19.5 vs. reference 18.2 → +7.1% deviation". It stores two values.</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="tolerance.reference"><td>reference <span class="badge req">required</span></td><td class="type">{ name, label, defaultValue, placeholder, step }</td><td class="def">—</td><td>The expected value, e.g. "Nameplate FLA". <code>reference.name</code> is its key in <code>form.values</code>.</td></tr>
+      <tr data-key="tolerance.reading"><td>reading <span class="badge req">required</span></td><td class="type">{ name, label, defaultValue, placeholder, step }</td><td class="def">—</td><td>The measured value, e.g. "Overload setting".</td></tr>
+      <tr data-key="tolerance.unit"><td>unit</td><td class="type">string</td><td class="def">—</td><td>Shown in both inputs.</td></tr>
+      <tr data-key="tolerance.evaluation"><td>evaluation</td><td class="type">object</td><td class="def">—</td><td><code>percentTolerance</code> or <code>exactMatch</code>.</td></tr>
+    </tbody>
+  </table></div>
+  <p>The bar spans −20% to +20%; the marker stops at the ends for larger deviations. Until both numbers are entered, it reads "Enter both values to calculate." For <code>percentTolerance</code>, a reference of 0 also stays grey, because a percentage of zero can't be calculated.</p>
+  <div class="code-block"><div class="code-title">accurex-startup-report-config.json</div><pre><code class="language-json">{
+  "name": "u4Overload", "label": "EF Fan 1 overload setting", "type": "tolerance", "unit": "A",
+  "reference": { "name": "u4OverloadReference", "label": "Nameplate FLA", "placeholder": "e.g. 18.2" },
+  "reading":   { "name": "u4OverloadReading",   "label": "Overload setting" },
+  "evaluation": {
+    "type": "percentTolerance", "greenPercent": 5, "redPercent": 15,
+    "statuses": { "green": "In range", "yellow": "Check", "red": "Out of range", "gray": "—" }
+  },
+  "help": { "text": "Green at nameplate FLA, amber within ±5%, red beyond ±15%." }
+}</code></pre></div>
+</article>
+
+<article class="doc" id="config-evaluation" data-group="Configuration" data-title="Evaluation &amp; status rules" hidden>
+  <p class="eyebrow">Configuration</p>
+  <h1>Evaluation &amp; status rules</h1>
+  <p class="lead">Two ways to colour a field. <code>evaluation</code> is a named rule and makes the field tracked. <code>statusRules</code> is a list of conditions and only colours.</p>
+
+  <h2 id="ce-evaluation">evaluation</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="evaluation.type"><td>evaluation.type <span class="badge req">required</span></td><td class="type">string</td><td class="def">—</td><td>Which rule to use (table below). Unknown → gray with a console warning.</td></tr>
+      <tr data-key="evaluation.statuses"><td>evaluation.statuses</td><td class="type">{ green, yellow, red, gray }</td><td class="def">Pass / Check / Flagged / —</td><td>Chip text per status, e.g. <code>{ "green": "In range" }</code>.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 id="ce-types">Rule types</h3>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>type</th><th>Options</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr data-key="expectedValue"><td>expectedValue</td><td><code>expectedValue</code>, <code>passStatus</code> (green), <code>failStatus</code> (red), <code>notApplicableStatus</code> (gray)</td><td>Answer equals <code>expectedValue</code> → <code>passStatus</code>; <code>"N/A"</code> → <code>notApplicableStatus</code>; anything else → <code>failStatus</code>.</td></tr>
+      <tr data-key="valueMap"><td>valueMap</td><td><code>map</code>: <code>{ value: status }</code></td><td>Looks the answer up. Not in the map → gray.</td></tr>
+      <tr data-key="checkedIsComplete"><td>checkedIsComplete</td><td>—</td><td>Always gray. Use on checklist checkboxes so they count in progress.</td></tr>
+      <tr data-key="exactMatch"><td>exactMatch</td><td>—</td><td>Tolerance fields. Reading equals reference → green, else red.</td></tr>
+      <tr data-key="percentTolerance"><td>percentTolerance</td><td><code>greenPercent</code> (0), <code>redPercent</code> (= greenPercent)</td><td>Tolerance fields. Deviation = (reading − reference) ÷ reference × 100. |deviation| ≤ greenPercent → green; ≤ redPercent → yellow; beyond → red. Equal limits mean there's no yellow band.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 id="ce-worked">Worked example</h3>
+  <p>Motor amp draw with <code>greenPercent: 5</code>, <code>redPercent: 15</code> and a nameplate FLA of 12.4 A:</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Measured</th><th>Deviation</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>12.9 A</td><td class="type">+4.0%</td><td><span class="pill pass">Pass</span></td></tr>
+      <tr><td>13.6 A</td><td class="type">+9.7%</td><td><span class="pill caution">Check</span></td></tr>
+      <tr><td>14.8 A</td><td class="type">+19.4%</td><td><span class="pill fail">Flagged</span></td></tr>
+      <tr><td>(empty)</td><td class="type">—</td><td><span class="pill none">—</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 id="ce-status-rules">statusRules</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="statusRules[].when"><td>statusRules[].when</td><td class="type">string</td><td class="def">—</td><td>A condition. <code>value</code> is this field's value; any other word is the value of the field with that name.</td></tr>
+      <tr data-key="statusRules[].status"><td>statusRules[].status</td><td class="type">string</td><td class="def">—</td><td><code>pass</code> / <code>caution</code> / <code>fail</code> / <code>pending</code>, or <code>green</code> / <code>yellow</code> / <code>red</code> / <code>gray</code>.</td></tr>
+    </tbody>
+  </table></div>
+  <p>The <strong>first</strong> rule whose condition is true decides. No match → gray. If a field has both, <code>statusRules</code> decides the colour and <code>evaluation</code> still makes it tracked.</p>
+  <p>Conditions may use numbers, field names and <code>+ - * / ( ) &lt; &gt; &lt;= &gt;= == != &amp;&amp; ||</code>. Every word is replaced by the number in the field with that name (unknown or empty → 0). If anything other than numbers and operators is left, such as quotes, the condition is false and a warning is logged. That check is what keeps it safe to run.</p>
+  <div class="code-block"><pre><code class="language-json">"statusRules": [
+  { "when": "value &lt;= 0", "status": "pass" },
+  { "when": "value &gt; 0 &amp;&amp; value &lt;= expectedHours * 0.25", "status": "caution" },
+  { "when": "value &gt; expectedHours * 0.25", "status": "fail" }
+]</code></pre></div>
+</article>
+
+<article class="doc" id="config-actions" data-group="Configuration" data-title="Actions" hidden>
+  <p class="eyebrow">Configuration</p>
+  <h1>Actions</h1>
+  <p class="lead">Buttons. They appear in the bottom bar (<code>actions</code>), the hours tracker, unit identity cards and the reviewer card.</p>
+
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="action.id"><td>id</td><td class="type">string</td><td class="def">—</td><td>Identifier. Also the timer's key, so two timers need different ids.</td></tr>
+      <tr data-key="action.type"><td>type <span class="badge req">required</span></td><td class="type">string</td><td class="def">—</td><td>One of the types below. Any other type is passed to the website's <code>onAction</code>.</td></tr>
+      <tr data-key="action.label"><td>label</td><td class="type">string</td><td class="def">—</td><td>Button text.</td></tr>
+      <tr data-key="action.style"><td>style</td><td class="type">"primary"</td><td class="def">—</td><td>Bottom bar only: makes the button blue.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 id="ca-save">save</h2>
+  <p>Saves all values (and, in offline mode, photos) on this device. The button flashes "Saved ✓" or "Could not save". The website's <code>onAction</code> receives <code>{ id, type: "saved", key }</code>. The <code>mode</code> property in the sample is <span class="badge info">informational</span>.</p>
+
+  <h2 id="ca-print">print</h2>
+  <p>Opens the browser's print dialog. The print stylesheet hides buttons and tabs and expands every unit and accordion, so the printout is the full report.</p>
+
+  <h2 id="ca-email">email</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="email.toField"><td>toField</td><td class="type">string</td><td class="def">—</td><td>Name of the field holding the "to" address, e.g. <code>leadEmail</code>.</td></tr>
+      <tr data-key="email.ccField"><td>ccField</td><td class="type">string</td><td class="def">—</td><td>Field holding the "cc" address.</td></tr>
+      <tr data-key="email.subjectTemplate"><td>subjectTemplate</td><td class="type">string</td><td class="def">—</td><td>Subject with <code>{placeholders}</code>.</td></tr>
+      <tr data-key="email.bodyTemplate"><td>bodyTemplate</td><td class="type">string</td><td class="def">—</td><td>Body with <code>{placeholders}</code>. Also accepts <code>{deficiencyStatusText}</code> ("No issues identified so far." or "2 item(s) flagged for follow-up…"). The two characters <code>\n</code> become line breaks.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Opens the user's email app with a <code>mailto:</code> link. Nothing is sent until the user presses Send there.</p>
+
+  <h2 id="ca-timer">timer</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="timer.targetField"><td>targetField</td><td class="type">string</td><td class="def">—</td><td>The field that receives the elapsed time, in hours.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Click: Start → "Pause timer" → "Resume timer". It continues from the hours already in the field (also after a restored draft). Each tick updates the value without calling <code>onFieldChange</code>, so the website isn't called every second.</p>
+
+  <h2 id="ca-workflow">workflow</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="workflow.targetStatus"><td>targetStatus</td><td class="type">string</td><td class="def">—</td><td>New report status, e.g. <code>"review"</code>, <code>"approved"</code>, <code>"rejected"</code>.</td></tr>
+      <tr data-key="workflow.validation.requiredFields"><td>validation.requiredFields</td><td class="type">string[]</td><td class="def">[]</td><td>Field names that must be filled in. Empty ones get a red outline and the first gets focus; nothing else happens.</td></tr>
+    </tbody>
+  </table></div>
+  <ol>
+    <li>Check required fields.</li>
+    <li>Disable the button (so a double-click can't send twice) and set the new status.</li>
+    <li>Call the website's <code>onWorkflow(action, data, form)</code>, usually <code>form.submit()</code>.</li>
+    <li>If that throws, put the previous status back. A report queued offline counts as success.</li>
+  </ol>
+
+  <h2 id="ca-datapull">dataPull</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="dataPull.source"><td>source</td><td class="type">string</td><td class="def">—</td><td>Key in <a href="#config-data"><code>dataSources</code></a>, e.g. <code>"CAPS"</code>.</td></tr>
+      <tr data-key="dataPull.unitId"><td>unitId</td><td class="type">string</td><td class="def">added</td><td>Filled in automatically for buttons in a unit's identity card.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Fills the unit's identity fields from another system. Where the data comes from, first match wins: the website's <code>onDataPull</code> callback; then <code>dataSources[source]</code>; otherwise the action goes to <code>onAction</code>. The button shows "Pulling…" and then "✓ Synced from CAPS", or its original text if it failed (details in the console).</p>
+</article>
+
+<article class="doc" id="config-data" data-group="Configuration" data-title="Submission &amp; data sources" hidden>
+  <p class="eyebrow">Configuration</p>
+  <h1>Submission &amp; data sources</h1>
+  <p class="lead">Where reports go, and where unit details come from.</p>
+
+  <h2 id="cd-submission">submission</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="submission.url"><td>submission.url</td><td class="type">string</td><td class="def">—</td><td>Where <code>submit()</code> sends the report. Without a <code>submission</code> block, <code>submit()</code> does nothing.</td></tr>
+      <tr data-key="submission.method"><td>submission.method</td><td class="type">string</td><td class="def">"POST"</td><td>HTTP method.</td></tr>
+      <tr data-key="submission.contentType"><td>submission.contentType</td><td class="type">string</td><td class="def">"application/json"</td><td>The <code>Content-Type</code> header. The body is always <code>JSON.stringify(getData())</code>.</td></tr>
+      <tr data-key="submission.type"><td>submission.type <span class="badge info">informational</span></td><td class="type">string</td><td class="def">—</td><td>Not read.</td></tr>
+    </tbody>
+  </table></div>
+  <p>The body is the <a href="#api-data"><code>getData()</code> payload</a>. A JSON response is passed to <code>onSubmitSuccess</code>. In offline mode, a failed connection or a temporary server error (408, 429, 500, 502–504) puts the report in the outbox instead. See <a href="#guide-offline">Offline &amp; sync</a>.</p>
+
+  <h2 id="cd-sources">dataSources</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="dataSources.{name}.url"><td>dataSources.{name}.url</td><td class="type">string</td><td class="def">—</td><td>URL with placeholders. <code>{unitId}</code> is the unit's id; every field name works too: <code>"/api/caps/order/{salesOrder}/unit/{unitId}"</code>.</td></tr>
+      <tr data-key="dataSources.{name}.method"><td>dataSources.{name}.method</td><td class="type">string</td><td class="def">"GET"</td><td>HTTP method.</td></tr>
+      <tr data-key="dataSources.{name}.mapping"><td>dataSources.{name}.mapping</td><td class="type">{ fieldName: responseKey }</td><td class="def">{}</td><td>Fallback mapping from a field name to a key in the JSON response. Used when an identity field has no <code>prefill.field</code>.</td></tr>
+      <tr data-key="dataSources.{name}.type"><td>dataSources.{name}.type <span class="badge info">informational</span></td><td class="type">string</td><td class="def">—</td><td>Not read.</td></tr>
+    </tbody>
+  </table></div>
+  <p>For each identity field of the unit, the response key is <code>prefill.field</code>, or else <code>mapping[field.name]</code>. Values that are missing (or null) in the response are left unchanged.</p>
+  <div class="code-block"><pre><code class="language-json">"dataSources": {
+  "CAPS": { "url": "/api/caps/order/{salesOrder}/unit/{unitId}", "method": "GET" }
+},
+// in the unit's identity fields:
+{ "name": "u4Serial", "label": "Control panel serial #", "type": "text", "readOnly": true,
+  "prefill": { "source": "CAPS", "field": "serial" } }</code></pre></div>
+  <div class="callout pitfall">
+    <p class="callout-title">Pitfall</p>
+    <p>In the sample, <code>mapping</code> is <code>{ "model": "model", … }</code>, but its keys must be <em>field names</em> such as <code>u4Model</code>. It has no effect there; the <code>prefill.field</code> on each identity field does the work.</p>
+  </div>
+</article>
+
+<article class="doc" id="config-behavior" data-group="Configuration" data-title="Behavior &amp; offline" hidden>
+  <p class="eyebrow">Configuration</p>
+  <h1>Behavior &amp; offline</h1>
+  <p class="lead">Switches for offline mode. The status roll-up rules are fixed in code.</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr data-key="behavior.offline.enabled"><td>behavior.offline.enabled</td><td class="type">boolean</td><td class="def">false</td><td>Turns offline mode on: an offline copy of this config is kept, and the <code>serviceWorkerUrl</code> option takes effect.</td></tr>
+      <tr data-key="behavior.offline.storage"><td>behavior.offline.storage</td><td class="type">"indexedDB"</td><td class="def">—</td><td>Must be <code>"indexedDB"</code> for drafts with photos and for the outbox. Otherwise drafts use localStorage (no photos) and there's no outbox.</td></tr>
+      <tr data-key="behavior.offline.autoSync"><td>behavior.offline.autoSync</td><td class="type">boolean</td><td class="def">true</td><td>Send waiting reports automatically. <code>false</code>: only when the page calls <code>form.syncNow()</code> or the user presses <em>Send now</em>.</td></tr>
+      <tr data-key="behavior.statusAggregation"><td>behavior.statusAggregation <span class="badge info">informational</span></td><td class="type">object</td><td class="def">—</td><td>The rules it describes are built in; see <a href="#learn-statuses">Statuses and deficiencies</a>.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="code-block"><pre><code class="language-json">"behavior": { "offline": { "enabled": true, "storage": "indexedDB", "autoSync": true } }</code></pre></div>
+  <p>How drafts, the outbox, retries and the service worker behave: <a href="#guide-offline">Offline &amp; sync</a>.</p>
+</article>
+
+<article class="doc wide" id="config-cheatsheet" data-group="Configuration" data-title="Quick reference" hidden>
+  <p class="eyebrow">Configuration</p>
+  <h1>Quick reference</h1>
+  <p class="lead">Every configuration property on one page. Type to filter; click a property for its full description.</p>
+  <label class="visually-hidden" for="cheatFilter">Filter properties</label>
+  <input class="filter-input" id="cheatFilter" type="search" placeholder="Filter, e.g. columnSpan, tolerance, offline…" autocomplete="off">
+  <p class="filter-count" id="cheatCount"></p>
+  <div class="table-wrap"><table class="ref" id="cheatTable">
+    <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Page</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+</article>
+
+<!-- ═════════════════════════════ JAVASCRIPT API ═════════════════════════════ -->
+
+<article class="doc wide" id="api-constructor" data-group="JavaScript API" data-title="new DynamicFormRenderer()" hidden>
+  <p class="eyebrow">JavaScript API</p>
+  <h1>new DynamicFormRenderer(options)</h1>
+  <p class="lead">Creates a form for one container. Nothing is drawn until you call <code>render()</code>.</p>
+
+  <section class="api-entry">
+    <div class="api-text">
+      <h3 id="opt-container">container <span class="badge req">required</span></h3>
+      <code class="sig">string | HTMLElement</code>
+      <p>CSS selector or element to draw the form into. Its contents are replaced. Throws <code>"DynamicFormRenderer: container not found."</code> if the selector matches nothing.</p>
+    </div>
+    <div class="api-code"><div class="code-block"><pre><code class="language-js">new DynamicFormRenderer({ container: '#formHost' });
+new DynamicFormRenderer({ container: document.querySelector('.report') });</code></pre></div></div>
+  </section>
+
+  <section class="api-entry">
+    <div class="api-text">
+      <h3 id="opt-config-url">configUrl</h3>
+      <code class="sig">string</code>
+      <p>URL of the form configuration, normally the CRM API. Fetched by <code>render()</code> with <code>Accept: application/json</code>. In offline mode, if the download fails for lack of a connection, the last saved copy is used.</p>
+      <h3 id="opt-config">config</h3>
+      <code class="sig">object</code>
+      <p>The configuration object itself. Takes priority over <code>configUrl</code>. Handy for tests and for pages that already have the JSON.</p>
+    </div>
+    <div class="api-code"><div class="code-block"><pre><code class="language-js">// From the CRM
+new DynamicFormRenderer({ container: '#formHost', configUrl: '/api/forms/startup-report' });
+
+// From an object
+new DynamicFormRenderer({ container: '#formHost', config: { form: { id: 'fanCheck' } } });</code></pre></div></div>
+  </section>
+
+  <section class="api-entry">
+    <div class="api-text">
+      <h3 id="opt-restore-draft">restoreDraft</h3>
+      <code class="sig">boolean · default true</code>
+      <p>When a draft saved with "Save draft" exists on this device, put its values (and photos, in offline mode) back over the defaults and show the "Draft restored" banner.</p>
+      <h3 id="opt-service-worker">serviceWorkerUrl</h3>
+      <code class="sig">string</code>
+      <p>Path to <code>service-worker.js</code>. Registers it so the page opens without a connection. Only used when <code>behavior.offline.enabled</code> is true. See <a href="#guide-deploy">Deploy</a> for the folder rule.</p>
+    </div>
+    <div class="api-code"><div class="code-block"><pre><code class="language-js">new DynamicFormRenderer({
+  container: '#formHost',
+  configUrl: '/api/forms/startup-report',
+  restoreDraft: true,
+  serviceWorkerUrl: 'service-worker.js',
+});</code></pre></div></div>
+  </section>
+
+  <section class="api-entry">
+    <div class="api-text">
+      <h3 id="opt-callbacks">Callbacks</h3>
+      <p><code>onFieldChange</code>, <code>onWorkflow</code>, <code>onSubmitSuccess</code>, <code>onSubmitError</code>, <code>onSubmitQueued</code>, <code>onDataPull</code>, <code>onAction</code>. All optional. See <a href="#api-callbacks">Callbacks</a> for when each runs and what it receives.</p>
+    </div>
+    <div class="api-code"><div class="code-block"><pre><code class="language-js">new DynamicFormRenderer({
+  container: '#formHost',
+  configUrl: '/api/forms/startup-report',
+  onWorkflow: (action, data, form) =&gt; form.submit(),
+  onSubmitQueued: () =&gt; showToast('Saved offline. It will be sent automatically.'),
+  onAction: (action) =&gt; { if (action.type === 'addUnit') openAddUnitDialog(); },
+});</code></pre></div></div>
+  </section>
+</article>
+
+<article class="doc wide" id="api-methods" data-group="JavaScript API" data-title="Instance methods" hidden>
+  <p class="eyebrow">JavaScript API</p>
+  <h1>Instance methods</h1>
+  <p class="lead">What the website (or your own extension code) can call on a form.</p>
+
+  <h2 id="am-lifecycle">Life cycle</h2>
+  <section class="api-entry">
+    <div class="api-text">
+      <h3 id="m-render">render() <span class="ret">→ Promise&lt;this&gt;</span></h3>
+      <p>Loads the configuration, builds the form, restores a draft, and starts offline syncing. Calling it again rebuilds the form from scratch (timers and syncing from the previous build are stopped first). Throws if the config can't be loaded or has no <code>id</code>.</p>
+    </div>
+    <div class="api-code"><div class="code-block"><pre><code class="language-js">try {
+  await form.render();
+} catch (error) {
+  host.textContent = 'The form could not be loaded. Please refresh.';
+  console.error(error);
+}</code></pre></div></div>
+  </section>
+  <section class="api-entry">
+    <div class="api-text">
+      <h3 id="m-destroy">destroy()</h3>
+      <p>Stops site timers and offline syncing, and empties the container. Call it before removing the form in a single-page app.</p>
+    </div>
+    <div class="api-code"><div class="code-block"><pre><code class="language-js">form.destroy();</code></pre></div></div>
+  </section>
+
+  <h2 id="am-values">Values</h2>
+  <section class="api-entry">
+    <div class="api-text">
+      <h3 id="m-get-value">getValue(name) <span class="ret">→ any</span></h3>
+      <p>Current value of a field. Same as <code>form.values[name]</code>.</p>
+      <h3 id="m-set-value">setValue(name, value, options?)</h3>
+      <code class="sig">options: { notify?: boolean = true }</code>
+      <p>Changes a value and refreshes the screen. With <code>notify: false</code>, <code>onFieldChange</code> is not called (the timer uses this).</p>
+    </div>
+    <div class="api-code"><div class="code-block"><pre><code class="language-js">form.getValue('u2Voltage');            // "478"
+form.setValue('u2Voltage', '480');      // updates the input and everything that depends on it
+form.setValue('actualHours', 1.25, { notify: false });</code></pre></div></div>
+  </section>
+  <section class="api-entry">
+    <div class="api-text">
+      <h3 id="m-refresh">refresh()</h3>
+      <p>Redraws everything from <code>form.values</code>: recalculates formulas, updates every field, then every widget. <code>setValue</code> calls it for you; call it yourself only after writing to <code>form.values</code> directly.</p>
+    </div>
+    <div class="api-code"><div class="code-block"><pre><code class="language-js">Object.assign(form.values, valuesFromCrm);
+form.refresh();</code></pre></div></div>
+  </section>
+  <section class="api-entry">
+    <div class="api-text">
+      <h3 id="m-get-data">getData() <span class="ret">→ object</span></h3>
+      <p>Everything needed to store the report: values, attachment details and unit statuses. This is also the body <code>submit()</code> sends. Shape: <a href="#api-data">getData() payload</a>.</p>
+    </div>
+    <div class="api-code"><div class="code-block"><pre><code class="language-js">const data = form.getData();
+data.reportStatus;      // "review"
+data.units[0].status;   // { status: "fail", label: "Red — deficiency found", started: true }</code></pre></div></div>
+  </section>
+
+  <h2 id="am-sending">Sending</h2>
+  <section class="api-entry">
+    <div class="api-text">
+      <h3 id="m-submit">submit() <span class="ret">→ Promise&lt;object | null | { queued: true } | undefined&gt;</span></h3>
+      <p>Sends <code>getData()</code> to <code>config.submission.url</code>.</p>
+      <ul>
+        <li>Success: returns the JSON response (or <code>null</code>), calls <code>onSubmitSuccess</code>, and deletes the local draft unless it was saved later.</li>
+        <li>Offline mode, and offline or a temporary server error: stores it in the outbox, calls <code>onSubmitQueued</code>, returns <code>{ queued: true }</code>.</li>
+        <li>Any other failure: calls <code>onSubmitError</code> and throws.</li>
+        <li>No <code>submission</code> in the config: returns <code>undefined</code>.</li>
+      </ul>
+    </div>
+    <div class="api-code"><div class="code-block"><pre><code class="language-js">const result = await form.submit();
+if (result?.queued) {
+  showToast('No connection. The report will be sent automatically.');
+}</code></pre></div></div>
+  </section>
+  <section class="api-entry">
+    <div class="api-text">
+      <h3 id="m-sync-now">syncNow() <span class="ret">→ Promise | undefined</span></h3>
+      <p>Sends waiting offline reports now. Does nothing when offline mode is off, the device is offline, nothing is waiting, or a sync is already running.</p>
+    </div>
+    <div class="api-code"><div class="code-block"><pre><code class="language-js">await form.syncNow();</code></pre></div></div>
+  </section>
+
+  <h2 id="am-status">Status</h2>
+  <section class="api-entry">
+    <div class="api-text">
+      <h3 id="m-report-status">getReportStatus() · setReportStatus(status)</h3>
+      <p>Read or change the report status (the header pill). <code>setReportStatus</code> goes through <code>setValue</code>, so <code>onFieldChange</code> fires with the status field's name.</p>
+      <h3 id="m-deficient">getDeficientFields() <span class="ret">→ BaseField[]</span></h3>
+      <p>Tracked fields that are red or yellow, in the order they were built.</p>
+      <h3 id="m-units">getUnits() · getUnitStatus(unit) · getUnitMark(unit) · getFieldsOfUnit(unit)</h3>
+      <p>The unit configs; a unit's <code>{ status, label, started }</code>; its display name (e.g. "EF-1"); and the field objects inside it.</p>
+    </div>
+    <div class="api-code"><div class="code-block"><pre><code class="language-js">form.getDeficientFields().map(field =&gt; field.config.label);
+// ["Power to lights?", "Wheel rotation"]
+
+for (const unit of form.getUnits()) {
+  console.log(form.getUnitMark(unit), form.getUnitStatus(unit).label);
+}
+// CP-1 Red — deficiency found
+// HD-1 Not started</code></pre></div></div>
+  </section>
+
+  <h2 id="am-other">Fields, drafts and actions</h2>
+  <section class="api-entry">
+    <div class="api-text">
+      <h3 id="m-get-field">getField(name) <span class="ret">→ BaseField | null</span></h3>
+      <p>The field object that owns a value name. Tolerance fields own two names (reference and reading).</p>
+      <h3 id="m-jump">jumpToField(field)</h3>
+      <p>Opens the right tab and accordion, scrolls to the field and flashes it. This is what <em>View</em> in the deficiency list does.</p>
+      <h3 id="m-drafts">saveDraft() · discardDraft()</h3>
+      <p><code>saveDraft()</code> resolves to where it was saved, or <code>null</code>. <code>discardDraft()</code> deletes it and rebuilds the form.</p>
+      <h3 id="m-run-action">runAction(action, button?)</h3>
+      <p>Runs an action object as if its button were clicked. Workflow actions resolve to <code>true</code> or <code>false</code>.</p>
+      <h3 id="m-attachments">getAttachments(name) · addAttachments(name, files)</h3>
+      <p>The <code>File</code> objects picked for a field.</p>
+      <h3 id="m-control-id">controlId(name) <span class="ret">→ string</span></h3>
+      <p>The id of a field's input: <code>"{formId}__{name}"</code>.</p>
+    </div>
+    <div class="api-code"><div class="code-block"><pre><code class="language-js">const field = form.getField('u4LightsPower');
+form.jumpToField(field);
+
+await form.runAction({ type: 'workflow', label: 'Submit', targetStatus: 'review' });
+
+document.getElementById(form.controlId('leadEmail')).focus();</code></pre></div></div>
+  </section>
+
+  <h2 id="am-properties">Properties</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td>values</td><td class="type">object</td><td>All values, name → value. The single source of truth.</td></tr>
+      <tr><td>config</td><td class="type">object</td><td>The form object from the JSON (after unwrapping <code>{ form }</code>).</td></tr>
+      <tr><td>fields</td><td class="type">BaseField[]</td><td>Every field object, in build order.</td></tr>
+      <tr><td>layout</td><td class="type">{ maxWidth, columns }</td><td>The checked layout settings.</td></tr>
+      <tr><td>callbacks</td><td class="type">object</td><td>The callbacks passed to the constructor.</td></tr>
+      <tr><td>offlineSync</td><td class="type">OfflineSync | null</td><td>Present in offline mode with IndexedDB. <code>getState()</code> returns <code>{ isOnline, isSyncing, pendingCount, failedCount }</code>.</td></tr>
+      <tr><td>formElement</td><td class="type">HTMLFormElement</td><td>The <code>&lt;form&gt;</code> on the page.</td></tr>
+    </tbody>
+  </table></div>
+
+  <details class="deep-dive">
+    <summary>Methods used by extension code</summary>
+    <div class="deep-body">
+      <p><code>registerField(field)</code> is called by <code>createField()</code> to store a field and its default values. <code>addWidget(widget)</code> stores a <code>{ element, refresh }</code> object so <code>refresh()</code> updates it, and returns the element. <code>emitAction(action)</code> passes an action to the website's <code>onAction</code> with the current <code>getData()</code>.</p>
+    </div>
+  </details>
+</article>
+
+<article class="doc wide" id="api-callbacks" data-group="JavaScript API" data-title="Callbacks" hidden>
+  <p class="eyebrow">JavaScript API</p>
+  <h1>Callbacks</h1>
+  <p class="lead">How the form tells the website that something happened. Pass them as constructor options.</p>
+
+  <section class="api-entry">
+    <div class="api-text">
+      <h3 id="cb-field-change">onFieldChange(name, value, fieldConfig, form)</h3>
+      <p>After a value changes through <code>setValue</code>: typing, tapping, picking, and report status changes (<code>fieldConfig</code> is <code>null</code> for the status). <strong>Not</strong> called for timer ticks, calculated values, data pulls or a restored draft.</p>
+    </div>
+    <div class="api-code"><div class="code-block"><pre><code class="language-js">onFieldChange: (name, value) =&gt; {
+  analytics.track('field_changed', { name });
+}</code></pre></div></div>
+  </section>
+
+  <section class="api-entry">
+    <div class="api-text">
+      <h3 id="cb-workflow">onWorkflow(action, data, form)</h3>
+      <p>After a workflow button passes validation and the status has changed. <code>data</code> already carries the new status. Return a promise and the button stays disabled until it settles. <strong>Throw</strong> (or reject) and the previous status is put back.</p>
+    </div>
+    <div class="api-code"><div class="code-block"><pre><code class="language-js">onWorkflow: async (action, data, form) =&gt; {
+  await form.submit();   // throws if the CRM refuses → status rolls back
+}</code></pre></div></div>
+  </section>
+
+  <section class="api-entry">
+    <div class="api-text">
+      <h3 id="cb-submit-success">onSubmitSuccess(response, form)</h3>
+      <p>After the CRM accepted a report: from <code>submit()</code>, and again for each queued report the outbox later delivers.</p>
+      <h3 id="cb-submit-queued">onSubmitQueued(data, form)</h3>
+      <p>The report could not be sent now and was saved in the outbox (offline mode only).</p>
+      <h3 id="cb-submit-error">onSubmitError(error, form)</h3>
+      <p>A report was not accepted and will not be retried: a failure in <code>submit()</code> that isn't queued (with offline mode off, that's any failure), the outbox could not be written, or the server refused a queued report (it stays stored, marked failed). <code>error.status</code> holds the HTTP code for server errors.</p>
+    </div>
+    <div class="api-code"><div class="code-block"><pre><code class="language-js">onSubmitSuccess: (response) =&gt; showToast('Report sent'),
+onSubmitQueued:  () =&gt; showToast('Saved offline'),
+onSubmitError:   (error) =&gt; {
+  showToast(error.status === 400
+    ? 'The CRM rejected the report. Please contact support.'
+    : 'Could not send the report.');
+},</code></pre></div></div>
+  </section>
+
+  <section class="api-entry">
+    <div class="api-text">
+      <h3 id="cb-data-pull">onDataPull(action, form) <span class="ret">→ data | Promise&lt;data&gt;</span></h3>
+      <p>Fetch unit details yourself, e.g. to add an auth header. Return the response object; each identity field with <code>prefill.field</code> takes the value under that key. Return nothing to skip.</p>
+    </div>
+    <div class="api-code"><div class="code-block"><pre><code class="language-js">onDataPull: async (action, form) =&gt; {
+  const order = form.getValue('salesOrder');
+  const response = await fetch(`/api/caps/${order}/${action.unitId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.json();   // { model: "…", serial: "…" }
+}</code></pre></div></div>
+  </section>
+
+  <section class="api-entry">
+    <div class="api-text">
+      <h3 id="cb-action">onAction(action, data, form)</h3>
+      <p>Anything the package doesn't handle itself:</p>
+      <ul>
+        <li>action types not in <code>ACTION_HANDLERS</code></li>
+        <li><code>{ type: "addUnit" }</code> from "+ Add unit"</li>
+        <li><code>{ type: "saved", key }</code> after "Save draft"</li>
+        <li>a <code>dataPull</code> whose <code>source</code> isn't in <code>dataSources</code></li>
+      </ul>
+    </div>
+    <div class="api-code"><div class="code-block"><pre><code class="language-js">onAction: (action, data) =&gt; {
+  switch (action.type) {
+    case 'addUnit': return openAddUnitDialog();
+    case 'saved':   return showToast('Draft saved on this device');
+  }
+}</code></pre></div></div>
+  </section>
+</article>
+
+<article class="doc" id="api-data" data-group="JavaScript API" data-title="getData() payload" hidden>
+  <p class="eyebrow">JavaScript API</p>
+  <h1>getData() payload</h1>
+  <p class="lead">The object <code>getData()</code> returns and <code>submit()</code> posts to the CRM.</p>
+  <div class="code-block"><div class="code-title">POST /api/startup-report</div><pre><code class="language-json">{
+  "formId": "accurexStartupReport",
+  "version": "1.0",
+  "reportStatus": "review",
+  "values": {
+    "reportStatus": "review",
+    "jobTitle": "Riverside Prep Kitchen — Bldg C",
+    "salesOrder": "SO-9904213",
+    "u4LightsPower": "No",
+    "u4OverloadReference": "18.2",
+    "u4OverloadReading": "19.5",
+    "u1Fasteners": true,
+    "hoursVariance": -4.5
+  },
+  "attachments": {
+    "u4LightsPower": [ { "name": "lights.jpg", "type": "image/jpeg", "size": 248113 } ]
+  },
+  "units": [
+    { "id": "u4", "mark": "CP-1", "status": { "status": "fail", "label": "Red — deficiency found", "started": true } },
+    { "id": "u3", "mark": "HD-1", "status": { "status": "pending", "label": "Not started", "started": false } }
+  ]
+}</code></pre></div>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Key</th><th>Type</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td>formId</td><td class="type">string</td><td><code>config.id</code></td></tr>
+      <tr><td>version</td><td class="type">string</td><td><code>config.version</code></td></tr>
+      <tr><td>reportStatus</td><td class="type">string</td><td>Current status (also inside <code>values</code>).</td></tr>
+      <tr><td>values</td><td class="type">object</td><td>A copy of every value, including hidden fields, the job title and calculated results. Inputs store text as typed, so numbers typed by the user are strings; checkboxes are booleans.</td></tr>
+      <tr><td>attachments</td><td class="type">object</td><td>Per field: name, MIME type and size of each picked file. The files themselves are not included.</td></tr>
+      <tr><td>units</td><td class="type">array</td><td>Per unit: id, display name and <a href="#learn-statuses">status</a>.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout note">
+    <p class="callout-title">Photos</p>
+    <p>The submission is JSON, so photo files aren't sent. To upload them, the CRM needs a multipart or upload endpoint; the website can read the files with <code>form.getAttachments(name)</code>.</p>
+  </div>
+</article>
+
+<article class="doc" id="api-registries" data-group="JavaScript API" data-title="Registries &amp; exports" hidden>
+  <p class="eyebrow">JavaScript API</p>
+  <h1>Registries &amp; exports</h1>
+  <p class="lead">What <code>Accurex-DynamicFormRenderer.js</code> exports, and the contract for each extension point.</p>
+
+  <div class="code-block"><pre><code class="language-js">import {
+  DynamicFormRenderer,   // also available as window.DynamicFormRenderer
+  FIELD_TYPES,           // { type: FieldClass }
+  SECTION_TYPES,         // { type: (form, section, context) =&gt; { element, refresh? } }
+  ACTION_HANDLERS,       // { type: (form, action, button) =&gt; any }
+  EVALUATORS,            // { type: (rule, input) =&gt; 'green' | 'yellow' | 'red' | 'gray' }
+  BaseField,             // parent class for field types
+} from './Accurex-DynamicFormRenderer.js';</code></pre></div>
+  <p>Add to a registry before calling <code>render()</code>. Registries are shared by every form on the page.</p>
+
+  <h2 id="ar-basefield">BaseField</h2>
+  <p>Constructor: <code>(config, form, context)</code>. <code>context</code> is <code>{ unit, section }</code> for unit fields (<code>section.open()</code> opens its accordion), <code>{ unit }</code> for identity and notes fields, <code>{ area: "header" }</code> or <code>{ area: "reviewer" }</code> in those areas, and <code>{}</code> in top-level and summary sections.</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Method</th><th>Override when…</th><th>Default</th></tr></thead>
+    <tbody>
+      <tr><td>renderControl()</td><td>Always. Return the input element(s).</td><td>throws</td></tr>
+      <tr><td>refresh()</td><td>The control shows more than its value. Call <code>super.refresh()</code> first.</td><td>chip, input value, red outline, photos</td></tr>
+      <tr><td>getDefaultValues()</td><td>The field stores several values.</td><td><code>{ [name]: defaultValue ?? '' }</code></td></tr>
+      <tr><td>isComplete()</td><td>"Answered" means something special.</td><td>value not empty</td></tr>
+      <tr><td>getStatus()</td><td>Status needs more than one value.</td><td>statusRules, then evaluation</td></tr>
+      <tr><td>getStatusLabel(status)</td><td>Special chip text (e.g. "N/A").</td><td><code>evaluation.statuses</code>, then Pass/Check/Flagged/—</td></tr>
+      <tr><td>recalculate()</td><td>The value is computed (write to <code>form.values</code>).</td><td>does nothing</td></tr>
+      <tr><td>renderHeading()</td><td>The label goes elsewhere (checkbox returns <code>null</code>).</td><td>label, "?" button, chip</td></tr>
+      <tr><td>labelTargetId()</td><td>No single input for <code>&lt;label for&gt;</code>: return <code>null</code>.</td><td><code>form.controlId(name)</code></td></tr>
+      <tr><td>syncControlValue()</td><td><code>this.control</code> isn't a text-like input.</td><td><code>setInputValue(control, value)</code></td></tr>
+      <tr><td>isTracked()</td><td>Rarely.</td><td><code>Boolean(config.evaluation)</code></td></tr>
+    </tbody>
+  </table></div>
+  <p>Helpers you can call: <code>applyStandardAttributes(control)</code> (id, name, class, placeholder, readOnly, disabled, step), <code>markInvalid()</code>, <code>focus()</code>, <code>getColumnSpan()</code>. Set <code>this.showsStatusChip = true</code> in the constructor for a status chip.</p>
+
+  <h2 id="ar-utils">Utilities</h2>
+  <p>Not exported from the entry file; import them from <code>src/utils/</code>.</p>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Function</th><th>File</th><th>Does</th></tr></thead>
+    <tbody>
+      <tr><td>el(tag, options, children)</td><td class="type">dom.js</td><td>Creates an element. Options: <code>className</code>, <code>text</code>, <code>attrs</code>, <code>dataset</code>, <code>hidden</code>, <code>onClick</code>. Skips null children.</td></tr>
+      <tr><td>button(label, className, onClick)</td><td class="type">dom.js</td><td>A <code>&lt;button type="button"&gt;</code> (so it never submits the form).</td></tr>
+      <tr><td>setInputValue(input, value)</td><td class="type">dom.js</td><td>Sets an input's value unless the user is typing in it.</td></tr>
+      <tr><td>flashButtonText(button, text, ms)</td><td class="type">dom.js</td><td>Shows "Saved ✓" for a moment, then the original label.</td></tr>
+      <tr><td>fillTemplate(text, values)</td><td class="type">template.js</td><td>Fills <code>{placeholders}</code>; unknown ones stay as written.</td></tr>
+      <tr><td>evaluateFormula(formula, values)</td><td class="type">formula.js</td><td>Safe arithmetic with <code>{name}</code> placeholders → number (0 if invalid).</td></tr>
+      <tr><td>evaluateCondition(text, variables)</td><td class="type">formula.js</td><td>Safe comparison with bare names → <code>true</code> / <code>false</code>.</td></tr>
+      <tr><td>formatNumber(value, pattern)</td><td class="type">format.js</td><td><code>"0.00"</code> → 2 decimals; non-numbers → <code>""</code>.</td></tr>
+      <tr><td>isEmpty · toNumber · pluralize</td><td class="type">format.js</td><td>Empty check (spaces count as empty) · empty → <code>NaN</code> (never 0) · "1 photo" / "2 photos".</td></tr>
+    </tbody>
+  </table></div>
+</article>
+
+<article class="doc" id="api-css" data-group="JavaScript API" data-title="CSS tokens &amp; classes" hidden>
+  <p class="eyebrow">JavaScript API</p>
+  <h1>CSS tokens &amp; classes</h1>
+  <p class="lead">Restyle the form without touching the package: override tokens, scoped with <code>theme.cssClass</code>.</p>
+
+  <div class="code-block"><div class="code-title">website.css</div><pre><code class="language-css">/* Only the start-up report, thanks to "theme": { "cssClass": "accurex-startup-report" } */
+.accurex-startup-report {
+  --dfr-brand: #0b5cad;
+  --dfr-radius: 4px;
+}</code></pre></div>
+
+  <h2 id="css-tokens">Tokens</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Token</th><th>Default</th><th>Used for</th></tr></thead>
+    <tbody>
+      <tr><td>--dfr-max-width</td><td class="def">640px</td><td>Form width (set from <code>layout.maxWidth</code>)</td></tr>
+      <tr><td>--dfr-columns</td><td class="def">2</td><td>Grid columns (set from <code>layout.columns</code>)</td></tr>
+      <tr><td>--dfr-ink · --dfr-ink-soft</td><td class="def">#182420 · #5B6863</td><td>Text, secondary text</td></tr>
+      <tr><td>--dfr-paper · --dfr-card · --dfr-line</td><td class="def">#EEF0EA · #FBFBF8 · #DBDFD6</td><td>Page background, cards, borders</td></tr>
+      <tr><td>--dfr-steel · --dfr-steel-dark</td><td class="def">#5B6B67 · #374440</td><td>Header bar, neutral buttons</td></tr>
+      <tr><td>--dfr-brand · -dark · -tint</td><td class="def">#1D5FA6 · #154A80 · #E3EDF7</td><td>Primary buttons, focus, read-only inputs</td></tr>
+      <tr><td>--dfr-accent</td><td class="def">#E07B23</td><td>Active unit tab, "+ Add unit"</td></tr>
+      <tr><td>--dfr-pass · -tint</td><td class="def">#2E7D46 · #E3F1E7</td><td>Green status</td></tr>
+      <tr><td>--dfr-caution · -tint</td><td class="def">#B67D0F · #FBF0DA</td><td>Yellow status</td></tr>
+      <tr><td>--dfr-fail · -tint</td><td class="def">#C0392B · #F8E3E0</td><td>Red status</td></tr>
+      <tr><td>--dfr-pending · -tint</td><td class="def">#8B95A1 · #EBEDF0</td><td>Grey status</td></tr>
+      <tr><td>--dfr-radius · --dfr-radius-sm</td><td class="def">8px · 5px</td><td>Corner rounding</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 id="css-classes">Useful classes and attributes</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Selector</th><th>Element</th></tr></thead>
+    <tbody>
+      <tr><td>.dfr-host</td><td>The container you passed in.</td></tr>
+      <tr><td>.dfr-form</td><td>The <code>&lt;form&gt;</code>; carries the CSS variables and <code>theme.cssClass</code>.</td></tr>
+      <tr><td>.dfr-field.dfr-field-{type}</td><td>One field's wrapper, e.g. <code>.dfr-field-tolerance</code>. Has <code>data-field-name</code>.</td></tr>
+      <tr><td>.dfr-chip.dfr-{green|yellow|red|gray}</td><td>Field status chip.</td></tr>
+      <tr><td>.dfr-section-chip.dfr-{pass|caution|fail|pending}</td><td>Accordion progress chip and summary labels.</td></tr>
+      <tr><td>.dfr-flagdot.dfr-dot-{status}</td><td>Dot on a unit tab.</td></tr>
+      <tr><td>[data-unit-panel="u4"]</td><td>A unit's panel (<code>"summary"</code> for the Summary tab).</td></tr>
+      <tr><td>[data-action-id="saveDraft"]</td><td>A configured action button.</td></tr>
+      <tr><td>[data-status]</td><td>Inputs and hours boxes coloured by <code>statusRules</code>.</td></tr>
+      <tr><td>.dfr-invalid · .dfr-highlight</td><td>Required-field outline · flash after <em>View</em>.</td></tr>
+      <tr><td>.dfr-sync-status · .dfr-draft-banner</td><td>Offline bar · "Draft restored" banner.</td></tr>
+    </tbody>
+  </table></div>
+</article>
+
+<!-- ═════════════════════════════ GUIDES ═════════════════════════════ -->
+
+<article class="doc" id="guide-offline" data-group="Guides" data-title="Offline &amp; sync" hidden>
+  <p class="eyebrow">Guides</p>
+  <h1>Offline &amp; sync</h1>
+  <p class="lead">Technicians work in plant rooms and basements with no signal. This page explains what keeps working, where data is kept, and when reports are sent.</p>
+
+  <h2 id="go-layers">Three layers</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>Layer</th><th>Keeps</th><th>Turned on by</th></tr></thead>
+    <tbody>
+      <tr><td>Service worker</td><td>The page's <strong>files</strong>: HTML, CSS, JavaScript.</td><td><code>serviceWorkerUrl</code> option + <code>offline.enabled</code></td></tr>
+      <tr><td>IndexedDB</td><td>The <strong>data</strong>: drafts with photos, the outbox, a copy of the config.</td><td><code>offline.enabled</code> + <code>storage: "indexedDB"</code></td></tr>
+      <tr><td>localStorage</td><td>Drafts without photos, when IndexedDB isn't in use or fails.</td><td>Always available</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 id="go-day">A day on site</h2>
+  <ol class="steps">
+    <li><h4>Opening the page with no signal</h4><p>The service worker serves the stored page files. The config download fails, so the copy saved on the last visit is used. The status bar reads "You're offline. Your answers stay on this device."</p></li>
+    <li><h4>Filling it in and saving</h4><p>Everything works as normal. <em>Save draft</em> stores the values <strong>and the photos</strong> in IndexedDB. Closing the browser loses nothing that was saved.</p></li>
+    <li><h4>Submitting with no signal</h4><p><code>submit()</code> sees the device is offline and puts the report in the <strong>outbox</strong>. The status pill still changes to Review, <code>onSubmitQueued</code> runs, and the bar shows "1 report waiting to be sent."</p></li>
+    <li><h4>Back in signal</h4><p>The report is sent automatically: when the browser reports it's online again, every 30 seconds while something is waiting, when the page next opens, or when the user taps <em>Send now</em>. Each delivery calls <code>onSubmitSuccess</code>, and the local draft is deleted unless it was saved after the report was made.</p></li>
+  </ol>
+
+  <h2 id="go-retry">When is a report retried?</h2>
+  <div class="table-wrap"><table class="ref">
+    <thead><tr><th>What happened</th><th>Treated as</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>No network (fetch throws)</td><td class="type">temporary</td><td>Stays in the outbox; retried.</td></tr>
+      <tr><td>HTTP 408, 429, 500, 502, 503, 504</td><td class="type">temporary</td><td>Stays in the outbox; retried.</td></tr>
+      <tr><td>Any other HTTP error (400, 401, 404, 501…)</td><td class="type">refused</td><td>Kept but marked failed and not retried; <code>onSubmitError</code> runs; the bar asks the user to contact support.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Reports are sent oldest first, and sending stops at the first temporary failure, so the CRM always receives them in order. If two tabs have the form open, a browser lock lets only one of them send, so nothing is sent twice.</p>
+
+  <h2 id="go-service-worker">How the service worker chooses</h2>
+  <ul>
+    <li><strong>Which files:</strong> after the page loads, it sends the worker the list of files it just used. Requests made by code (API calls, the config JSON) are data and are left out. There's no file list to maintain.</li>
+    <li><strong>Network first:</strong> online, stored files are always checked with the server, so a new release reaches users immediately. If the network doesn't answer within 4 seconds, the stored copy is used.</li>
+    <li><strong>Never-visited pages:</strong> opened offline, they show a short "You're offline" page.</li>
+  </ul>
+
+  <h2 id="go-inspect">Inspecting it</h2>
+  <p>In Chrome DevTools, open <strong>Application</strong>:</p>
+  <ul>
+    <li><strong>IndexedDB → AccurexDynamicForms</strong>: <code>drafts</code> (one per form id), <code>outbox</code> (waiting and failed reports, with the exact request), <code>configs</code> (offline copies by URL).</li>
+    <li><strong>Cache storage → accurex-dynamic-form-v1</strong>: the stored page files.</li>
+    <li><strong>Service workers</strong>: tick "Offline" to test without unplugging anything.</li>
+  </ul>
+
+  <div class="callout pitfall">
+    <p class="callout-title">Limits</p>
+    <p>Each device must open the page once with a connection. Service workers need https (or localhost). Photos are kept in drafts but not uploaded, because the submission is JSON.</p>
+  </div>
+</article>
+
+<article class="doc" id="guide-deploy" data-group="Guides" data-title="Deploy to the website" hidden>
+  <p class="eyebrow">Guides</p>
+  <h1>Deploy to the website</h1>
+  <p class="lead">A checklist for putting the form on the corporate website, and the reasons behind each item.</p>
+
+  <h2 id="gd-checklist">Checklist</h2>
+  <ol class="steps">
+    <li><h4>Serve the package files</h4><p>Keep <code>Accurex-DynamicFormRenderer.js</code>, the CSS and <code>src/</code> together. Load the entry with <code>&lt;script type="module"&gt;</code>.</p></li>
+    <li><h4>Use https</h4><p>Required for the service worker, and for the clipboard on the Copy button.</p></li>
+    <li><h4>Place the service worker correctly (scope)</h4><p>A service worker only controls pages in its own folder and below; this is called its <em>scope</em>. Put <code>service-worker.js</code> in the same folder as the form page, or higher. If it must live deeper, e.g. <code>/assets/accurex/service-worker.js</code> for a page at <code>/startup-report/</code>, the server must send this header with that file:</p>
+      <div class="code-block"><pre><code class="language-http">Service-Worker-Allowed: /</code></pre></div></li>
+    <li><h4>Stop browsers caching the form config</h4><p>Have the CRM's config API send <code>Cache-Control: no-cache</code>. Otherwise a browser may keep showing an old version of the form after the CRM changes it.</p></li>
+    <li><h4>Allow cross-origin calls, if the CRM is on another domain</h4><p>The CRM must answer with <code>Access-Control-Allow-Origin</code> for the website's origin. Submitting JSON triggers a preflight, so the submission URL must also answer <code>OPTIONS</code> and allow the <code>Content-Type</code> header.</p></li>
+    <li><h4>Check the Content Security Policy</h4><p>Formulas and status rules are calculated with <code>Function()</code> after a strict character check. A CSP without <code>'unsafe-eval'</code> blocks this: calculated fields then show 0 and status rules stay grey, with console warnings. Allow it on the form page, or avoid formulas and status rules.</p></li>
+  </ol>
+
+  <h2 id="gd-several">Several forms on one page</h2>
+  <p>Give each its own container and its own <code>new DynamicFormRenderer()</code>. Registries are shared, which is usually what you want. Drafts and the outbox are keyed by form <code>id</code>, so two forms with the same id share a draft; give them different ids.</p>
+
+  <h2 id="gd-release">Releasing a new version</h2>
+  <p>Upload the new files. The service worker checks every stored file with the server, so users get the new code on their next visit. To force-delete everything stored on every device (e.g. after renaming many files), change <code>CACHE_NAME</code> in <code>service-worker.js</code>.</p>
+
+  <h2 id="gd-browsers">Browser support</h2>
+  <p>Current versions of Chrome, Edge, Safari and Firefox, on desktop and mobile. The code uses ES modules, optional chaining and IndexedDB. Web Locks and service workers are used when available and skipped otherwise.</p>
+</article>
+
+<article class="doc" id="guide-security" data-group="Guides" data-title="Security model" hidden>
+  <p class="eyebrow">Guides</p>
+  <h1>Security model</h1>
+  <p class="lead">What the package does to stay safe with configuration from the CRM, and what it leaves to the website.</p>
+
+  <h2 id="gs-text">Config text is never HTML</h2>
+  <p>Labels, titles, help text and option names are written with <code>textContent</code> through the <code>el()</code> helper; the package never puts config text into <code>innerHTML</code>. A label containing <code>&lt;script&gt;</code> is shown as those characters, not run.</p>
+
+  <h2 id="gs-formulas">Formulas and conditions</h2>
+  <p>Before anything is calculated, every field name is replaced by a number, and the result must contain only digits, spaces and <code>+ - * / ( ) . &lt; &gt; = ! &amp; |</code>. With no letters or quotes left, no code can be injected. Anything else returns 0 (formulas) or false (conditions).</p>
+
+  <h2 id="gs-device">Data on the device</h2>
+  <p>Drafts, photos and queued reports are stored unencrypted in the browser, like any website data. On shared tablets, use <em>Discard draft</em> after submitting, or clear site data. A successful submission removes the draft automatically.</p>
+
+  <h2 id="gs-network">Network</h2>
+  <ul>
+    <li><code>submit()</code> sends no <code>Authorization</code> header; same-origin cookies are sent as normal. For token authentication, the CRM API needs to accept the site's session cookie, or the website sends the report itself from <code>onWorkflow</code> using <code>form.getData()</code> (without the outbox).</li>
+    <li><code>onDataPull</code> lets the website add headers when fetching unit data.</li>
+    <li>The service worker stores only same-origin GET files the page used, never API responses.</li>
+    <li>The Email button only opens the user's email app; nothing is sent without the user.</li>
+  </ul>
+</article>
+
+<article class="doc" id="guide-troubleshooting" data-group="Guides" data-title="Troubleshooting" hidden>
+  <p class="eyebrow">Guides</p>
+  <h1>Troubleshooting</h1>
+  <p class="lead">Symptoms, causes and fixes, most common first. Open the browser console first: the package logs a clear message for almost every problem.</p>
+
+  <h3 id="ts-blank">The page is blank</h3>
+  <ul>
+    <li>The script tag is missing <code>type="module"</code>.</li>
+    <li>The page was opened as <code>file://</code>. Serve it, e.g. <code>python3 dev-server.py</code>.</li>
+    <li>"container not found": the selector doesn't match an element that exists when the script runs.</li>
+    <li>"could not load the form configuration (HTTP 404)": check <code>configUrl</code>.</li>
+  </ul>
+
+  <h3 id="ts-old-form">JSON changes don't show up</h3>
+  <ul>
+    <li>The browser cached the config: send <code>Cache-Control: no-cache</code> from the API, or hard-reload.</li>
+    <li>A saved draft was restored: values come from the draft. Click <em>Discard draft</em>.</li>
+  </ul>
+
+  <h3 id="ts-text-box">A field shows as a plain text box</h3>
+  <p>Its <code>type</code> is misspelled or not registered. The console names the field.</p>
+
+  <h3 id="ts-never-green">A question never turns green</h3>
+  <ul>
+    <li>It has no <code>evaluation</code>, so it's never judged.</li>
+    <li>Values are compared exactly: <code>"yes"</code> is not <code>"Yes"</code>.</li>
+    <li>Tolerance fields stay grey until both numbers are entered; percentage rules also stay grey when the reference is 0.</li>
+  </ul>
+
+  <h3 id="ts-formula-zero">A calculated field shows 0</h3>
+  <ul>
+    <li>Field names must be in braces: <code>{actualHours}</code>.</li>
+    <li>The formula contains something other than numbers and operators. Check the console.</li>
+    <li>The site's Content Security Policy blocks <code>Function()</code>. See <a href="#guide-deploy">Deploy</a>.</li>
+  </ul>
+
+  <h3 id="ts-shared-answers">Two units share answers</h3>
+  <p>Their fields have the same <code>name</code>. Prefix names with the unit id (<code>u1Belt</code>, <code>u2Belt</code>).</p>
+
+  <h3 id="ts-pull">"Pull from CAPS" does nothing</h3>
+  <ul>
+    <li>The identity fields need <code>prefill.field</code> naming the key in the response.</li>
+    <li><code>source</code> must match a key in <code>dataSources</code>; otherwise the action goes to <code>onAction</code>.</li>
+    <li>If the button returns to its label, the request failed; the console shows why.</li>
+  </ul>
+
+  <h3 id="ts-waiting">A report stays "waiting to be sent"</h3>
+  <ul>
+    <li>The server is unreachable or returning 5xx. It is retried every 30 seconds; <em>Send now</em> tries immediately.</li>
+    <li>"could not be sent: the server refused it": the CRM answered with a 4xx. Inspect the entry in IndexedDB (<code>outbox</code>, <code>error</code> field).</li>
+  </ul>
+
+  <h3 id="ts-sw">The page doesn't open offline</h3>
+  <ul>
+    <li><code>serviceWorkerUrl</code> isn't set, or <code>behavior.offline.enabled</code> isn't true.</li>
+    <li>The page isn't on https.</li>
+    <li><code>service-worker.js</code> is in a deeper folder than the page, so the page is outside its scope. See <a href="#guide-deploy">Deploy</a>.</li>
+    <li>The page has never been opened online on this device.</li>
+  </ul>
+</article>
+
+  </main>
+  <aside class="toc" id="toc" aria-label="On this page"></aside>
+</div>
+
+<div class="search-overlay" id="searchOverlay" hidden>
+  <div class="search-panel" role="dialog" aria-modal="true" aria-label="Search documentation">
+    <div class="search-head">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input class="search-input" id="searchInput" type="text" placeholder="Search pages, properties, methods…"
+             autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-controls="searchResults" aria-autocomplete="list">
+      <kbd class="kbd">esc</kbd>
+    </div>
+    <div class="search-results" id="searchResults" role="listbox" aria-label="Results"></div>
+    <div class="search-foot" aria-hidden="true">
+      <span><kbd>↑</kbd><kbd>↓</kbd> to navigate</span>
+      <span><kbd>↵</kbd> to open</span>
+      <span><kbd>esc</kbd> to close</span>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  const GROUP_ORDER = ['Get started', 'Learn', 'Configuration', 'JavaScript API', 'Guides'];
+  const DEFAULT_PAGE = 'introduction';
+  const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+
+  const articles = Array.from(document.querySelectorAll('article.doc'));
+  const sidebar = document.getElementById('sidebar');
+  const tabsNav = document.getElementById('tabs');
+  const toc = document.getElementById('toc');
+
+  // ───────────────────────────── Small helpers ─────────────────────────────
+
+  function make(tag, className, text) {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    if (text !== undefined) element.textContent = text;
+    return element;
+  }
+
+  function slug(text) {
+    return String(text).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+  }
+
+  /** Heading text without the "#" anchor link we add. */
+  function headingText(heading) {
+    const copy = heading.cloneNode(true);
+    copy.querySelectorAll('.anchor, .badge').forEach(node => node.remove());
+    return copy.textContent.replace(/\s+/g, ' ').trim();
+  }
+
+  function storageGet(key) {
+    try { return localStorage.getItem(key); } catch (error) { return null; }
+  }
+  function storageSet(key, value) {
+    try { localStorage.setItem(key, value); } catch (error) { /* storage blocked: fine */ }
+  }
+
+  // ───────────────────────────── Pages and navigation ─────────────────────────────
+
+  const groups = new Map();
+  articles.forEach(article => {
+    const group = article.dataset.group;
+    if (!groups.has(group)) groups.set(group, []);
+    groups.get(group).push(article);
+  });
+  const orderedGroups = GROUP_ORDER.filter(name => groups.has(name));
+
+  orderedGroups.forEach(name => {
+    const section = make('div', 'nav-group');
+    section.append(make('p', 'nav-group-title', name));
+    groups.get(name).forEach(article => {
+      const link = make('a', 'nav-link', article.dataset.title);
+      link.href = '#' + article.id;
+      link.dataset.page = article.id;
+      section.append(link);
+    });
+    sidebar.append(section);
+
+    const tab = make('a', 'tab', name);
+    tab.href = '#' + groups.get(name)[0].id;
+    tab.dataset.group = name;
+    tabsNav.append(tab);
+  });
+
+  // Heading anchors (ids are created where missing)
+  articles.forEach(article => {
+    article.querySelectorAll('h2, h3').forEach(heading => {
+      if (heading.closest('.learn-box')) return;
+      if (!heading.id) heading.id = article.id + '-' + slug(headingText(heading));
+      const anchor = make('a', 'anchor', '#');
+      anchor.href = '#' + heading.id;
+      anchor.setAttribute('aria-label', 'Link to this section');
+      heading.append(anchor);
+    });
+  });
+
+  // Reference rows get ids so search can jump straight to a property
+  const usedIds = new Set(Array.from(document.querySelectorAll('[id]')).map(node => node.id));
+  document.querySelectorAll('tr[data-key]').forEach(row => {
+    let id = 'prop-' + row.dataset.key.replace(/[^A-Za-z0-9._~-]+/g, '-').replace(/-+$/, '');
+    while (usedIds.has(id)) id += '-';
+    usedIds.add(id);
+    row.id = id;
+  });
+
+  // Previous / next links at the bottom of every page
+  const pageOrder = orderedGroups.flatMap(name => groups.get(name));
+  pageOrder.forEach((article, index) => {
+    const pager = make('nav', 'pager');
+    pager.setAttribute('aria-label', 'Previous and next page');
+    const previous = pageOrder[index - 1];
+    const next = pageOrder[index + 1];
+    if (previous) {
+      const link = make('a', 'prev');
+      link.href = '#' + previous.id;
+      link.append(make('small', '', '← Previous'), document.createTextNode(previous.dataset.title));
+      pager.append(link);
+    }
+    if (next) {
+      const link = make('a', 'next');
+      link.href = '#' + next.id;
+      link.append(make('small', '', 'Next →'), document.createTextNode(next.dataset.title));
+      pager.append(link);
+    }
+    article.append(pager);
+  });
+
+  // ───────────────────────────── Code blocks ─────────────────────────────
+
+  document.querySelectorAll('.code-block').forEach(block => {
+    const code = block.querySelector('code');
+    const languageClass = Array.from(code.classList).find(name => name.startsWith('language-'));
+    const language = languageClass ? languageClass.slice(9) : '';
+    if (window.hljs && language && language !== 'plaintext' && window.hljs.getLanguage(language)) {
+      window.hljs.highlightElement(code);
+    }
+
+    const copyButton = make('button', 'copy-btn', 'Copy');
+    copyButton.type = 'button';
+    copyButton.setAttribute('aria-label', 'Copy code');
+    copyButton.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(code.textContent);
+        copyButton.textContent = 'Copied';
+      } catch (error) {
+        const range = document.createRange();
+        range.selectNodeContents(code);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        copyButton.textContent = 'Selected';
+      }
+      setTimeout(() => { copyButton.textContent = 'Copy'; }, 1400);
+    });
+    block.append(copyButton);
+  });
+
+  // ───────────────────────────── Router ─────────────────────────────
+
+  let currentArticle = null;
+
+  function showArticle(article) {
+    if (currentArticle === article) return;
+    articles.forEach(item => { item.hidden = item !== article; });
+    currentArticle = article;
+
+    sidebar.querySelectorAll('.nav-link').forEach(link => {
+      if (link.dataset.page === article.id) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    });
+    tabsNav.querySelectorAll('.tab').forEach(tab => {
+      tab.setAttribute('aria-current', String(tab.dataset.group === article.dataset.group));
+    });
+    document.title = article.id === DEFAULT_PAGE
+      ? 'Accurex Dynamic Form Docs'
+      : article.dataset.title.replace(/&amp;/g, '&') + ' · Accurex Dynamic Form Docs';
+    buildToc(article);
+  }
+
+  function route() {
+    const id = decodeURIComponent(location.hash.slice(1)) || DEFAULT_PAGE;
+    let target = document.getElementById(id);
+    let article = target ? target.closest('article.doc') : null;
+    if (!article) { article = document.getElementById(DEFAULT_PAGE); target = null; }
+
+    showArticle(article);
+    closeNav();
+
+    requestAnimationFrame(() => {
+      if (target && target !== article) {
+        target.scrollIntoView({ block: 'start' });
+        if (target.tagName === 'TR') {
+          target.classList.add('flash');
+          setTimeout(() => target.classList.remove('flash'), 1600);
+        }
+      } else {
+        window.scrollTo(0, 0);
+      }
+      updateTocHighlight();
+    });
+  }
+  window.addEventListener('hashchange', route);
+
+  // ───────────────────────────── On this page ─────────────────────────────
+
+  let tocHeadings = [];
+
+  function buildToc(article) {
+    toc.replaceChildren();
+    tocHeadings = Array.from(article.querySelectorAll('h2[id], h3[id]'))
+      .filter(heading => !heading.closest('.learn-box, details, .api-entry'));
+    if (tocHeadings.length < 2) return;
+
+    toc.append(make('p', 'toc-title', 'On this page'));
+    tocHeadings.forEach(heading => {
+      const link = make('a', heading.tagName === 'H3' ? 'depth-3' : '', headingText(heading));
+      link.href = '#' + heading.id;
+      link.dataset.target = heading.id;
+      toc.append(link);
+    });
+  }
+
+  function updateTocHighlight() {
+    if (!tocHeadings.length) return;
+    const offset = 120;
+    let active = tocHeadings[0];
+    for (const heading of tocHeadings) {
+      if (heading.getBoundingClientRect().top - offset <= 0) active = heading;
+    }
+    toc.querySelectorAll('a').forEach(link => link.classList.toggle('active', link.dataset.target === active.id));
+  }
+  let scrollQueued = false;
+  window.addEventListener('scroll', () => {
+    if (scrollQueued) return;
+    scrollQueued = true;
+    requestAnimationFrame(() => { scrollQueued = false; updateTocHighlight(); });
+  }, { passive: true });
+
+  // ───────────────────────────── Theme ─────────────────────────────
+
+  const themeButton = document.getElementById('themeButton');
+  const savedTheme = storageGet('accurex-docs-theme');
+  if (savedTheme === 'light' || savedTheme === 'dark') document.documentElement.dataset.theme = savedTheme;
+
+  function effectiveTheme() {
+    const explicit = document.documentElement.dataset.theme;
+    if (explicit) return explicit;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function updateThemeLabel() {
+    themeButton.setAttribute('aria-label', effectiveTheme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+  }
+  themeButton.addEventListener('click', () => {
+    const next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    storageSet('accurex-docs-theme', next);
+    updateThemeLabel();
+  });
+  updateThemeLabel();
+
+  // ───────────────────────────── Mobile navigation ─────────────────────────────
+
+  const menuButton = document.getElementById('menuButton');
+  let scrim = null;
+
+  function openNav() {
+    document.body.classList.add('nav-open');
+    menuButton.setAttribute('aria-expanded', 'true');
+    scrim = make('div', 'nav-scrim');
+    scrim.addEventListener('click', closeNav);
+    document.body.append(scrim);
+  }
+  function closeNav() {
+    document.body.classList.remove('nav-open');
+    menuButton.setAttribute('aria-expanded', 'false');
+    if (scrim) { scrim.remove(); scrim = null; }
+  }
+  menuButton.addEventListener('click', () => {
+    if (document.body.classList.contains('nav-open')) closeNav(); else openNav();
+  });
+
+  // ───────────────────────────── Quick reference (built from the reference tables) ─────────────────────────────
+
+  const cheatTable = document.getElementById('cheatTable');
+  const cheatBody = cheatTable.querySelector('tbody');
+  const cheatFilter = document.getElementById('cheatFilter');
+  const cheatCount = document.getElementById('cheatCount');
+  const cheatRows = [];
+
+  document.querySelectorAll('article[id^="config-"] tr[data-key]').forEach(sourceRow => {
+    const article = sourceRow.closest('article');
+    const cells = sourceRow.querySelectorAll('td');
+    const row = make('tr');
+
+    const keyCell = make('td');
+    const keyLink = make('a', '', sourceRow.dataset.key);
+    keyLink.href = '#' + sourceRow.id;
+    keyCell.append(keyLink);
+    if (sourceRow.querySelector('.badge.req')) keyCell.append(make('span', 'badge req', 'required'));
+    if (sourceRow.querySelector('.badge.info')) keyCell.append(make('span', 'badge info', 'informational'));
+
+    // Property tables have 4 columns (property, type, default, description); rule tables have 3.
+    const hasTypeColumns = cells.length > 3;
+    const typeCell = make('td', 'type', hasTypeColumns ? cells[1].textContent.trim() : 'rule type');
+    const defaultCell = make('td', 'def', hasTypeColumns ? cells[2].textContent.trim() : '—');
+    const pageCell = make('td');
+    const pageLink = make('a', '', article.dataset.title.replace(/&amp;/g, '&'));
+    pageLink.href = '#' + article.id;
+    pageCell.append(pageLink);
+
+    row.append(keyCell, typeCell, defaultCell, pageCell);
+    cheatBody.append(row);
+    cheatRows.push({ row, text: (sourceRow.dataset.key + ' ' + sourceRow.textContent + ' ' + article.dataset.title).toLowerCase() });
+  });
+
+  function filterCheatSheet() {
+    const terms = cheatFilter.value.toLowerCase().split(/\s+/).filter(Boolean);
+    let shown = 0;
+    cheatRows.forEach(({ row, text }) => {
+      const match = terms.every(term => text.includes(term));
+      row.classList.toggle('hidden-row', !match);
+      if (match) shown += 1;
+    });
+    cheatCount.textContent = shown === cheatRows.length
+      ? cheatRows.length + ' properties'
+      : shown + ' of ' + cheatRows.length + ' properties';
+  }
+  cheatFilter.addEventListener('input', filterCheatSheet);
+  filterCheatSheet();
+
+  // ───────────────────────────── Search index ─────────────────────────────
+
+  const KIND_BY_PAGE = { 'api-methods': 'method', 'api-constructor': 'option', 'api-callbacks': 'callback' };
+  const KIND_BONUS = { page: 8, property: 6, method: 6, option: 6, callback: 6, section: 3 };
+  const searchIndex = [];
+
+  /** Text of an element with a space between every piece (so table cells don't run together). */
+  function spacedText(element) {
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    const parts = [];
+    while (walker.nextNode()) parts.push(walker.currentNode.nodeValue);
+    return parts.join(' ')
+      .replace(/\s+/g, ' ')
+      .replace(/\s+([.,;:!?)])/g, '$1')   // no space before punctuation ("values ." → "values.")
+      .replace(/\(\s+/g, '(')
+      .trim();
+  }
+
+  /** The elements after a heading, up to the next heading of the same or a higher level. */
+  function sectionNodes(heading) {
+    const nodes = [];
+    let node = heading.nextElementSibling;
+    const level = Number(heading.tagName[1]);
+    while (node && !(/^H[1-4]$/.test(node.tagName) && Number(node.tagName[1]) <= level) && !node.classList.contains('pager')) {
+      nodes.push(node);
+      node = node.nextElementSibling;
+    }
+    return nodes;
+  }
+
+  /** First sentence-like text of a section: its first paragraph, or else its first table description. */
+  function sectionSnippet(nodes) {
+    for (const node of nodes) {
+      const paragraph = node.matches('p, ul, ol') ? node : node.querySelector('p, td:last-child');
+      if (paragraph) return spacedText(paragraph);
+    }
+    return '';
+  }
+
+  function addEntry(entry) {
+    entry.titleLower = entry.title.toLowerCase();
+    entry.snippetLower = (entry.snippet || '').toLowerCase();
+    entry.bodyLower = (entry.body || '').toLowerCase();
+    searchIndex.push(entry);
+  }
+
+  articles.forEach(article => {
+    const pageTitle = article.dataset.title.replace(/&amp;/g, '&');
+    const lead = article.querySelector('.lead');
+
+    addEntry({
+      kind: 'page', title: pageTitle, page: pageTitle, group: article.dataset.group,
+      target: article.id, snippet: lead ? lead.textContent.trim() : '',
+      body: spacedText(article),
+    });
+
+    article.querySelectorAll('h2, h3, h4').forEach(heading => {
+      if (heading.closest('.learn-box')) return;
+      if (!heading.id) heading.id = article.id + '-' + slug(headingText(heading));
+      const inApi = heading.closest('.api-entry');
+      const kind = inApi ? (KIND_BY_PAGE[article.id] || 'section') : 'section';
+      const nodes = sectionNodes(heading);
+      const body = nodes.map(spacedText).join(' ').slice(0, 1200);
+      addEntry({
+        kind, title: headingText(heading), page: pageTitle, group: article.dataset.group,
+        target: heading.id, snippet: sectionSnippet(nodes).slice(0, 200), body,
+      });
+    });
+
+    article.querySelectorAll('tr[data-key]').forEach(row => {
+      const cells = row.querySelectorAll('td');
+      const description = cells[cells.length - 1].textContent.replace(/\s+/g, ' ').trim();
+      addEntry({
+        kind: 'property', title: row.dataset.key, page: pageTitle, group: article.dataset.group,
+        target: row.id, snippet: description, body: row.textContent,
+      });
+    });
+  });
+
+  function scoreEntry(entry, query, terms) {
+    let score = 0;
+    const title = entry.titleLower;
+    if (title === query) score += 120;
+    else if (title.startsWith(query)) score += 80;
+    else if (title.includes(query)) score += 50;
+
+    for (const term of terms) {
+      if (title.includes(term)) score += 20;
+      else if (entry.snippetLower.includes(term)) score += 6;
+      else if (entry.bodyLower.includes(term)) score += 2;
+      else return 0; // every word must appear somewhere
+    }
+    return score + (KIND_BONUS[entry.kind] || 0);
+  }
+
+  function search(query) {
+    const normalized = query.trim().toLowerCase();
+    if (!normalized) return [];
+    const terms = normalized.split(/\s+/);
+    return searchIndex
+      .map(entry => ({ entry, score: scoreEntry(entry, normalized, terms) }))
+      .filter(result => result.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 24)
+      .map(result => result.entry);
+  }
+
+  // ───────────────────────────── Search dialog ─────────────────────────────
+
+  const overlay = document.getElementById('searchOverlay');
+  const searchInput = document.getElementById('searchInput');
+  const resultsBox = document.getElementById('searchResults');
+  const searchButton = document.getElementById('searchButton');
+  const RECENT_KEY = 'accurex-docs-recent';
+  const SUGGESTED = ['quick-start', 'learn-data-flow', 'config-fields', 'config-cheatsheet', 'api-callbacks', 'guide-offline'];
+
+  let visibleResults = [];
+  let selectedIndex = 0;
+  let returnFocusTo = null;
+
+  document.getElementById('searchShortcut').textContent = isMac ? '⌘K' : 'Ctrl K';
+
+  function readRecent() {
+    try { return JSON.parse(storageGet(RECENT_KEY) || '[]').filter(item => item && item.target); }
+    catch (error) { return []; }
+  }
+  function rememberRecent(entry) {
+    const recent = readRecent().filter(item => item.target !== entry.target);
+    recent.unshift({ target: entry.target, title: entry.title, page: entry.page, kind: entry.kind });
+    storageSet(RECENT_KEY, JSON.stringify(recent.slice(0, 5)));
+  }
+
+  /** Title with every search word highlighted, built from text nodes only. */
+  function highlighted(text, terms) {
+    const fragment = document.createDocumentFragment();
+    if (!terms.length) { fragment.append(text); return fragment; }
+    const pattern = new RegExp('(' + terms.map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'ig');
+    text.split(pattern).forEach((part, index) => {
+      if (!part) return;
+      if (index % 2 === 1) fragment.append(make('mark', '', part));
+      else fragment.append(part);
+    });
+    return fragment;
+  }
+
+  function renderResults() {
+    const query = searchInput.value;
+    const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    resultsBox.replaceChildren();
+
+    let groupsToShow;
+    if (!terms.length) {
+      const recent = readRecent();
+      const suggested = SUGGESTED
+        .map(id => searchIndex.find(entry => entry.kind === 'page' && entry.target === id))
+        .filter(Boolean);
+      groupsToShow = [];
+      if (recent.length) groupsToShow.push({ title: 'Recent', items: recent });
+      groupsToShow.push({ title: 'Suggested', items: suggested });
+    } else {
+      const results = search(query);
+      if (!results.length) {
+        const empty = make('div', 'search-empty');
+        empty.append('No results for “', make('strong', '', query.trim()), '”. Try a property name such as columnSpan, or a word like offline.');
+        resultsBox.append(empty);
+        visibleResults = [];
+        searchInput.removeAttribute('aria-activedescendant');
+        return;
+      }
+      const byPage = new Map();
+      results.forEach(entry => {
+        if (!byPage.has(entry.page)) byPage.set(entry.page, []);
+        byPage.get(entry.page).push(entry);
+      });
+      groupsToShow = Array.from(byPage, ([title, items]) => ({ title, items }));
+    }
+
+    visibleResults = [];
+    groupsToShow.forEach(group => {
+      resultsBox.append(make('div', 'search-group-title', group.title));
+      group.items.forEach(entry => {
+        const index = visibleResults.length;
+        const item = make('button', 'search-item');
+        item.type = 'button';
+        item.id = 'search-result-' + index;
+        item.setAttribute('role', 'option');
+        item.append(make('span', 'search-kind', entry.kind === 'section' ? 'section' : entry.kind));
+
+        const textBox = make('span', 'search-text');
+        const title = make('span', 'search-title');
+        title.append(highlighted(entry.title, terms));
+        textBox.append(title);
+        const snippetText = entry.snippet || (entry.page && entry.page !== entry.title ? entry.page : '');
+        if (snippetText) textBox.append(make('span', 'search-snippet', snippetText));
+        item.append(textBox);
+
+        item.addEventListener('mousemove', () => select(index, false));
+        item.addEventListener('click', () => openResult(index));
+        resultsBox.append(item);
+        visibleResults.push(entry);
+      });
+    });
+    select(0, false);
+  }
+
+  function select(index, scroll) {
+    if (!visibleResults.length) return;
+    selectedIndex = (index + visibleResults.length) % visibleResults.length;
+    resultsBox.querySelectorAll('.search-item').forEach((item, itemIndex) => {
+      item.setAttribute('aria-selected', String(itemIndex === selectedIndex));
+    });
+    const active = document.getElementById('search-result-' + selectedIndex);
+    searchInput.setAttribute('aria-activedescendant', active.id);
+    if (scroll !== false) active.scrollIntoView({ block: 'nearest' });
+  }
+
+  function openResult(index) {
+    const entry = visibleResults[index];
+    if (!entry) return;
+    rememberRecent(entry);
+    closeSearch(false);
+    if (location.hash === '#' + entry.target) route();
+    else location.hash = entry.target;
+  }
+
+  function openSearch() {
+    if (!overlay.hidden) return;
+    returnFocusTo = document.activeElement;
+    overlay.hidden = false;
+    document.body.style.overflow = 'hidden';
+    searchInput.value = '';
+    renderResults();
+    searchInput.focus();
+  }
+
+  function closeSearch(restoreFocus) {
+    overlay.hidden = true;
+    document.body.style.overflow = '';
+    if (restoreFocus !== false && returnFocusTo && returnFocusTo.focus) returnFocusTo.focus();
+  }
+
+  searchButton.addEventListener('click', openSearch);
+  overlay.addEventListener('mousedown', event => { if (event.target === overlay) closeSearch(); });
+  searchInput.addEventListener('input', renderResults);
+  searchInput.addEventListener('keydown', event => {
+    if (event.key === 'ArrowDown' || (event.key === 'Tab' && !event.shiftKey)) { event.preventDefault(); select(selectedIndex + 1); }
+    else if (event.key === 'ArrowUp' || (event.key === 'Tab' && event.shiftKey)) { event.preventDefault(); select(selectedIndex - 1); }
+    else if (event.key === 'Enter') { event.preventDefault(); openResult(selectedIndex); }
+    else if (event.key === 'Escape') { event.preventDefault(); closeSearch(); }
+  });
+
+  document.addEventListener('keydown', event => {
+    const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) || document.activeElement.isContentEditable;
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      if (overlay.hidden) openSearch(); else closeSearch();
+    } else if (event.key === '/' && !typing && overlay.hidden) {
+      event.preventDefault();
+      openSearch();
+    } else if (event.key === 'Escape' && document.body.classList.contains('nav-open')) {
+      closeNav();
+    }
+  });
+
+  route();
+})();
+</script>
+<!-- skeleton -->
+</body>
+</html>
+<!-- /skeleton -->

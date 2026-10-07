@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dynamic Form</title>
+    <link rel="stylesheet" href="Accurex-dynamic-form.css">
+</head>
+
+<body>
+
+    <!-- The form is drawn inside this container. -->
+    <div id="dynamicFormContainer"></div>
+
+    <!--
+        type="module" is required: the framework is split into small files under ./src.
+        The page must be served over http(s) (not opened as file://), e.g.:
+            python3 dev-server.py   →   http://localhost:8080/sample.html
+        dev-server.py also stands in for the CRM's submission API.
+    -->
+    <script type="module" src="Accurex-DynamicFormRenderer.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+
+            const formRenderer = new DynamicFormRenderer({
+                container: "#dynamicFormContainer",
+                // In production this is the CRM API that returns the form configuration.
+                configUrl: "accurex-startup-report-config.json",
+                // Lets this page open without a connection (when the config switches offline mode on).
+                serviceWorkerUrl: "service-worker.js",
+
+                // Optional hooks for the website:
+                // "Submit for review", "Approve" and "Reject": send the report to the CRM.
+                // Offline, submit() keeps it in the outbox and it is sent automatically later.
+                // If submit() fails, the form puts the previous report status back.
+                onWorkflow: function (action, data, form) {
+                    console.log("Workflow:", action.targetStatus);
+                    return form.submit();
+                },
+                onSubmitSuccess: function (response) {
+                    console.log("Report received by the CRM:", response);
+                },
+                onSubmitQueued: function () {
+                    console.log("No connection: the report will be sent automatically later.");
+                },
+                onSubmitError: function (error) {
+                    console.error("The CRM did not accept the report:", error);
+                },
+                onAction: function (action, data) {
+                    console.log("Action for the website to handle:", action.type, data);
+                }
+            });
+
+            await formRenderer.render();
+
+        });
+    </script>
+
+</body>
+</html>

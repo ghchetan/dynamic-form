@@ -1,0 +1,1884 @@
+{
+  "form": {
+    "id": "accurexStartupReport",
+    "name": "Accurex Start-Up Report",
+    "version": "1.0",
+    "description": "Dynamic start-up report generated from JSON configuration.",
+    "layout": {
+      "mode": "mobileFirst",
+      "maxWidth": 640,
+      "columns": 2,
+      "labelPosition": "top"
+    },
+    "theme": {
+      "cssClass": "accurex-startup-report"
+    },
+    "header": {
+      "brand": "Accurex start-up",
+      "status": {
+        "field": "reportStatus",
+        "defaultValue": "draft",
+        "values": [
+          {
+            "value": "draft",
+            "label": "Draft",
+            "style": "draft"
+          },
+          {
+            "value": "review",
+            "label": "Review",
+            "style": "review"
+          },
+          {
+            "value": "approved",
+            "label": "Approved",
+            "style": "approved"
+          },
+          {
+            "value": "rejected",
+            "label": "Rejected",
+            "style": "rejected"
+          }
+        ]
+      },
+      "title": {
+        "field": "jobTitle",
+        "defaultValue": "Riverside Prep Kitchen — Bldg C"
+      },
+      "subtitleTemplate": "{salesOrder} · Tech: {technicianName} · {visitDate}",
+      "fields": [
+        {
+          "id": "salesOrder",
+          "name": "salesOrder",
+          "label": "Sales Order",
+          "type": "text",
+          "defaultValue": "SO-9904213",
+          "hidden": true
+        },
+        {
+          "id": "technicianName",
+          "name": "technicianName",
+          "label": "Technician",
+          "type": "text",
+          "defaultValue": "J. Alvarez",
+          "hidden": true
+        },
+        {
+          "id": "visitDate",
+          "name": "visitDate",
+          "label": "Visit Date",
+          "type": "date",
+          "defaultValue": "2026-09-01",
+          "hidden": true
+        },
+        {
+          "id": "crmLink",
+          "name": "crmLink",
+          "label": "Live report link",
+          "type": "text",
+          "readOnly": true,
+          "defaultValue": "https://crm.accurex.com/case/SO-9904213/startup-report",
+          "action": {
+            "type": "copy",
+            "label": "Copy"
+          }
+        }
+      ],
+      "metrics": [
+        {
+          "id": "unitCount",
+          "label": "Units on this project",
+          "source": "units",
+          "display": "startedOfTotal"
+        },
+        {
+          "id": "openDeficiencies",
+          "label": "Open deficiencies",
+          "source": "deficiencies",
+          "display": "count"
+        }
+      ]
+    },
+    "sections": [
+      {
+        "id": "projectContacts",
+        "type": "card",
+        "title": "Project contacts",
+        "order": 1,
+        "fields": [
+          {
+            "id": "leadName",
+            "name": "leadName",
+            "label": "Project lead — name",
+            "type": "text",
+            "defaultValue": "John Smith",
+            "layout": {
+              "columnSpan": 1
+            }
+          },
+          {
+            "id": "leadEmail",
+            "name": "leadEmail",
+            "label": "Project lead — email",
+            "type": "email",
+            "defaultValue": "john.smith@accurex.com",
+            "layout": {
+              "columnSpan": 1
+            }
+          },
+          {
+            "id": "servicerEmail",
+            "name": "servicerEmail",
+            "label": "Servicer — main email (cc'd)",
+            "type": "email",
+            "defaultValue": "service@northlakemech.com",
+            "layout": {
+              "columnSpan": "full"
+            }
+          }
+        ]
+      },
+      {
+        "id": "deficiencySummary",
+        "type": "deficiencySummary",
+        "title": "Deficiencies — review before submitting",
+        "emptyTitle": "No deficiencies identified — clean so far",
+        "order": 2,
+        "source": "allFlaggableFields",
+        "collapsible": true,
+        "defaultExpanded": true,
+        "styles": {
+          "hasIssues": "fail",
+          "clear": "pass"
+        }
+      },
+      {
+        "id": "timeOnSite",
+        "type": "hoursTracker",
+        "title": "Time on site",
+        "order": 3,
+        "fields": [
+          {
+            "id": "expectedHours",
+            "name": "expectedHours",
+            "label": "Expected hrs",
+            "type": "number",
+            "defaultValue": 4.5,
+            "readOnly": true
+          },
+          {
+            "id": "actualHours",
+            "name": "actualHours",
+            "label": "Actual hrs",
+            "type": "number",
+            "defaultValue": 0,
+            "readOnly": true
+          },
+          {
+            "id": "hoursVariance",
+            "name": "hoursVariance",
+            "label": "Variance",
+            "type": "calculated",
+            "formula": "{actualHours} - {expectedHours}",
+            "format": "0.00",
+            "statusRules": [
+              {
+                "when": "value <= 0",
+                "status": "pass"
+              },
+              {
+                "when": "value > 0 && value <= expectedHours * 0.25",
+                "status": "caution"
+              },
+              {
+                "when": "value > expectedHours * 0.25",
+                "status": "fail"
+              }
+            ]
+          }
+        ],
+        "actions": [
+          {
+            "id": "siteTimer",
+            "type": "timer",
+            "label": "Start timer",
+            "targetField": "actualHours"
+          },
+          {
+            "id": "notifyProjectLead",
+            "type": "email",
+            "label": "Notify project lead",
+            "toField": "leadEmail",
+            "ccField": "servicerEmail",
+            "subjectTemplate": "Start-up status — {salesOrder}, {jobTitle}",
+            "bodyTemplate": "Hi {leadName},\\n\\nOn site today for the scheduled start-up ({salesOrder}, {jobTitle}).\\n\\nCurrent status: {deficiencyStatusText}\\n\\nWill send the completed report once the visit wraps up today.\\n\\n— {technicianName}, Technician"
+          }
+        ]
+      }
+    ],
+    "units": {
+      "type": "tabset",
+      "id": "equipmentUnits",
+      "allowAdd": true,
+      "addLabel": "+ Add unit",
+      "summaryTab": {
+        "enabled": true,
+        "label": "Summary"
+      },
+      "items": [
+        {
+          "id": "u4",
+          "unitType": "controls",
+          "tabLabel": "CP-1",
+          "defaultActive": true,
+          "identity": {
+            "fields": [
+              {
+                "id": "u4-model",
+                "name": "u4Model",
+                "label": "Model",
+                "type": "text",
+                "readOnly": true,
+                "prefill": {
+                  "source": "CAPS",
+                  "field": "model"
+                }
+              },
+              {
+                "id": "u4-serial",
+                "name": "u4Serial",
+                "label": "Control panel serial #",
+                "type": "text",
+                "readOnly": true,
+                "prefill": {
+                  "source": "CAPS",
+                  "field": "serial"
+                }
+              },
+              {
+                "id": "u4-mark",
+                "name": "u4Mark",
+                "label": "Mark name",
+                "type": "text",
+                "defaultValue": "CP-1"
+              }
+            ],
+            "actions": [
+              {
+                "id": "pull-u4",
+                "type": "dataPull",
+                "label": "Pull from CAPS / order data",
+                "source": "CAPS"
+              }
+            ]
+          },
+          "sections": [
+            {
+              "id": "u4Panel",
+              "title": "Control Panel",
+              "type": "accordion",
+              "defaultExpanded": true,
+              "fields": [
+                {
+                  "id": "fld-u4-power",
+                  "name": "u4ControlPower",
+                  "label": "Power to control panel?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                },
+                {
+                  "id": "fld-u4-lights",
+                  "name": "u4LightsPower",
+                  "label": "Power to lights?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  },
+                  "help": {
+                    "text": "If No, attach a photo of the light circuit before flagging."
+                  },
+                  "attachments": {
+                    "enabled": true,
+                    "type": "image",
+                    "multiple": true,
+                    "capture": "environment",
+                    "label": "Attach photo"
+                  }
+                },
+                {
+                  "id": "fld-u4-firesys",
+                  "name": "u4FireSystem",
+                  "label": "Fire system microswitch present?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                },
+                {
+                  "id": "fld-u4-shunt",
+                  "name": "u4ShuntTrip",
+                  "label": "Shunt trip breakers or appliance contactors present?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                },
+                {
+                  "id": "fld-u4-tempsensors",
+                  "name": "u4TempSensors",
+                  "label": "Temp sensors wired in",
+                  "type": "tolerance",
+                  "reference": {
+                    "name": "u4TempSensorsReference",
+                    "label": "# Hood sections w/ TS",
+                    "type": "number"
+                  },
+                  "reading": {
+                    "name": "u4TempSensorsReading",
+                    "label": "# Wired in",
+                    "type": "number",
+                    "placeholder": "—"
+                  },
+                  "evaluation": {
+                    "type": "exactMatch",
+                    "greenPercent": 0,
+                    "redPercent": 0,
+                    "statuses": {
+                      "green": "In range",
+                      "yellow": "Check",
+                      "red": "Out of range",
+                      "gray": "—"
+                    }
+                  },
+                  "help": {
+                    "text": "Must equal the number of hood sections associated to controls with temp sensors on the order."
+                  }
+                },
+                {
+                  "id": "fld-u4-efwiring",
+                  "name": "u4EfWiring",
+                  "label": "Exhaust fan wiring complete?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                },
+                {
+                  "id": "fld-u4-muawiring",
+                  "name": "u4MuaWiring",
+                  "label": "Make-up air unit power/control wires complete?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "u4Overload",
+              "title": "Overload Settings",
+              "subtitle": "CV type with starter only",
+              "type": "accordion",
+              "fields": [
+                {
+                  "id": "fld-u4-overload",
+                  "name": "u4Overload",
+                  "label": "EF Fan 1 overload setting",
+                  "type": "tolerance",
+                  "reference": {
+                    "name": "u4OverloadReference",
+                    "label": "Nameplate FLA",
+                    "type": "number",
+                    "placeholder": "e.g. 18.2"
+                  },
+                  "reading": {
+                    "name": "u4OverloadReading",
+                    "label": "Overload setting",
+                    "type": "number",
+                    "placeholder": "—"
+                  },
+                  "evaluation": {
+                    "type": "percentTolerance",
+                    "greenPercent": 5,
+                    "redPercent": 15,
+                    "statuses": {
+                      "green": "In range",
+                      "yellow": "Check",
+                      "red": "Out of range",
+                      "gray": "—"
+                    }
+                  },
+                  "unit": "A",
+                  "help": {
+                    "text": "Green at nameplate FLA, amber within ±5%, red beyond ±15%."
+                  }
+                }
+              ]
+            },
+            {
+              "id": "u4Close",
+              "title": "Close Out",
+              "type": "accordion",
+              "fields": [
+                {
+                  "id": "fld-u4-complete",
+                  "name": "u4StartupComplete",
+                  "label": "Controls start-up complete?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  },
+                  "attachments": {
+                    "enabled": true,
+                    "type": "image",
+                    "multiple": true,
+                    "capture": "environment",
+                    "label": "Attach panel photo"
+                  }
+                }
+              ]
+            }
+          ],
+          "notes": {
+            "id": "notes-u4",
+            "name": "u4Notes",
+            "label": "CP-1 notes",
+            "type": "textarea",
+            "placeholder": "Add any field notes for this unit...",
+            "layout": {
+              "columnSpan": "full"
+            }
+          }
+        },
+        {
+          "id": "u3",
+          "unitType": "hood",
+          "tabLabel": "HD-1",
+          "identity": {
+            "fields": [
+              {
+                "id": "u3-model",
+                "name": "u3Model",
+                "label": "Hood model",
+                "type": "text",
+                "readOnly": true,
+                "prefill": {
+                  "source": "CAPS",
+                  "field": "model"
+                }
+              },
+              {
+                "id": "u3-serial",
+                "name": "u3Serial",
+                "label": "Hood serial #",
+                "type": "text",
+                "readOnly": true,
+                "prefill": {
+                  "source": "CAPS",
+                  "field": "serial"
+                }
+              },
+              {
+                "id": "u3-mark",
+                "name": "u3Mark",
+                "label": "Mark name",
+                "type": "text",
+                "defaultValue": "HD-1"
+              }
+            ],
+            "actions": [
+              {
+                "id": "pull-u3",
+                "type": "dataPull",
+                "label": "Pull from CAPS / order data",
+                "source": "CAPS"
+              }
+            ]
+          },
+          "sections": [
+            {
+              "id": "u3Check",
+              "title": "Hood Installation Check",
+              "type": "accordion",
+              "defaultExpanded": true,
+              "fields": [
+                {
+                  "id": "fld-u3-level",
+                  "name": "u3Level",
+                  "label": "Hood hung level?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                },
+                {
+                  "id": "fld-u3-bulbs",
+                  "name": "u3Bulbs",
+                  "label": "Light bulbs installed?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  },
+                  "help": {
+                    "text": "Only applies to non-LED light packages."
+                  }
+                },
+                {
+                  "id": "fld-u3-lights",
+                  "name": "u3LightsPower",
+                  "label": "Power to lights confirmed?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                },
+                {
+                  "id": "fld-u3-grease",
+                  "name": "u3GreaseCup",
+                  "label": "Grease cup installed?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                },
+                {
+                  "id": "fld-u3-lineup",
+                  "name": "u3ApplianceLineup",
+                  "label": "Appliance line-up matches submittal drawings?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  },
+                  "attachments": {
+                    "enabled": true,
+                    "type": "image",
+                    "multiple": true,
+                    "capture": "environment",
+                    "label": "Attach line-up photo"
+                  }
+                },
+                {
+                  "id": "fld-u3-complete",
+                  "name": "u3StartupComplete",
+                  "label": "Unit start-up complete?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                }
+              ]
+            }
+          ],
+          "notes": {
+            "id": "notes-u3",
+            "name": "u3Notes",
+            "label": "HD-1 notes",
+            "type": "textarea",
+            "placeholder": "Add any field notes for this unit...",
+            "layout": {
+              "columnSpan": "full"
+            }
+          }
+        },
+        {
+          "id": "u2",
+          "unitType": "exhaustFan",
+          "tabLabel": "EF-1",
+          "identity": {
+            "fields": [
+              {
+                "id": "u2-model",
+                "name": "u2Model",
+                "label": "Fan model",
+                "type": "text",
+                "readOnly": true,
+                "prefill": {
+                  "source": "CAPS",
+                  "field": "model"
+                }
+              },
+              {
+                "id": "u2-serial",
+                "name": "u2Serial",
+                "label": "Fan serial #",
+                "type": "text",
+                "readOnly": true,
+                "prefill": {
+                  "source": "CAPS",
+                  "field": "serial"
+                }
+              },
+              {
+                "id": "u2-mark",
+                "name": "u2Mark",
+                "label": "Mark name",
+                "type": "text",
+                "defaultValue": "EF-1"
+              }
+            ],
+            "actions": [
+              {
+                "id": "pull-u2",
+                "type": "dataPull",
+                "label": "Pull from CAPS / order data",
+                "source": "CAPS"
+              }
+            ]
+          },
+          "sections": [
+            {
+              "id": "u2Install",
+              "title": "Exhaust Fan — Installation Check",
+              "type": "accordion",
+              "defaultExpanded": true,
+              "fields": [
+                {
+                  "id": "fld-u2-duct",
+                  "name": "u2DuctComplete",
+                  "label": "Duct work complete?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                },
+                {
+                  "id": "fld-u2-belt",
+                  "name": "u2BeltTension",
+                  "label": "Proper belt tension?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                },
+                {
+                  "id": "fld-u2-screws",
+                  "name": "u2SetScrews",
+                  "label": "Set screws on pulleys tight?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                },
+                {
+                  "id": "fld-u2-hinge",
+                  "name": "u2FanHinge",
+                  "label": "Fan hinge fully opens on curb?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  },
+                  "attachments": {
+                    "enabled": true,
+                    "type": "image",
+                    "multiple": true,
+                    "capture": "environment",
+                    "label": "Attach photo"
+                  }
+                },
+                {
+                  "id": "fld-u2-grease",
+                  "name": "u2GreaseCup",
+                  "label": "Grease cup installed?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                },
+                {
+                  "id": "fld-u2-wheel",
+                  "name": "u2WheelFree",
+                  "label": "Wheel spins freely by hand?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "u2Readings",
+              "title": "Fan Readings",
+              "type": "accordion",
+              "defaultExpanded": true,
+              "fields": [
+                {
+                  "id": "sel-u2-rotation",
+                  "name": "u2WheelRotation",
+                  "label": "Wheel rotation",
+                  "type": "select",
+                  "options": [
+                    {
+                      "label": "CW — matches order",
+                      "value": "match"
+                    },
+                    {
+                      "label": "CCW — does not match order",
+                      "value": "mismatch"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "valueMap",
+                    "map": {
+                      "match": "green",
+                      "mismatch": "red"
+                    }
+                  }
+                },
+                {
+                  "id": "inp-u2-voltage",
+                  "name": "u2Voltage",
+                  "label": "Voltage to fan",
+                  "type": "number",
+                  "unit": "V",
+                  "placeholder": "Volts"
+                },
+                {
+                  "id": "fld-u2-amp",
+                  "name": "u2MotorAmpDraw",
+                  "label": "Motor amp draw",
+                  "type": "tolerance",
+                  "reference": {
+                    "name": "u2MotorAmpDrawReference",
+                    "label": "Nameplate FLA",
+                    "type": "number",
+                    "placeholder": "e.g. 12.4"
+                  },
+                  "reading": {
+                    "name": "u2MotorAmpDrawReading",
+                    "label": "Measured",
+                    "type": "number",
+                    "placeholder": "—"
+                  },
+                  "evaluation": {
+                    "type": "percentTolerance",
+                    "greenPercent": 5,
+                    "redPercent": 15,
+                    "statuses": {
+                      "green": "In range",
+                      "yellow": "Check",
+                      "red": "Out of range",
+                      "gray": "—"
+                    }
+                  },
+                  "unit": "A",
+                  "help": {
+                    "text": "Clamp-meter each leg with the fan at full speed and compare against nameplate FLA."
+                  },
+                  "attachments": {
+                    "enabled": true,
+                    "type": "image",
+                    "multiple": true,
+                    "capture": "environment",
+                    "label": "Attach clamp-meter photo"
+                  }
+                },
+                {
+                  "id": "fld-u2-complete",
+                  "name": "u2StartupComplete",
+                  "label": "Unit start-up complete?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                }
+              ]
+            }
+          ],
+          "notes": {
+            "id": "notes-u2",
+            "name": "u2Notes",
+            "label": "EF-1 notes",
+            "type": "textarea",
+            "placeholder": "Add any field notes for this unit...",
+            "layout": {
+              "columnSpan": "full"
+            }
+          }
+        },
+        {
+          "id": "u1",
+          "unitType": "makeUpAir",
+          "tabLabel": "MUA-1",
+          "identity": {
+            "fields": [
+              {
+                "id": "u1-model",
+                "name": "u1Model",
+                "label": "Model",
+                "type": "text",
+                "readOnly": true,
+                "prefill": {
+                  "source": "CAPS",
+                  "field": "model"
+                }
+              },
+              {
+                "id": "u1-serial",
+                "name": "u1Serial",
+                "label": "Control panel serial #",
+                "type": "text",
+                "readOnly": true,
+                "prefill": {
+                  "source": "CAPS",
+                  "field": "serial"
+                }
+              },
+              {
+                "id": "u1-mark",
+                "name": "u1Mark",
+                "label": "Mark name",
+                "type": "text",
+                "defaultValue": "MUA-1"
+              }
+            ],
+            "actions": [
+              {
+                "id": "pull-u1",
+                "type": "dataPull",
+                "label": "Pull from CAPS / order data",
+                "source": "CAPS"
+              }
+            ]
+          },
+          "sections": [
+            {
+              "id": "u1ExteriorInspection",
+              "title": "Exterior Air Handler Inspection",
+              "type": "accordion",
+              "defaultExpanded": true,
+              "fields": [
+                {
+                  "id": "fld-u1-damage",
+                  "name": "u1ShippingDamage",
+                  "label": "Is there shipping damage present?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "No",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  },
+                  "help": {
+                    "text": "Inspect all four sides and the roof curb before unwrapping."
+                  },
+                  "attachments": {
+                    "enabled": true,
+                    "type": "image",
+                    "multiple": true,
+                    "capture": "environment",
+                    "label": "Attach photo"
+                  }
+                },
+                {
+                  "id": "fld-u1-caulk",
+                  "name": "u1SeamsCaulked",
+                  "label": "Do all seams have caulking present?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                },
+                {
+                  "id": "fld-u1-doors",
+                  "name": "u1DoorsOpen",
+                  "label": "Do all access doors and handles open properly?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                },
+                {
+                  "id": "fld-u1-hoods",
+                  "name": "u1HoodsSecure",
+                  "label": "Are all hoods, louvers, and bird screens secure?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                },
+                {
+                  "id": "fld-u1-covers",
+                  "name": "u1ShippingCoversRemoved",
+                  "label": "Are all shipping covers removed (wrap, duct covers)?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                },
+                {
+                  "id": "fld-u1-clear",
+                  "name": "u1Clearances",
+                  "label": "Are unit clearances adequate per the IOM?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                },
+                {
+                  "id": "fld-u1-duct",
+                  "name": "u1Ductwork",
+                  "label": "Is all ductwork connected and sealed properly?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                },
+                {
+                  "id": "fld-u1-drain",
+                  "name": "u1DrainConnections",
+                  "label": "Are drain connections/traps present per the IOM?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  }
+                },
+                {
+                  "id": "fld-u1-freeze",
+                  "name": "u1FreezeProtection",
+                  "label": "Is freeze protection present on drains and traps?",
+                  "type": "segmented",
+                  "options": [
+                    {
+                      "label": "Yes",
+                      "value": "Yes"
+                    },
+                    {
+                      "label": "No",
+                      "value": "No"
+                    },
+                    {
+                      "label": "N/A",
+                      "value": "N/A"
+                    }
+                  ],
+                  "evaluation": {
+                    "type": "expectedValue",
+                    "expectedValue": "Yes",
+                    "passStatus": "green",
+                    "failStatus": "red",
+                    "notApplicableStatus": "gray"
+                  },
+                  "help": {
+                    "text": "Only applies if freeze protection was selected on the order. Confirm against order options before flagging."
+                  }
+                }
+              ]
+            },
+            {
+              "id": "u1Voltage",
+              "title": "Main Voltage / Rated Voltage",
+              "type": "accordion",
+              "fields": [
+                {
+                  "id": "fld-u1-v12",
+                  "name": "u1VoltageL1L2",
+                  "label": "L1–L2",
+                  "type": "tolerance",
+                  "reference": {
+                    "name": "u1VoltageL1L2Reference",
+                    "label": "Rated (nameplate)",
+                    "type": "number",
+                    "defaultValue": 480
+                  },
+                  "reading": {
+                    "name": "u1VoltageL1L2Reading",
+                    "label": "Measured",
+                    "type": "number",
+                    "placeholder": "—"
+                  },
+                  "evaluation": {
+                    "type": "percentTolerance",
+                    "greenPercent": 4,
+                    "redPercent": 4,
+                    "statuses": {
+                      "green": "In range",
+                      "yellow": "Check",
+                      "red": "Out of range",
+                      "gray": "—"
+                    }
+                  },
+                  "unit": "V",
+                  "help": {
+                    "text": "Flags if measured voltage deviates more than ±4% from the nameplate rating."
+                  }
+                },
+                {
+                  "id": "fld-u1-v23",
+                  "name": "u1VoltageL2L3",
+                  "label": "L2–L3",
+                  "type": "tolerance",
+                  "reference": {
+                    "name": "u1VoltageL2L3Reference",
+                    "label": "Rated (nameplate)",
+                    "type": "number",
+                    "defaultValue": 480
+                  },
+                  "reading": {
+                    "name": "u1VoltageL2L3Reading",
+                    "label": "Measured",
+                    "type": "number",
+                    "placeholder": "—"
+                  },
+                  "evaluation": {
+                    "type": "percentTolerance",
+                    "greenPercent": 4,
+                    "redPercent": 4,
+                    "statuses": {
+                      "green": "In range",
+                      "yellow": "Check",
+                      "red": "Out of range",
+                      "gray": "—"
+                    }
+                  },
+                  "unit": "V"
+                },
+                {
+                  "id": "fld-u1-v13",
+                  "name": "u1VoltageL1L3",
+                  "label": "L1–L3",
+                  "type": "tolerance",
+                  "reference": {
+                    "name": "u1VoltageL1L3Reference",
+                    "label": "Rated (nameplate)",
+                    "type": "number",
+                    "defaultValue": 480
+                  },
+                  "reading": {
+                    "name": "u1VoltageL1L3Reading",
+                    "label": "Measured",
+                    "type": "number",
+                    "placeholder": "—"
+                  },
+                  "evaluation": {
+                    "type": "percentTolerance",
+                    "greenPercent": 4,
+                    "redPercent": 4,
+                    "statuses": {
+                      "green": "In range",
+                      "yellow": "Check",
+                      "red": "Out of range",
+                      "gray": "—"
+                    }
+                  },
+                  "unit": "V",
+                  "attachments": {
+                    "enabled": true,
+                    "type": "image",
+                    "multiple": true,
+                    "capture": "environment",
+                    "label": "Attach nameplate photo"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "u1Blower",
+              "title": "Blowers & Blower Motors — Supply Fan",
+              "type": "accordion",
+              "fields": [
+                {
+                  "id": "chk-u1-1",
+                  "name": "u1Fasteners",
+                  "label": "Check all fasteners, set screws, and locking collars (Fan 1)",
+                  "type": "checkbox",
+                  "evaluation": {
+                    "type": "checkedIsComplete"
+                  }
+                },
+                {
+                  "id": "chk-u1-2",
+                  "name": "u1BearingAlignment",
+                  "label": "Check bearing alignment and lubrication (Fan 1)",
+                  "type": "checkbox",
+                  "evaluation": {
+                    "type": "checkedIsComplete"
+                  }
+                },
+                {
+                  "id": "chk-u1-3",
+                  "name": "u1RotationDirection",
+                  "label": "Check for correct rotation direction (Fan 1)",
+                  "type": "checkbox",
+                  "evaluation": {
+                    "type": "checkedIsComplete"
+                  }
+                },
+                {
+                  "id": "chk-u1-4",
+                  "name": "u1Overloads",
+                  "label": "Overloads set to 100–115% of motor nameplate FLA (Fan 1)",
+                  "type": "checkbox",
+                  "evaluation": {
+                    "type": "checkedIsComplete"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "u1Vfd",
+              "title": "Supply Fan Performance — ABB VFD 1",
+              "type": "accordion",
+              "fields": [
+                {
+                  "id": "u1-vfd-speed",
+                  "name": "u1VfdSpeed",
+                  "label": "Speed",
+                  "type": "text",
+                  "placeholder": "RPM / Hz",
+                  "layout": {
+                    "columnSpan": 1
+                  }
+                },
+                {
+                  "id": "u1-vfd-inputv",
+                  "name": "u1VfdInputVoltage",
+                  "label": "Input voltage",
+                  "type": "number",
+                  "defaultValue": 480,
+                  "unit": "V",
+                  "layout": {
+                    "columnSpan": 1
+                  }
+                },
+                {
+                  "id": "fld-u1-vfdamp",
+                  "name": "u1VfdCurrent",
+                  "label": "Current",
+                  "type": "tolerance",
+                  "reference": {
+                    "name": "u1VfdCurrentReference",
+                    "label": "Nameplate FLA",
+                    "type": "number",
+                    "placeholder": "e.g. 22.5"
+                  },
+                  "reading": {
+                    "name": "u1VfdCurrentReading",
+                    "label": "Measured",
+                    "type": "number",
+                    "placeholder": "—"
+                  },
+                  "evaluation": {
+                    "type": "percentTolerance",
+                    "greenPercent": 5,
+                    "redPercent": 15,
+                    "statuses": {
+                      "green": "In range",
+                      "yellow": "Check",
+                      "red": "Out of range",
+                      "gray": "—"
+                    }
+                  },
+                  "unit": "A",
+                  "help": {
+                    "text": "Green ≤5% of FLA, amber 5–15%, red beyond ±15%."
+                  }
+                },
+                {
+                  "id": "u1-vfd-bus",
+                  "name": "u1VfdBus",
+                  "label": "Bus (DC)",
+                  "type": "calculated",
+                  "readOnly": true,
+                  "formula": "{u1VfdInputVoltage} * 1.44",
+                  "format": "0.0",
+                  "unit": "V",
+                  "help": {
+                    "text": "Input voltage × 1.44, auto-calculated"
+                  }
+                }
+              ]
+            }
+          ],
+          "notes": {
+            "id": "notes-u1",
+            "name": "u1Notes",
+            "label": "MUA-1 notes",
+            "type": "textarea",
+            "placeholder": "Add any field notes for this unit...",
+            "layout": {
+              "columnSpan": "full"
+            }
+          }
+        }
+      ]
+    },
+    "summary": {
+      "id": "summary",
+      "title": "Summary",
+      "sections": [
+        {
+          "id": "equipmentStatus",
+          "type": "equipmentStatusSummary",
+          "title": "Equipment status — this visit",
+          "source": "units",
+          "includeFlaggedFields": true,
+          "includeUnitNotes": true
+        },
+        {
+          "id": "summarySignoff",
+          "type": "card",
+          "title": "Summary / analysis narrative",
+          "fields": [
+            {
+              "id": "summaryNarrative",
+              "name": "summaryNarrative",
+              "label": "Summary / analysis narrative",
+              "type": "textarea",
+              "placeholder": "Overall observations, measurements taken, and any deficiencies identified across all units on this visit...",
+              "layout": {
+                "columnSpan": "full"
+              }
+            },
+            {
+              "id": "reportStatusSelect",
+              "name": "reportStatusSelect",
+              "label": "Report status",
+              "type": "select",
+              "options": [
+                {
+                  "label": "Complete report",
+                  "value": "complete"
+                },
+                {
+                  "label": "Incomplete report",
+                  "value": "incomplete"
+                }
+              ]
+            },
+            {
+              "id": "signatureInput",
+              "name": "signatureInput",
+              "label": "Technician signature",
+              "type": "text",
+              "placeholder": "Technician signature (type full name)",
+              "layout": {
+                "columnSpan": 1
+              }
+            },
+            {
+              "id": "signatureDate",
+              "name": "signatureDate",
+              "label": "Signature date",
+              "type": "date",
+              "defaultValue": "2026-09-01",
+              "layout": {
+                "columnSpan": 1
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "reviewer": {
+      "enabled": true,
+      "title": "Reviewer actions",
+      "description": "Visible to whoever the report is routed to next. Approving forwards the report; rejecting sends it back to the vendor with the reviewer note attached.",
+      "fields": [
+        {
+          "id": "reviewerNote",
+          "name": "reviewerNote",
+          "label": "Reviewer note",
+          "type": "textarea",
+          "placeholder": "Optional note back to the vendor (required if rejecting)...",
+          "layout": {
+            "columnSpan": "full"
+          }
+        }
+      ],
+      "actions": [
+        {
+          "id": "reject",
+          "type": "workflow",
+          "label": "Reject — send back",
+          "targetStatus": "rejected",
+          "validation": {
+            "requiredFields": [
+              "reviewerNote"
+            ]
+          }
+        },
+        {
+          "id": "approve",
+          "type": "workflow",
+          "label": "Approve — forward",
+          "targetStatus": "approved"
+        }
+      ]
+    },
+    "actions": [
+      {
+        "id": "saveDraft",
+        "type": "save",
+        "label": "Save draft",
+        "mode": "offlineCapable"
+      },
+      {
+        "id": "printReport",
+        "type": "print",
+        "label": "Print / PDF"
+      },
+      {
+        "id": "emailReport",
+        "type": "email",
+        "label": "Email",
+        "subjectTemplate": "Start-up report — {salesOrder}, {jobTitle}",
+        "bodyTemplate": "Full start-up report attached / linked: {crmLink}"
+      },
+      {
+        "id": "submitForReview",
+        "type": "workflow",
+        "label": "Submit for review",
+        "targetStatus": "review",
+        "style": "primary"
+      }
+    ],
+    "submission": {
+      "type": "api",
+      "url": "/api/startup-report",
+      "method": "POST",
+      "contentType": "application/json"
+    },
+    "dataSources": {
+      "CAPS": {
+        "type": "api",
+        "url": "/api/caps/order/{salesOrder}/unit/{unitId}",
+        "method": "GET",
+        "mapping": {
+          "model": "model",
+          "serial": "serial",
+          "mark": "mark"
+        }
+      }
+    },
+    "behavior": {
+      "statusAggregation": {
+        "unitStatus": {
+          "redIfAnyFieldRed": true,
+          "yellowIfAnyFieldYellow": true,
+          "pendingIfIncomplete": true,
+          "greenIfCompleteAndNoIssues": true
+        },
+        "deficiencySummary": {
+          "includeStatuses": [
+            "red",
+            "yellow"
+          ],
+          "showUnitMark": true,
+          "allowJumpToField": true
+        },
+        "sectionProgress": {
+          "enabled": true,
+          "format": "{completed}/{total}"
+        }
+      },
+      "offline": {
+        "enabled": true,
+        "storage": "indexedDB",
+        "autoSync": true
+      }
+    }
+  }
+}

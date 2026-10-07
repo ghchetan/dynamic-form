@@ -1,0 +1,7 @@
+# macOS / Python clutter
+.DS_Store
+__pycache__/
+
+# Local-only folders
+_original-backup/
+.claude/
