@@ -5,3 +5,6 @@ __pycache__/
 # Local-only folders
 _original-backup/
 .claude/
+
+# Video build scratch files (video/build.mjs)
+video/.build/

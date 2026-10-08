@@ -1,0 +1,149 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:02.897
+Episode two: the folders, and the main loop.
+
+2
+00:00:02.897 --> 00:00:06.057
+If you only watch one episode, make it this one.
+
+3
+00:00:06.407 --> 00:00:08.730
+Every folder answers one question.
+
+4
+00:00:08.730 --> 00:00:11.052
+Fields: how is one question drawn?
+
+5
+00:00:11.052 --> 00:00:13.989
+Sections: how is a block of the page drawn?
+
+6
+00:00:13.989 --> 00:00:16.107
+Actions: what does a button do?
+
+7
+00:00:16.107 --> 00:00:18.020
+Evaluators: is an answer OK?
+
+8
+00:00:18.020 --> 00:00:21.845
+And offline: how does it keep working without a network?
+
+9
+00:00:22.195 --> 00:00:25.468
+Here is every file, with what it does and how long it is.
+
+10
+00:00:25.468 --> 00:00:30.119
+Most files are under seventy lines, so you can read any of them in a few minutes.
+
+11
+00:00:30.119 --> 00:00:32.129
+BaseField is the one to read first.
+
+12
+00:00:32.481 --> 00:00:35.174
+This table is built from the real import lines.
+
+13
+00:00:35.174 --> 00:00:39.357
+Utils imports nothing, and fields know nothing about sections or buttons.
+
+14
+00:00:39.357 --> 00:00:42.336
+That keeps every part easy to understand on its own.
+
+15
+00:00:42.688 --> 00:00:43.782
+Now the main loop.
+
+16
+00:00:43.782 --> 00:00:48.037
+When a technician taps a button, the field calls setValue on the form.
+
+17
+00:00:48.037 --> 00:00:50.589
+That is the only way a value ever changes.
+
+18
+00:00:50.940 --> 00:00:54.056
+setValue stores the answer in one object, form.
+
+19
+00:00:54.056 --> 00:00:54.520
+values.
+
+20
+00:00:54.520 --> 00:00:57.570
+Then it calls refresh, which asks every field,
+
+21
+00:00:57.570 --> 00:01:01.415
+and then every widget, to redraw itself from those values.
+
+22
+00:01:01.767 --> 00:01:02.359
+That’s it.
+
+23
+00:01:02.359 --> 00:01:05.495
+One place for data, and one way to update the screen.
+
+24
+00:01:05.495 --> 00:01:09.222
+When something looks wrong, there is exactly one place to look.
+
+25
+00:01:09.574 --> 00:01:11.611
+Here is refresh in the real code.
+
+26
+00:01:11.611 --> 00:01:14.760
+Step one: calculated fields work out their numbers.
+
+27
+00:01:14.760 --> 00:01:17.415
+Step two: every field updates its own look.
+
+28
+00:01:17.415 --> 00:01:21.551
+Step three: every widget updates what it collects from many fields.
+
+29
+00:01:21.903 --> 00:01:23.952
+You can see this for yourself.
+
+30
+00:01:23.952 --> 00:01:26.683
+The sample page puts the form on window.
+
+31
+00:01:26.683 --> 00:01:27.571
+formRenderer.
+
+32
+00:01:27.571 --> 00:01:30.439
+In the browser console, type formRenderer.
+
+33
+00:01:30.439 --> 00:01:30.917
+values.
+
+34
+00:01:31.268 --> 00:01:35.051
+Calling setValue from the console does exactly what a tap does.
+
+35
+00:01:35.051 --> 00:01:37.212
+Watch the first tab change its name.
+
+36
+00:01:37.563 --> 00:01:39.363
+Next time: fields and rules.
+
+37
+00:01:39.363 --> 00:01:44.315
+How one question is drawn, and how the form decides whether the answer is OK.

@@ -1,0 +1,117 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:02.179
+Episode three: fields and rules.
+
+2
+00:00:02.530 --> 00:00:05.205
+Every question in the form is a field object.
+
+3
+00:00:05.205 --> 00:00:08.475
+The type in the JSON picks its class, using a registry:
+
+4
+00:00:08.475 --> 00:00:12.042
+a plain object that maps a name to the code that handles it.
+
+5
+00:00:12.042 --> 00:00:15.193
+To add a new kind of question, you add one line here.
+
+6
+00:00:15.545 --> 00:00:21.507
+If the CRM sends a type nobody knows, the form shows a plain text box and warns in the console.
+
+7
+00:00:21.507 --> 00:00:23.704
+A typo never breaks the whole page.
+
+8
+00:00:24.053 --> 00:00:26.899
+All field classes share one parent: BaseField.
+
+9
+00:00:26.899 --> 00:00:30.488
+Its render method fixes the order of the parts: the label,
+
+10
+00:00:30.488 --> 00:00:33.396
+the help text, the input, and the photo button.
+
+11
+00:00:33.396 --> 00:00:37.047
+Each field type replaces only the parts that are different.
+
+12
+00:00:37.399 --> 00:00:41.294
+Here is a complete field type: the Yes / No / N/A buttons.
+
+13
+00:00:41.294 --> 00:00:43.443
+Each button just calls setValue.
+
+14
+00:00:43.443 --> 00:00:45.592
+It never changes its own colour.
+
+15
+00:00:45.944 --> 00:00:48.766
+Its refresh method does that, after every change,
+
+16
+00:00:48.766 --> 00:00:52.222
+by checking which answer is selected and what its status is.
+
+17
+00:00:52.574 --> 00:00:55.236
+So how does the form decide that No is red?
+
+18
+00:00:55.236 --> 00:00:58.394
+A question can have an evaluation rule in the JSON.
+
+19
+00:00:58.394 --> 00:01:00.437
+The rule’s type picks a function.
+
+20
+00:01:00.437 --> 00:01:05.267
+expectedValue, for example, passes when the answer equals the expected answer.
+
+21
+00:01:05.619 --> 00:01:09.561
+Then small functions, with no page code at all, roll the answers up.
+
+22
+00:01:09.561 --> 00:01:11.590
+A unit is red if any answer is red,
+
+23
+00:01:11.590 --> 00:01:15.184
+and green only when everything is answered and nothing failed.
+
+24
+00:01:15.535 --> 00:01:17.474
+Let’s see the three outcomes.
+
+25
+00:01:17.474 --> 00:01:18.210
+Yes passes.
+
+26
+00:01:18.560 --> 00:01:19.414
+No is flagged.
+
+27
+00:01:19.809 --> 00:01:22.294
+And N/A is a valid answer, with no colour.
+
+28
+00:01:22.294 --> 00:01:25.075
+All three count towards the section’s progress.
+
+29
+00:01:25.427 --> 00:01:28.174
+Next: sections, widgets and buttons.

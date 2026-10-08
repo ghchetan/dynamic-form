@@ -67,6 +67,7 @@ Links to share:
 | Form demo | https://ghchetan.github.io/dynamic-form/sample.html |
 | Documentation | https://ghchetan.github.io/dynamic-form/docs/ |
 | Code guide (for developers) | https://ghchetan.github.io/dynamic-form/docs/code-guide.html |
+| Video tour (for developers) | https://ghchetan.github.io/dynamic-form/docs/video-tutorial.html |
 
 **One-time setup:** in **Settings → Pages → Build and deployment**, set **Source** to **GitHub Actions**. GitHub Pages needs the repo to be public on the Free plan.
 
@@ -98,6 +99,8 @@ dev-server.py                    Local server for the sample (also fakes the CRM
 docs/index.html                  Developer documentation portal (Cmd+K search); open via the dev server at /docs/
 docs/code-guide.html             Guided tour of the source for new developers: folder structure, feature-flow diagrams, live code excerpts
 docs/theme.js                    Light / dark theme toggle shared by the landing page, docs portal and code guide
+docs/video-tutorial.html         Video tour page (player, chapters, transcript); videos in docs/videos/
+video/                           Scripts and build tool for the video tour (see video/README.md)
 .github/workflows/pages.yml      Checks the code and deploys the site to GitHub Pages on every push to main
 service-worker.js                Stores the page's files so it opens offline
 Accurex-dynamic-form.css         Styles (all classes start with "dfr-")

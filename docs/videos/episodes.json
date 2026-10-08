@@ -1,0 +1,194 @@
+{
+  "episodes": [
+    {
+      "number": 1,
+      "title": "What it is, and how to run it",
+      "summary": "What the project does, a tour of the demo, and how to run it on your own machine.",
+      "duration": 121,
+      "video": "videos/episode-1.mp4",
+      "poster": "videos/episode-1-poster.jpg",
+      "captions": "videos/episode-1.vtt",
+      "chaptersTrack": "videos/episode-1-chapters.vtt",
+      "chapters": [
+        {
+          "title": "Welcome",
+          "start": 0
+        },
+        {
+          "title": "The idea",
+          "start": 11
+        },
+        {
+          "title": "A quick tour of the demo",
+          "start": 35
+        },
+        {
+          "title": "Run it yourself",
+          "start": 75
+        },
+        {
+          "title": "The big picture",
+          "start": 93
+        },
+        {
+          "title": "Next",
+          "start": 113
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "title": "Folders and the main loop",
+      "summary": "What each folder is for, and the setValue → refresh loop at the heart of the code.",
+      "duration": 105,
+      "video": "videos/episode-2.mp4",
+      "poster": "videos/episode-2-poster.jpg",
+      "captions": "videos/episode-2.vtt",
+      "chaptersTrack": "videos/episode-2-chapters.vtt",
+      "chapters": [
+        {
+          "title": "Welcome",
+          "start": 0
+        },
+        {
+          "title": "One question per folder",
+          "start": 6
+        },
+        {
+          "title": "The main loop",
+          "start": 43
+        },
+        {
+          "title": "refresh() in the real code",
+          "start": 70
+        },
+        {
+          "title": "Try it in the console",
+          "start": 82
+        },
+        {
+          "title": "Next",
+          "start": 98
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "title": "Fields and rules",
+      "summary": "Field classes, the registry pattern, BaseField, and how answers become green, yellow or red.",
+      "duration": 89,
+      "video": "videos/episode-3.mp4",
+      "poster": "videos/episode-3-poster.jpg",
+      "captions": "videos/episode-3.vtt",
+      "chaptersTrack": "videos/episode-3-chapters.vtt",
+      "chapters": [
+        {
+          "title": "Welcome",
+          "start": 0
+        },
+        {
+          "title": "The field registry",
+          "start": 3
+        },
+        {
+          "title": "BaseField",
+          "start": 24
+        },
+        {
+          "title": "A complete field type",
+          "start": 37
+        },
+        {
+          "title": "Rules and roll-ups",
+          "start": 53
+        },
+        {
+          "title": "The three outcomes",
+          "start": 76
+        },
+        {
+          "title": "Next",
+          "start": 85
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "title": "Sections, widgets and buttons",
+      "summary": "Page blocks as widgets, closures, the action registry, and what happens on Submit and Reject.",
+      "duration": 83,
+      "video": "videos/episode-4.mp4",
+      "poster": "videos/episode-4-poster.jpg",
+      "captions": "videos/episode-4.vtt",
+      "chaptersTrack": "videos/episode-4-chapters.vtt",
+      "chapters": [
+        {
+          "title": "Welcome",
+          "start": 0
+        },
+        {
+          "title": "Widgets",
+          "start": 3
+        },
+        {
+          "title": "The action registry",
+          "start": 30
+        },
+        {
+          "title": "Submit for review",
+          "start": 43
+        },
+        {
+          "title": "The reviewer",
+          "start": 64
+        },
+        {
+          "title": "Next",
+          "start": 79
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "title": "Working offline",
+      "summary": "Drafts in IndexedDB, the outbox and sync, the service worker, and where to go next.",
+      "duration": 79,
+      "video": "videos/episode-5.mp4",
+      "poster": "videos/episode-5-poster.jpg",
+      "captions": "videos/episode-5.vtt",
+      "chaptersTrack": "videos/episode-5-chapters.vtt",
+      "chapters": [
+        {
+          "title": "Welcome",
+          "start": 0
+        },
+        {
+          "title": "Three browser features",
+          "start": 3
+        },
+        {
+          "title": "Save and restore a draft",
+          "start": 18
+        },
+        {
+          "title": "The outbox",
+          "start": 28
+        },
+        {
+          "title": "Opening the page offline",
+          "start": 48
+        },
+        {
+          "title": "Where to go next",
+          "start": 60
+        },
+        {
+          "title": "Thank you",
+          "start": 74
+        }
+      ]
+    }
+  ],
+  "voice": "Samantha",
+  "builtAt": "2026-10-07"
+}

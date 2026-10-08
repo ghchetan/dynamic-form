@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Accurex Dynamic Form Video Tour</title>
+<script src="theme.js"></script>
+<meta name="description" content="A five-part video tour of the Accurex Dynamic Form code, for new developers.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a viewing room — player with chapters beside it, transcript below, then the episode shelf.
+   Same visual language as the docs and code guide. */
+:root {
+  --bg: #ffffff; --bg-subtle: #fafafa; --surface: #ffffff;
+  --fg: #0a0a0a; --fg-muted: #5c636e; --fg-faint: #8b919b;
+  --line: #ebebeb; --line-strong: #d6d8dc;
+  --accent: #1d5fa6; --accent-soft: #eaf1f9;
+  --player-bg: #0a0a0a;
+  --shadow: 0 1px 2px rgba(10, 10, 10, 0.04), 0 8px 24px rgba(10, 10, 10, 0.08);
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0a0a0a; --bg-subtle: #111111; --surface: #0f0f0f;
+    --fg: #ededed; --fg-muted: #a3a8b0; --fg-faint: #70757d;
+    --line: #1f1f1f; --line-strong: #2f3237;
+    --accent: #6fa8e8; --accent-soft: #0f2238;
+    --player-bg: #000000;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0a0a0a; --bg-subtle: #111111; --surface: #0f0f0f;
+  --fg: #ededed; --fg-muted: #a3a8b0; --fg-faint: #70757d;
+  --line: #1f1f1f; --line-strong: #2f3237;
+  --accent: #6fa8e8; --accent-soft: #0f2238;
+  --player-bg: #000000;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-sans); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+button { font: inherit; color: inherit; }
+
+.topbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; display: flex; align-items: center; gap: 14px;
+  height: 56px; padding-inline: 16px; border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: saturate(1.6) blur(10px); -webkit-backdrop-filter: saturate(1.6) blur(10px);
+}
+.brand { display: flex; align-items: center; gap: 10px; color: var(--fg); font-weight: 600; white-space: nowrap; }
+.brand:hover { text-decoration: none; }
+.brand-mark { width: 18px; height: 18px; border-radius: 4px; background: var(--accent); position: relative; flex: none; }
+.brand-mark::after { content: ""; position: absolute; inset: 5px; border-radius: 1.5px; background: var(--bg); }
+.brand-sub { color: var(--fg-muted); font-weight: 500; border-left: 1px solid var(--line-strong); padding-left: 10px; }
+.top-links { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+.top-links a { padding: 6px 10px; border-radius: 6px; color: var(--fg-muted); font-size: 14px; white-space: nowrap; }
+.top-links a:hover { background: var(--bg-subtle); color: var(--fg); text-decoration: none; }
+.icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--fg-muted); cursor: pointer; }
+.icon-btn:hover { background: var(--bg-subtle); color: var(--fg); border-color: var(--line); }
+
+.page { max-width: 1180px; margin: 0 auto; padding: 36px 24px 80px; display: grid; gap: 40px; }
+.eyebrow { margin: 0 0 6px; font-size: 13px; font-weight: 500; color: var(--accent); }
+h1 { margin: 0 0 10px; font-size: clamp(28px, 4vw, 38px); line-height: 1.12; letter-spacing: -0.03em; text-wrap: balance; }
+.lead { margin: 0; max-width: 68ch; color: var(--fg-muted); font-size: 16.5px; }
+h2 { margin: 0 0 14px; font-size: 13px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--fg-faint); }
+
+/* Player + chapters */
+.theatre { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; align-items: start; }
+.player { margin: 0; border-radius: var(--radius); overflow: hidden; background: var(--player-bg); box-shadow: var(--shadow); aspect-ratio: 16 / 9; }
+.player video { display: block; width: 100%; height: 100%; background: var(--player-bg); }
+.now { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; margin: 14px 0 0; }
+.now h3 { margin: 0; font-size: 20px; letter-spacing: -0.015em; }
+.now p { margin: 4px 0 0; color: var(--fg-muted); font-size: 14.5px; }
+.speeds { display: flex; gap: 4px; }
+.speeds button { height: 28px; padding: 0 9px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--surface); color: var(--fg-muted); font-family: var(--font-mono); font-size: 12px; cursor: pointer; }
+.speeds button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+.chapters { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); overflow: hidden; }
+.chapters h2 { margin: 0; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.chapters ol { list-style: none; margin: 0; padding: 6px; }
+.chapters button {
+  display: grid; grid-template-columns: 46px 1fr; gap: 8px; width: 100%; padding: 8px; border: 0; border-radius: 6px;
+  background: transparent; text-align: left; cursor: pointer; line-height: 1.4;
+}
+.chapters button:hover { background: var(--bg-subtle); }
+.chapters button[aria-current="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
+.chapters .time { font-family: var(--font-mono); font-size: 12.5px; color: var(--fg-faint); font-variant-numeric: tabular-nums; padding-top: 1px; }
+.chapters button[aria-current="true"] .time { color: var(--accent); }
+
+/* Transcript */
+details.transcript { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+details.transcript > summary { cursor: pointer; padding: 12px 16px; font-weight: 500; }
+.transcript-body { max-height: 320px; overflow-y: auto; padding: 0 10px 12px; }
+.cue { display: grid; grid-template-columns: 46px 1fr; gap: 8px; width: 100%; padding: 5px 6px; border: 0; border-radius: 6px; background: transparent; text-align: left; cursor: pointer; line-height: 1.5; }
+.cue:hover { background: var(--bg-subtle); }
+.cue[aria-current="true"] { background: var(--accent-soft); }
+.cue .time { font-family: var(--font-mono); font-size: 12px; color: var(--fg-faint); padding-top: 2px; font-variant-numeric: tabular-nums; }
+
+/* Episode shelf */
+.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(208px, 1fr)); gap: 14px; }
+.episode { display: grid; gap: 8px; padding: 0 0 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); text-align: left; cursor: pointer; overflow: hidden; transition: border-color 0.12s, box-shadow 0.12s; }
+.episode:hover { border-color: var(--line-strong); box-shadow: var(--shadow); }
+.episode[aria-current="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.episode img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: var(--bg-subtle); border-bottom: 1px solid var(--line); }
+.episode .meta { display: flex; justify-content: space-between; gap: 8px; padding: 0 14px; font-family: var(--font-mono); font-size: 12px; color: var(--fg-faint); }
+.episode strong { padding: 0 14px; font-size: 15px; line-height: 1.35; }
+.episode span.summary { padding: 0 14px; font-size: 13px; line-height: 1.5; color: var(--fg-muted); }
+
+.empty { padding: 40px 20px; border: 1px dashed var(--line-strong); border-radius: var(--radius); text-align: center; color: var(--fg-muted); }
+footer { padding-top: 20px; border-top: 1px solid var(--line); font-size: 13.5px; color: var(--fg-faint); }
+
+@media (max-width: 900px) {
+  .theatre { grid-template-columns: 1fr; }
+  .brand-sub, .top-links a.hide-narrow { display: none; }
+  .page { padding: 24px 16px 64px; gap: 28px; }
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../"><span class="brand-mark" aria-hidden="true"></span>Accurex Dynamic Form <span class="brand-sub">Video tour</span></a>
+  <nav class="top-links" aria-label="Other pages">
+    <a href="./">Docs</a>
+    <a href="code-guide.html">Code guide</a>
+    <a class="hide-narrow" href="../sample.html">Demo</a>
+    <button class="icon-btn" type="button" data-theme-toggle aria-label="Switch colour theme"></button>
+  </nav>
+</header>
+
+<main class="page">
+  <section>
+    <p class="eyebrow">Video tour · for new developers</p>
+    <h1>How the code works, in five short videos</h1>
+    <p class="lead" id="lead">Watch them in order. Each one shows the real demo and the real code, with captions and a transcript. Pair them with the <a href="code-guide.html">code guide</a>, which covers the same ground in writing.</p>
+  </section>
+
+  <section class="theatre" aria-label="Player" id="theatre" hidden>
+    <div>
+      <figure class="player">
+        <video id="video" controls preload="metadata" playsinline crossorigin="anonymous"></video>
+      </figure>
+      <div class="now">
+        <div>
+          <h3 id="nowTitle"></h3>
+          <p id="nowSummary"></p>
+        </div>
+        <div class="speeds" role="group" aria-label="Playback speed" id="speeds">
+          <button type="button" data-speed="1" aria-pressed="true">1×</button>
+          <button type="button" data-speed="1.25" aria-pressed="false">1.25×</button>
+          <button type="button" data-speed="1.5" aria-pressed="false">1.5×</button>
+        </div>
+      </div>
+    </div>
+    <nav class="chapters" aria-label="Chapters of this episode">
+      <h2>Chapters</h2>
+      <ol id="chapterList"></ol>
+    </nav>
+  </section>
+
+  <details class="transcript" id="transcript" hidden>
+    <summary>Transcript</summary>
+    <div class="transcript-body" id="transcriptBody"></div>
+  </details>
+
+  <section aria-labelledby="episodesTitle">
+    <h2 id="episodesTitle">Episodes</h2>
+    <div class="shelf" id="shelf"><p class="empty">Loading the episodes…</p></div>
+  </section>
+
+  <footer id="footer">The videos are generated from <code>video/episodes.mjs</code> in the repository. Change a script there and run <code>node video/build.mjs</code> to rebuild them.</footer>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  const video = document.getElementById('video');
+  const shelf = document.getElementById('shelf');
+  const chapterList = document.getElementById('chapterList');
+  const transcriptBody = document.getElementById('transcriptBody');
+  let episodes = [];
+  let current = null;
+  let chapterButtons = [];
+  let cueButtons = [];
+
+  function make(tag, className, text) {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    if (text !== undefined) element.textContent = text;
+    return element;
+  }
+
+  /** 75 → "1:15" */
+  function clock(seconds) {
+    const whole = Math.max(0, Math.floor(seconds));
+    return Math.floor(whole / 60) + ':' + String(whole % 60).padStart(2, '0');
+  }
+
+  /** Read the cues of a WebVTT file: [{ start, end, text }]. */
+  function parseVtt(text) {
+    const toSeconds = stamp => stamp.split(':').reduce((total, part) => total * 60 + Number(part), 0);
+    return text.replace(/\r/g, '').split('\n\n').map(block => {
+      const lines = block.split('\n');
+      const timing = lines.findIndex(line => line.includes('-->'));
+      if (timing < 0) return null;
+      const [start, end] = lines[timing].split('-->').map(part => toSeconds(part.trim()));
+      return { start, end, text: lines.slice(timing + 1).join(' ') };
+    }).filter(Boolean);
+  }
+
+  async function select(episode, autoplay) {
+    current = episode;
+    document.getElementById('theatre').hidden = false;
+    document.getElementById('nowTitle').textContent = episode.number + '. ' + episode.title;
+    document.getElementById('nowSummary').textContent = episode.summary + ' · ' + clock(episode.duration);
+
+    video.replaceChildren();
+    video.src = episode.video;
+    video.poster = episode.poster;
+    const captions = make('track');
+    Object.assign(captions, { kind: 'captions', srclang: 'en', label: 'English', src: episode.captions, default: true });
+    video.append(captions);
+    video.playbackRate = Number(document.querySelector('#speeds [aria-pressed="true"]').dataset.speed);
+
+    chapterList.replaceChildren();
+    chapterButtons = episode.chapters.map(chapter => {
+      const item = make('li');
+      const button = make('button');
+      button.type = 'button';
+      button.append(make('span', 'time', clock(chapter.start)), make('span', '', chapter.title));
+      button.addEventListener('click', () => { video.currentTime = chapter.start + 0.05; video.play(); });
+      item.append(button);
+      chapterList.append(item);
+      return { button, start: chapter.start };
+    });
+
+    shelf.querySelectorAll('.episode').forEach(card => card.setAttribute('aria-current', String(Number(card.dataset.number) === episode.number)));
+    history.replaceState(null, '', '#episode-' + episode.number);
+
+    // Transcript from the captions file
+    document.getElementById('transcript').hidden = false;
+    transcriptBody.replaceChildren();
+    cueButtons = [];
+    try {
+      const cues = parseVtt(await (await fetch(episode.captions)).text());
+      cueButtons = cues.map(cue => {
+        const button = make('button', 'cue');
+        button.type = 'button';
+        button.append(make('span', 'time', clock(cue.start)), make('span', '', cue.text));
+        button.addEventListener('click', () => { video.currentTime = cue.start + 0.05; video.play(); });
+        transcriptBody.append(button);
+        return { button, start: cue.start, end: cue.end };
+      });
+    } catch (error) {
+      transcriptBody.append(make('p', '', 'The transcript could not be loaded.'));
+    }
+
+    if (autoplay) video.play().catch(() => { /* the browser may require a click first */ });
+  }
+
+  // Highlight the current chapter and transcript line while the video plays
+  video.addEventListener('timeupdate', () => {
+    const time = video.currentTime;
+    let active = null;
+    chapterButtons.forEach(entry => { if (time >= entry.start) active = entry; });
+    chapterButtons.forEach(entry => entry.button.setAttribute('aria-current', String(entry === active)));
+    cueButtons.forEach(entry => {
+      const isNow = time >= entry.start && time < entry.end;
+      if (isNow && entry.button.getAttribute('aria-current') !== 'true') {
+        entry.button.scrollIntoView({ block: 'nearest' });
+      }
+      entry.button.setAttribute('aria-current', String(isNow));
+    });
+  });
+
+  // When an episode ends, offer the next one by selecting it
+  video.addEventListener('ended', () => {
+    const next = episodes.find(episode => episode.number === current.number + 1);
+    if (next) select(next, false);
+  });
+
+  document.getElementById('speeds').addEventListener('click', event => {
+    const button = event.target.closest('button[data-speed]');
+    if (!button) return;
+    document.querySelectorAll('#speeds button').forEach(other => other.setAttribute('aria-pressed', String(other === button)));
+    video.playbackRate = Number(button.dataset.speed);
+  });
+
+  fetch('videos/episodes.json', { cache: 'no-cache' })
+    .then(response => { if (!response.ok) throw new Error('HTTP ' + response.status); return response.json(); })
+    .then(manifest => {
+      episodes = manifest.episodes;
+      if (!episodes.length) throw new Error('no episodes yet');
+
+      const total = episodes.reduce((seconds, episode) => seconds + episode.duration, 0);
+      document.getElementById('lead').prepend(episodes.length + (episodes.length === 1 ? ' episode, ' : ' episodes, ') + Math.round(total / 60) + ' minutes in total. ');
+
+      shelf.replaceChildren(...episodes.map(episode => {
+        const card = make('button', 'episode');
+        card.type = 'button';
+        card.dataset.number = episode.number;
+        const poster = make('img');
+        Object.assign(poster, { src: episode.poster, alt: '', loading: 'lazy' });
+        const meta = make('span', 'meta');
+        meta.append(make('span', '', 'Episode ' + episode.number), make('span', '', clock(episode.duration)));
+        card.append(poster, meta, make('strong', '', episode.title), make('span', 'summary', episode.summary));
+        card.addEventListener('click', () => { select(episode, true); document.getElementById('theatre').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+        return card;
+      }));
+
+      const fromHash = Number((location.hash.match(/^#episode-(\d+)$/) || [])[1]);
+      select(episodes.find(episode => episode.number === fromHash) || episodes[0], false);
+    })
+    .catch(error => {
+      shelf.replaceChildren(make('p', 'empty', 'The videos are not available yet (' + error.message + ').'));
+    });
+})();
+</script>
+</body>
+</html>

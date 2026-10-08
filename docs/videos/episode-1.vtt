@@ -1,0 +1,165 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:02.711
+Welcome to the Accurex Dynamic Form code tour.
+
+2
+00:00:02.711 --> 00:00:03.890
+This is episode one.
+
+3
+00:00:03.890 --> 00:00:07.131
+By the end of it, you will know what this project does,
+
+4
+00:00:07.131 --> 00:00:10.196
+how to run it, and what happens when the page loads.
+
+5
+00:00:10.547 --> 00:00:12.700
+Here is the idea in one sentence.
+
+6
+00:00:12.700 --> 00:00:15.310
+Business users design a form in the CRM.
+
+7
+00:00:15.310 --> 00:00:17.529
+The CRM sends that design as JSON.
+
+8
+00:00:17.529 --> 00:00:21.705
+And this code turns the JSON into a working form on the website.
+
+9
+00:00:21.705 --> 00:00:23.662
+Nobody writes HTML for a form.
+
+10
+00:00:24.015 --> 00:00:26.573
+Our example is the Accurex Start-Up Report.
+
+11
+00:00:26.573 --> 00:00:31.451
+Technicians fill it in on site when they commission kitchen ventilation equipment:
+
+12
+00:00:31.451 --> 00:00:34.902
+control panels, hoods, exhaust fans and make-up air units.
+
+13
+00:00:35.254 --> 00:00:38.553
+This whole page was drawn from one JSON file.
+
+14
+00:00:38.553 --> 00:00:41.999
+The header shows the job and the report status.
+
+15
+00:00:41.999 --> 00:00:46.619
+Each piece of equipment gets a tab: CP-1, HD-1, EF-1 and MUA-1.
+
+16
+00:00:46.971 --> 00:00:48.679
+Let’s answer a question.
+
+17
+00:00:48.679 --> 00:00:51.383
+On the control panel: power to lights?
+
+18
+00:00:51.383 --> 00:00:51.596
+No.
+
+19
+00:00:51.948 --> 00:00:53.102
+Watch what happens.
+
+20
+00:00:53.102 --> 00:00:54.560
+The question is flagged.
+
+21
+00:00:54.560 --> 00:00:56.382
+The section counter turns red.
+
+22
+00:00:56.382 --> 00:00:58.022
+And the tab gets a red dot.
+
+23
+00:00:58.374 --> 00:01:01.504
+Every problem is also listed in one place, near the top,
+
+24
+00:01:01.504 --> 00:01:04.187
+with a View link that jumps straight back to it.
+
+25
+00:01:04.538 --> 00:01:05.936
+Now a measured reading.
+
+26
+00:01:05.936 --> 00:01:11.465
+The nameplate says eighteen point two amps, and the overload is set to nineteen point five.
+
+27
+00:01:11.465 --> 00:01:14.564
+That is seven percent off, so the form says: check.
+
+28
+00:01:14.915 --> 00:01:22.394
+To run it yourself, clone the repository and start the development server: python3 dev-server.
+
+29
+00:01:22.394 --> 00:01:22.633
+py.
+
+30
+00:01:22.633 --> 00:01:23.985
+Then open sample.
+
+31
+00:01:23.985 --> 00:01:26.293
+html on localhost, port 8080.
+
+32
+00:01:26.644 --> 00:01:29.522
+There is no npm, no build step and no framework.
+
+33
+00:01:29.522 --> 00:01:32.819
+The browser runs the files exactly as they are written.
+
+34
+00:01:33.170 --> 00:01:34.544
+There are three layers.
+
+35
+00:01:34.544 --> 00:01:36.634
+The configuration says what to ask.
+
+36
+00:01:36.634 --> 00:01:39.500
+The framework, in the src folder, does the work.
+
+37
+00:01:39.500 --> 00:01:42.248
+And the host page says where to draw the form.
+
+38
+00:01:42.600 --> 00:01:47.524
+When the page loads, render downloads the JSON, builds every block of the page,
+
+39
+00:01:47.524 --> 00:01:52.261
+puts back any saved draft, and calls refresh, which draws the current state.
+
+40
+00:01:52.612 --> 00:01:55.164
+In the next episode, we open the folders,
+
+41
+00:01:55.164 --> 00:02:00.144
+and meet the one loop that explains the whole codebase: set value, then refresh.

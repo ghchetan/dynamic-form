@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Video card</title>
+<!-- Title and end cards for the tutorial videos. Text comes from the URL: ?kicker=…&title=…&subtitle=… -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+  html, body { margin: 0; height: 100%; }
+  body {
+    display: grid; place-items: center; background: #fafafa; color: #0a0a0a;
+    font-family: "Geist", system-ui, sans-serif; -webkit-font-smoothing: antialiased;
+    background-image: radial-gradient(circle at 1px 1px, #e3e5e8 1px, transparent 0); background-size: 24px 24px;
+  }
+  .card { width: 960px; padding: 56px 64px; border: 1px solid #e4e6ea; border-radius: 18px; background: #fff;
+          box-shadow: 0 1px 2px rgba(10,10,10,.04), 0 24px 60px rgba(10,10,10,.08); animation: in .6s ease-out both; }
+  @keyframes in { from { opacity: 0; transform: translateY(12px); } }
+  .brand { display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 20px; }
+  .mark { width: 24px; height: 24px; border-radius: 6px; background: #1d5fa6; position: relative; }
+  .mark::after { content: ""; position: absolute; inset: 7px; border-radius: 2px; background: #fff; }
+  .kicker { margin: 40px 0 10px; font-family: "Geist Mono", monospace; font-size: 18px; color: #1d5fa6; }
+  h1 { margin: 0; font-size: 64px; line-height: 1.05; letter-spacing: -0.035em; }
+  .subtitle { margin: 18px 0 0; font-size: 24px; line-height: 1.45; color: #5c636e; max-width: 34ch; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand"><span class="mark"></span>Accurex Dynamic Form</div>
+    <p class="kicker" id="kicker"></p>
+    <h1 id="title"></h1>
+    <p class="subtitle" id="subtitle"></p>
+  </div>
+  <script>
+    const params = new URLSearchParams(location.search);
+    for (const id of ['kicker', 'title', 'subtitle']) document.getElementById(id).textContent = params.get(id) || '';
+  </script>
+</body>
+</html>

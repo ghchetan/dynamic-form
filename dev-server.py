@@ -16,6 +16,7 @@ This is for local testing only. In production the CRM provides the real API.
 """
 
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -28,7 +29,39 @@ class DevRequestHandler(SimpleHTTPRequestHandler):
         # Make the browser check for a newer copy every time, so edits to the
         # JSON or code show up on the next reload.
         self.send_header("Cache-Control", "no-cache")
+        self.send_header("Accept-Ranges", "bytes")
         super().end_headers()
+
+    def do_GET(self):
+        # Browsers ask for part of a video ("Range: bytes=…") to jump to a point in it.
+        # The standard handler always sends the whole file, so seeking would not work.
+        range_header = self.headers.get("Range", "")
+        path = self.translate_path(self.path)
+        if not range_header.startswith("bytes=") or not os.path.isfile(path):
+            super().do_GET()
+            return
+
+        size = os.path.getsize(path)
+        start_text, _, end_text = range_header[len("bytes="):].split(",")[0].partition("-")
+        if start_text:
+            start, end = int(start_text), int(end_text) if end_text else size - 1
+        else:  # "bytes=-500" means the last 500 bytes
+            start, end = max(0, size - int(end_text)), size - 1
+        end = min(end, size - 1)
+        if start > end:
+            self.send_response(416)
+            self.send_header("Content-Range", f"bytes */{size}")
+            self.end_headers()
+            return
+
+        self.send_response(206)
+        self.send_header("Content-Type", self.guess_type(path))
+        self.send_header("Content-Range", f"bytes {start}-{end}/{size}")
+        self.send_header("Content-Length", str(end - start + 1))
+        self.end_headers()
+        with open(path, "rb") as file:
+            file.seek(start)
+            self.wfile.write(file.read(end - start + 1))
 
     def do_POST(self):
         if self.path.split("?")[0] != SUBMISSION_PATH:

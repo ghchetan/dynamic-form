@@ -1,0 +1,105 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.096
+Episode four: sections, widgets and buttons.
+
+2
+00:00:03.447 --> 00:00:04.629
+Fields are classes.
+
+3
+00:00:04.629 --> 00:00:09.733
+Blocks of the page, like the header, a card or the unit tabs, are plain functions.
+
+4
+00:00:09.733 --> 00:00:12.969
+Each one returns an element to put on the page, and,
+
+5
+00:00:12.969 --> 00:00:16.018
+if it shows live information, a refresh function.
+
+6
+00:00:16.018 --> 00:00:18.321
+That small object is called a widget.
+
+7
+00:00:18.672 --> 00:00:20.435
+The accordion is a good example.
+
+8
+00:00:20.435 --> 00:00:23.739
+Its refresh function updates the three out of seven counter.
+
+9
+00:00:23.739 --> 00:00:27.870
+It still remembers its elements long after the outer function has returned.
+
+10
+00:00:27.870 --> 00:00:29.247
+That is called a closure.
+
+11
+00:00:29.599 --> 00:00:32.815
+Buttons work the same way, with a third registry.
+
+12
+00:00:32.815 --> 00:00:36.031
+The button’s type in the JSON picks its function:
+
+13
+00:00:36.031 --> 00:00:39.313
+save, email, print, timer, workflow, or data pull.
+
+14
+00:00:39.313 --> 00:00:42.595
+Any other type is handed to the website to handle.
+
+15
+00:00:42.946 --> 00:00:44.445
+Here is Submit for review.
+
+16
+00:00:44.445 --> 00:00:49.923
+The status changes to review, and the website’s onWorkflow callback sends the report with form.
+
+17
+00:00:49.923 --> 00:00:50.442
+submit().
+
+18
+00:00:50.793 --> 00:00:54.109
+If the CRM refuses the report, the status is put back,
+
+19
+00:00:54.109 --> 00:00:58.285
+so the screen never says review for a report the CRM never received.
+
+20
+00:00:58.285 --> 00:01:03.259
+And the button is disabled while it sends, so a double click can’t send it twice.
+
+21
+00:01:03.610 --> 00:01:05.024
+Let’s try the reviewer.
+
+22
+00:01:05.024 --> 00:01:06.254
+Reject needs a note.
+
+23
+00:01:06.254 --> 00:01:10.313
+Without one, the note box is outlined in red, and nothing is sent.
+
+24
+00:01:10.666 --> 00:01:12.769
+With a note, the report is rejected,
+
+25
+00:01:12.769 --> 00:01:16.450
+the status at the top changes, and the banner shows the reason.
+
+26
+00:01:19.392 --> 00:01:23.046
+In the last episode: how the form keeps working without a network.

@@ -278,6 +278,7 @@ details.seq-text li.seq-text-group, details.seq-text li.seq-text-note { list-sty
   <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"></span>Accurex Dynamic Form <span class="brand-sub">Code guide</span></a>
   <nav class="top-links" aria-label="Other pages">
     <a href="./">Docs</a>
+    <a class="hide-narrow" href="video-tutorial.html">Videos</a>
     <a class="hide-narrow" href="../sample.html">Demo</a>
     <a href="https://github.com/ghchetan/dynamic-form">GitHub</a>
     <button class="icon-btn" type="button" data-theme-toggle aria-label="Switch colour theme"></button>
@@ -304,6 +305,8 @@ details.seq-text li.seq-text-group, details.seq-text li.seq-text-note { list-sty
       <section class="chapter" id="before-you-start" data-title="Before you start">
         <span class="chapter-number"></span>
         <h2>Before you start</h2>
+
+        <div class="box why"><span class="box-title">Prefer to watch first?</span><p>The <a href="video-tutorial.html">video tour</a> covers the same ground in five short videos (about 15 minutes in total). Watch an episode, then read the matching chapters here.</p></div>
 
         <h3>What you should already know</h3>
         <p>Basic JavaScript: variables, functions, objects, arrays and loops. Everything else you will meet (modules, classes, <code>async</code>/<code>await</code>, closures) is explained in <a href="#js-primer" data-chapter-ref>chapter</a> with examples from this codebase. You don't need React, a build tool or npm. This project uses none of them.</p>
@@ -484,6 +487,17 @@ formRenderer.getDeficientFields().map(f =&gt; f.config.label)</code></pre>
                     <li><code data-path="docs/index.html">index.html</code><span class="role">Documentation portal with Cmd+K search.</span></li>
                     <li><code data-path="docs/code-guide.html">code-guide.html</code><span class="role">This guide.</span></li>
                     <li><code data-path="docs/theme.js">theme.js</code><span class="role">Light / dark toggle shared by the docs pages.</span></li>
+                    <li><code data-path="docs/video-tutorial.html">video-tutorial.html</code><span class="role">The video tour page: player, chapters, transcript.</span></li>
+                    <li><code data-path="docs/videos/episodes.json">videos/</code><span class="role">The generated MP4s, captions and posters, listed in <code>episodes.json</code>.</span></li>
+                  </ul>
+                </li>
+                <li><span class="dir">video/</span>
+                  <ul>
+                    <li><code data-repo-path="video/episodes.mjs">episodes.mjs</code><span class="role">The video scripts: what is said, and what happens on screen.</span></li>
+                    <li><code data-repo-path="video/build.mjs">build.mjs</code><span class="role">Turns the scripts into MP4s: narration, recording, captions.</span></li>
+                    <li><code data-repo-path="video/overlay.js">overlay.js</code><span class="role">Cursor, spotlight and console shown only in the videos.</span></li>
+                    <li><code data-repo-path="video/card.html">card.html</code><span class="role">Title and end cards.</span></li>
+                    <li><code data-repo-path="video/README.md">README.md</code><span class="role">How to change and rebuild the videos.</span></li>
                   </ul>
                 </li>
                 <li><span class="dir">.github/</span>
