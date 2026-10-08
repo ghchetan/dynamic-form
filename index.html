@@ -63,6 +63,7 @@ h1 { margin: 0 0 12px; font-size: clamp(30px, 6vw, 42px); line-height: 1.1; lett
   color: var(--fg); text-decoration: none; transition: border-color 0.12s, box-shadow 0.12s;
 }
 .card:hover { border-color: var(--line-strong); box-shadow: var(--shadow); }
+.card-wide { grid-column: 1 / -1; }
 .card-kicker { font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); }
 .card strong { font-size: 17px; }
 .card span { color: var(--fg-muted); font-size: 14px; }
@@ -117,6 +118,12 @@ footer { padding-top: 20px; border-top: 1px solid var(--line); font-size: 13px; 
       <strong>Video tour</strong>
       <span>Five short videos that walk through the demo and the code, with captions and a transcript.</span>
       <span class="go">Watch →</span>
+    </a>
+    <a class="card card-wide" href="docs/kt-deck.html">
+      <span class="card-kicker">For developers</span>
+      <strong>Knowledge-transfer deck</strong>
+      <span>22 slides with speaker notes: the requirements first, then a tour of the code and a plan for your first day.</span>
+      <span class="go">View the slides →</span>
     </a>
   </section>
 

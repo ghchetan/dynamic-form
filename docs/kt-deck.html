@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accurex Dynamic Form KT</title>
+<meta name="description" content="Knowledge-transfer deck for the Accurex Dynamic Form: the requirements first, then a tour of the code.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/*
+ * Knowledge-transfer deck. Each slide is a 1920×1080 <section> with inline styles,
+ * scaled to fit the window. Keys: ← → to move, N for speaker notes, O for all slides,
+ * F for full screen. Print (or Save as PDF) gives one slide per page.
+ */
+html, body { height: 100%; margin: 0; }
+body {
+  display: grid; grid-template-rows: minmax(0, 1fr) auto auto;
+  background: #0B1118; color: #D5DDE5; overflow: hidden;
+  font-family: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+:focus-visible { outline: 2px solid #F2A65A; outline-offset: 2px; }
+
+/* ── The stage ── */
+.viewport { position: relative; display: grid; place-items: center; min-height: 0; overflow: hidden; }
+.holder { position: relative; overflow: hidden; border-radius: 6px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45); }
+.stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: top left; }
+.frame[hidden] { display: none; }
+
+/* ── Slide defaults (the slides set almost everything inline) ── */
+.frame section { position: relative; width: 1920px; height: 1080px; box-sizing: border-box; overflow: hidden; }
+.frame section * { margin: 0; box-sizing: border-box; }
+.frame section div { min-width: 0; }
+.frame h1 { font-size: 96px; font-weight: 600; line-height: 1.1; }
+.frame h2 { font-size: 64px; font-weight: 600; line-height: 1.15; }
+.frame h3 { font-size: 44px; font-weight: 600; line-height: 1.2; }
+.frame p { font-size: 32px; line-height: 1.4; }
+.frame ul, .frame ol { padding-left: 1.3em; }
+.frame table { width: 100%; border-collapse: collapse; }
+.frame th, .frame td { padding: 0.35em 0.6em; text-align: left; vertical-align: top; border-bottom: 1px solid rgba(20, 32, 46, 0.12); }
+.frame th { font-weight: 600; }
+.frame a { text-underline-offset: 0.15em; }
+.frame aside { display: none; }
+
+/* ── Speaker notes ── */
+.notes {
+  max-height: 28vh; overflow: auto; padding: 14px 24px;
+  background: #111A24; border-top: 1px solid #1F2B38;
+  font-size: 15px; line-height: 1.6; color: #C9D3DD;
+}
+.notes[hidden] { display: none; }
+.notes-label { display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #F2A65A; }
+
+/* ── Toolbar ── */
+.toolbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+  padding: 10px 16px; border-top: 1px solid #1F2B38; background: #0B1118;
+}
+.group { display: flex; align-items: center; gap: 8px; }
+.toolbar a, .toolbar button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  height: 36px; padding: 0 12px; border: 1px solid #2A3644; border-radius: 8px;
+  background: transparent; color: #D5DDE5; font: inherit; font-size: 14px; text-decoration: none; cursor: pointer;
+}
+.toolbar a:hover, .toolbar button:hover:not(:disabled) { background: #16212D; border-color: #3A4858; }
+.toolbar button:disabled { opacity: 0.4; cursor: default; }
+.toolbar button[aria-pressed="true"] { border-color: #F2A65A; color: #F2A65A; }
+.counter { min-width: 72px; text-align: center; font-size: 14px; font-variant-numeric: tabular-nums; color: #9DB4CC; }
+@media (max-width: 560px) { .toolbar .wide-only { display: none; } .toolbar { justify-content: center; } }
+
+/* ── All slides ── */
+.overview {
+  position: fixed; inset: 0; z-index: 10; overflow: auto; padding: 24px 16px 40px;
+  background: rgba(11, 17, 24, 0.97);
+}
+.overview[hidden] { display: none; }
+.overview-head { max-width: 1280px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.overview-head h2 { margin: 0; font-size: 16px; font-weight: 600; color: #F3F1EC; }
+.overview-head button { height: 36px; padding: 0 12px; border: 1px solid #2A3644; border-radius: 8px; background: transparent; color: #D5DDE5; font: inherit; font-size: 14px; cursor: pointer; }
+.thumbs { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+.thumb { display: grid; gap: 6px; padding: 0; border: 0; background: none; color: #9DB4CC; font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.thumb-view { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 6px; border: 2px solid transparent; }
+.thumb[aria-current="true"] .thumb-view { border-color: #F2A65A; }
+.thumb:hover .thumb-view { border-color: #5B7A99; }
+.thumb-view .frame { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: top left; pointer-events: none; }
+
+/* ── Print / Save as PDF: one slide per page ── */
+@media print {
+  @page { size: 1920px 1080px; margin: 0; }
+  html, body { height: auto; display: block; overflow: visible; background: none; }
+  .toolbar, .notes, .overview { display: none !important; }
+  .viewport, .holder { display: block; width: auto !important; height: auto !important; box-shadow: none; border-radius: 0; overflow: visible; }
+  .stage { position: static; transform: none !important; width: auto; height: auto; }
+  .frame, .frame[hidden] { display: block !important; break-after: page; }
+}
+</style>
+</head>
+<body>
+<main class="viewport" aria-label="Slides">
+  <div class="holder">
+    <div class="stage">
+<div class="frame" data-id="cover" role="group" aria-roledescription="slide" hidden>
+<section id="cover" data-transition="fade" style="background:#14202E;color:#F3F1EC;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#F2A65A;letter-spacing:4px">KNOWLEDGE TRANSFER</p>
+<div style="display:flex;flex-direction:column;gap:36px">
+<h1 style="font-size:120px;font-weight:600;line-height:1.05;color:#F3F1EC">Accurex Dynamic Form</h1>
+<p style="font-size:40px;line-height:1.35;color:#B9C4CF">The start-up report form: what it has to do, and how the code does it</p>
+</div>
+<div style="display:flex;gap:48px">
+<div style="display:flex;flex-direction:column;gap:8px;border-top:4px solid #F2A65A;padding:24px 0 0 0;width:520px">
+<p style="font-size:24px;color:#F2A65A;font-family:'JetBrains Mono', 'Courier New', monospace">PART 1</p>
+<p style="font-size:32px;color:#F3F1EC">The requirements</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;border-top:4px solid #5B7A99;padding:24px 0 0 0;width:520px">
+<p style="font-size:24px;color:#9DB4CC;font-family:'JetBrains Mono', 'Courier New', monospace">PART 2</p>
+<p style="font-size:32px;color:#F3F1EC">A tour of the code</p>
+</div>
+</div>
+<aside>Welcome. The KT has two parts. First, what the business needs: a start-up report that a technician fills in on site and a reviewer approves. Second, how the code meets those needs, folder by folder and feature by feature. At the end there's a plan for your first day.</aside>
+</section>
+</div>
+<div class="frame" data-id="problem" role="group" aria-roledescription="slide" hidden>
+<section id="problem" data-transition="fade" style="background:#F7F6F2;color:#4A5563;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A84E10;letter-spacing:3px">THE PROBLEM</p>
+<h2 style="font-size:64px;font-weight:600;color:#14202E;line-height:1.15">One renderer for every CRM form</h2>
+</div>
+<div style="display:flex;align-items:center;gap:20px">
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:16px;padding:28px 24px">
+<p style="font-size:28px;font-weight:600;color:#14202E">Business user</p>
+<p style="font-size:24px;line-height:1.35">sets up the form in the CRM</p>
+</div>
+<svg width="56" height="28" viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true" style="flex:none"><polygon points="0,15 60,15 60,0 100,25 60,50 60,35 0,35" fill="#A84E10"/></svg>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:16px;padding:28px 24px">
+<p style="font-size:28px;font-weight:600;color:#14202E">CRM API</p>
+<p style="font-size:24px;line-height:1.35">sends the form as JSON</p>
+</div>
+<svg width="56" height="28" viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true" style="flex:none"><polygon points="0,15 60,15 60,0 100,25 60,50 60,35 0,35" fill="#A84E10"/></svg>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#14202E;border-radius:16px;padding:28px 24px">
+<p style="font-size:24px;font-weight:600;color:#F2A65A;font-family:'JetBrains Mono', 'Courier New', monospace">DynamicForm Renderer</p>
+<p style="font-size:24px;line-height:1.35;color:#D5DDE5">draws it, with no HTML per form</p>
+</div>
+<svg width="56" height="28" viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true" style="flex:none"><polygon points="0,15 60,15 60,0 100,25 60,50 60,35 0,35" fill="#A84E10"/></svg>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:16px;padding:28px 24px">
+<p style="font-size:28px;font-weight:600;color:#14202E">Corporate website</p>
+<p style="font-size:24px;line-height:1.35">the technician fills it in</p>
+</div>
+</div>
+<div style="display:flex;gap:64px;align-items:start">
+<div style="flex:3;display:flex;flex-direction:column;gap:20px">
+<p style="font-size:30px;line-height:1.45;color:#2E3946">The first form built with it is the <b>Accurex start-up report</b>. A technician visits a job (one sales order, for example SO-9904213), checks every piece of equipment on site, records readings and photos, and sends the report for review.</p>
+<p style="font-size:30px;line-height:1.45;color:#2E3946">When the business wants a new question or a new rule, they change the JSON. The code stays the same.</p>
+</div>
+<div style="flex:2;display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:16px;padding:28px 32px;gap:16px">
+<p style="font-size:24px;color:#5F6873">Units in the sample job</p>
+<p style="font-size:28px;color:#14202E"><b>CP-1</b>   Control panel</p>
+<p style="font-size:28px;color:#14202E"><b>HD-1</b>   Hood</p>
+<p style="font-size:28px;color:#14202E"><b>EF-1</b>   Exhaust fan</p>
+<p style="font-size:28px;color:#14202E"><b>MUA-1</b>   Make-up air unit</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5F6873">Accurex Dynamic Form KT · 2</p>
+<aside>The core idea: business users design forms in the CRM, and this one package turns the JSON into a working form on the website. Nobody writes HTML per form. The sample config, accurex-startup-report-config.json, is the start-up report for a kitchen-ventilation job with four units: a control panel, a hood, an exhaust fan and a make-up air unit.</aside>
+</section>
+</div>
+<div class="frame" data-id="users" role="group" aria-roledescription="slide" hidden>
+<section id="users" data-transition="fade" style="background:#F7F6F2;color:#4A5563;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A84E10;letter-spacing:3px">WHO IT SERVES</p>
+<h2 style="font-size:64px;font-weight:600;color:#14202E;line-height:1.15">Four people touch this form</h2>
+</div>
+<div style="display:flex;gap:32px;align-items:stretch">
+<div style="flex:1;display:flex;flex-direction:column;gap:18px;background:#FFFFFF;border:1px solid #E2DFD8;border-top:6px solid #A84E10;border-radius:16px;padding:36px 32px">
+<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#A84E10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+<h3 style="font-size:36px;font-weight:600;color:#14202E">Technician</h3>
+<p style="font-size:26px;line-height:1.4">On site, often with weak signal. Answers checks, enters readings, attaches photos, runs the site timer, saves drafts and submits for review.</p>
+<div style="flex:1"></div>
+<p style="font-size:24px;color:#2F5D8A;font-family:'JetBrains Mono', 'Courier New', monospace">fields/ actions/ offline/</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:18px;background:#FFFFFF;border:1px solid #E2DFD8;border-top:6px solid #A84E10;border-radius:16px;padding:36px 32px">
+<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#A84E10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+<h3 style="font-size:36px;font-weight:600;color:#14202E">Reviewer</h3>
+<p style="font-size:26px;line-height:1.4">Reads the finished report. Approves it, or rejects it with a note that goes back to the vendor.</p>
+<div style="flex:1"></div>
+<p style="font-size:24px;color:#2F5D8A;font-family:'JetBrains Mono', 'Courier New', monospace">reviewer.js workflowAction.js</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:18px;background:#FFFFFF;border:1px solid #E2DFD8;border-top:6px solid #A84E10;border-radius:16px;padding:36px 32px">
+<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#A84E10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+<h3 style="font-size:36px;font-weight:600;color:#14202E">Business user</h3>
+<p style="font-size:26px;line-height:1.4">Designs the form in the CRM: questions, pass/fail rules, units and buttons. A change here needs no developer.</p>
+<div style="flex:1"></div>
+<p style="font-size:24px;color:#2F5D8A;font-family:'JetBrains Mono', 'Courier New', monospace">the JSON config</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:18px;background:#FFFFFF;border:1px solid #E2DFD8;border-top:6px solid #A84E10;border-radius:16px;padding:36px 32px">
+<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#A84E10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+<h3 style="font-size:36px;font-weight:600;color:#14202E">Web developer</h3>
+<p style="font-size:26px;line-height:1.4">Puts the form on a page and connects its callbacks to the CRM: onWorkflow, onDataPull, onAction.</p>
+<div style="flex:1"></div>
+<p style="font-size:24px;color:#2F5D8A;font-family:'JetBrains Mono', 'Courier New', monospace">Accurex-Dynamic FormRenderer.js</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5F6873">Accurex Dynamic Form KT · 3</p>
+<aside>Keep these four people in mind; every folder serves one of them. The technician is the main user and the reason offline mode exists. The reviewer uses the reviewer block at the bottom. The business user never touches code; they only change JSON. The web developer embeds the form and decides what happens on submit through callbacks. A project lead also gets status emails, sent from the technician's mail app.</aside>
+</section>
+</div>
+<div class="frame" data-id="reqs" role="group" aria-roledescription="slide" hidden>
+<section id="reqs" data-transition="fade" style="background:#F7F6F2;color:#4A5563;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A84E10;letter-spacing:3px">REQUIREMENTS</p>
+<h2 style="font-size:64px;font-weight:600;color:#14202E;line-height:1.15">What the form has to do</h2>
+</div>
+<table style="font-size:26px;color:#2E3946;font-family:'IBM Plex Sans', Arial, sans-serif">
+<tr style="background:#14202E"><th style="width:38%;color:#F3F1EC">Need</th><th style="width:34%;color:#F3F1EC">What the user sees</th><th style="width:28%;color:#F3F1EC">Config key</th></tr>
+<tr><td>Forms are defined in the CRM, not in code</td><td>The whole page is built from JSON</td><td>form.*</td></tr>
+<tr style="background:#EFEDE7"><td>Check each piece of equipment on its own</td><td>Unit tabs with a coloured dot</td><td>units.items</td></tr>
+<tr><td>Judge answers automatically</td><td>Pass / Check / Flagged chips</td><td>evaluation, statusRules</td></tr>
+<tr style="background:#EFEDE7"><td>See every problem in one place</td><td>Deficiency list with View links</td><td>deficiencySummary</td></tr>
+<tr><td>Track time on site against the plan</td><td>Timer and hours variance</td><td>hoursTracker, timer</td></tr>
+<tr style="background:#EFEDE7"><td>Fill model and serial from order data</td><td>Pull from CAPS button</td><td>dataSources.CAPS</td></tr>
+<tr><td>Keep photos as evidence</td><td>Attach photo, with thumbnails</td><td>attachments</td></tr>
+<tr style="background:#EFEDE7"><td>Work with no signal</td><td>Drafts, an outbox, the page opens offline</td><td>behavior.offline</td></tr>
+<tr><td>Review and approve the report</td><td>Submit, Approve and Reject buttons</td><td>actions, reviewer</td></tr>
+</table>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5F6873">Accurex Dynamic Form KT · 4</p>
+<aside>This is the requirement list as the code sees it. Each need maps to a key in the JSON config, and each key maps to one place in the code, which we'll see in Part 2. If someone asks for a new feature, first ask which row it belongs to, or whether it's a new row.</aside>
+</section>
+</div>
+<div class="frame" data-id="lifecycle" role="group" aria-roledescription="slide" hidden>
+<section id="lifecycle" data-transition="fade" style="background:#F7F6F2;color:#4A5563;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A84E10;letter-spacing:3px">REPORT LIFECYCLE</p>
+<h2 style="font-size:64px;font-weight:600;color:#14202E;line-height:1.15">A report has four statuses</h2>
+</div>
+<div style="position:relative;width:1664px;height:380px">
+<div style="position:absolute;left:0px;top:140px;width:300px;height:100px;background:#FFFFFF;border:2px solid #5F6873;border-radius:16px;display:flex;flex-direction:column;justify-content:center;align-items:center">
+<p style="font-size:32px;font-weight:600;color:#14202E">Draft</p>
+</div>
+<div style="position:absolute;left:560px;top:140px;width:300px;height:100px;background:#FFFFFF;border:2px solid #2F5D8A;border-radius:16px;display:flex;flex-direction:column;justify-content:center;align-items:center">
+<p style="font-size:32px;font-weight:600;color:#2F5D8A">Review</p>
+</div>
+<div style="position:absolute;left:1180px;top:20px;width:400px;height:100px;background:#E6F2EA;border:2px solid #2E7D4F;border-radius:16px;display:flex;flex-direction:column;justify-content:center;align-items:center">
+<p style="font-size:32px;font-weight:600;color:#1F5E39">Approved</p>
+<p style="font-size:24px;color:#2E3946">forwarded</p>
+</div>
+<div style="position:absolute;left:1180px;top:260px;width:400px;height:100px;background:#F8E7E4;border:2px solid #B0392B;border-radius:16px;display:flex;flex-direction:column;justify-content:center;align-items:center">
+<p style="font-size:32px;font-weight:600;color:#8E2A1F">Rejected</p>
+<p style="font-size:24px;color:#2E3946">reviewer note required</p>
+</div>
+<svg width="1" height="1" aria-hidden="true" style="position:absolute;left:0;top:0;overflow:visible;pointer-events:none"><polyline points="300,190 560,190" fill="none" stroke="#5F6873" stroke-width="3"/><polygon points="560,190 542,199 542,181" fill="#5F6873"/></svg>
+<svg width="1" height="1" aria-hidden="true" style="position:absolute;left:0;top:0;overflow:visible;pointer-events:none"><polyline points="860,190 1020,190 1020,70 1180,70" fill="none" stroke="#2E7D4F" stroke-width="3"/><polygon points="1180,70 1162,79 1162,61" fill="#2E7D4F"/></svg>
+<svg width="1" height="1" aria-hidden="true" style="position:absolute;left:0;top:0;overflow:visible;pointer-events:none"><polyline points="860,190 1020,190 1020,310 1180,310" fill="none" stroke="#B0392B" stroke-width="3"/><polygon points="1180,310 1162,319 1162,301" fill="#B0392B"/></svg>
+<p style="position:absolute;left:310px;top:140px;width:250px;font-size:24px;color:#2E3946;text-align:center">Submit for review</p>
+<p style="position:absolute;left:1030px;top:100px;width:140px;font-size:24px;color:#1F5E39">Approve</p>
+<p style="position:absolute;left:1030px;top:240px;width:140px;font-size:24px;color:#8E2A1F">Reject</p>
+</div>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;border-top:3px solid #A84E10;padding:20px 0 0 0">
+<p style="font-size:26px;line-height:1.4;color:#2E3946">The status is just a value: <b>values.reportStatus</b>. The pill in the header redraws from it.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;border-top:3px solid #A84E10;padding:20px 0 0 0">
+<p style="font-size:26px;line-height:1.4;color:#2E3946">Each button is a <b>workflow</b> action with a <b>targetStatus</b>. Reject lists reviewerNote as required.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;border-top:3px solid #A84E10;padding:20px 0 0 0">
+<p style="font-size:26px;line-height:1.4;color:#2E3946">If the CRM refuses the report, the old status comes back. The screen never claims a review that never happened.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5F6873">Accurex Dynamic Form KT · 5</p>
+<aside>Business rule: draft, then review, then approved or rejected. Technically the status is one more value in form.values, so it is saved in drafts and sent with the report like any other field. The three buttons are all the same action type, workflow, with a different targetStatus. Reject has a required field, the reviewer note. If the host page's onWorkflow callback throws, the status is rolled back.</aside>
+</section>
+</div>
+<div class="frame" data-id="statuses" role="group" aria-roledescription="slide" hidden>
+<section id="statuses" data-transition="fade" style="background:#F7F6F2;color:#4A5563;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A84E10;letter-spacing:3px">PASS OR FAIL</p>
+<h2 style="font-size:64px;font-weight:600;color:#14202E;line-height:1.15">Every answer gets a colour that rolls up</h2>
+</div>
+<div style="display:flex;gap:48px;align-items:stretch">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px">
+<p style="font-size:26px;color:#5F6873">One field</p>
+<p style="font-size:28px;background:#E6F2EA;color:#1F5E39;padding:12px 24px;border-radius:999px"><b>green</b>  Pass</p>
+<p style="font-size:28px;background:#FBF0D9;color:#7A4E0A;padding:12px 24px;border-radius:999px"><b>yellow</b>  Check</p>
+<p style="font-size:28px;background:#F8E7E4;color:#8E2A1F;padding:12px 24px;border-radius:999px"><b>red</b>  Flagged</p>
+<p style="font-size:28px;background:#ECEDEF;color:#454D57;padding:12px 24px;border-radius:999px"><b>gray</b>  not answered or N/A</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px">
+<p style="font-size:26px;color:#5F6873">Rolled up</p>
+<div style="display:flex;flex-direction:column;gap:6px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:12px;padding:16px 24px"><p style="font-size:28px;color:#14202E;font-weight:600">Section chip "3/7"</p><p style="font-size:24px">answered of tracked; red if any red</p></div>
+<div style="display:flex;flex-direction:column;gap:6px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:12px;padding:16px 24px"><p style="font-size:28px;color:#14202E;font-weight:600">Unit tab dot</p><p style="font-size:24px">Not started, In progress, or a colour</p></div>
+<div style="display:flex;flex-direction:column;gap:6px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:12px;padding:16px 24px"><p style="font-size:28px;color:#14202E;font-weight:600">Deficiency list</p><p style="font-size:24px">every red and yellow, with View</p></div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#14202E;border-radius:16px;padding:32px">
+<p style="font-size:24px;color:#F2A65A;font-family:'JetBrains Mono', 'Courier New', monospace">EXAMPLE: TOLERANCE</p>
+<p style="font-size:28px;color:#F3F1EC;line-height:1.4">Nameplate FLA 18.2 A<br>Overload setting 19.0 A</p>
+<p style="font-size:40px;color:#F3F1EC;font-weight:600">+4.4% deviation</p>
+<p style="font-size:24px;color:#B9C4CF;line-height:1.5">up to 5%: green<br>up to 15%: yellow<br>beyond 15%: red</p>
+</div>
+</div>
+<p style="font-size:26px;color:#2E3946;line-height:1.4">A field counts towards progress and deficiencies only when it has an <b>evaluation</b> rule. Such a field is <b>tracked</b>.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5F6873">Accurex Dynamic Form KT · 6</p>
+<aside>This is the heart of the business logic. Every tracked field gets one of four statuses. Those roll up: a section shows answered over total and turns red if anything inside is red; a unit's tab dot does the same for the whole unit; and every red or yellow field lands in the deficiency list with a View link that jumps to it. The tolerance example is a real field from the config: overload setting against nameplate FLA, green within 5 percent, yellow within 15.</aside>
+</section>
+</div>
+<div class="frame" data-id="part2" role="group" aria-roledescription="slide" hidden>
+<section id="part2" data-transition="fade" style="background:#14202E;color:#F3F1EC;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:center;gap:40px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#9DB4CC;letter-spacing:4px">PART 2</p>
+<h1 style="font-size:120px;font-weight:600;line-height:1.05;color:#F3F1EC">A tour of the code</h1>
+<p style="font-size:40px;line-height:1.4;color:#B9C4CF;width:1400px">About 3,200 lines of plain JavaScript modules in <span style="color:#F2A65A">src/</span>. No framework, no bundler, no npm install. The browser loads the files as they are.</p>
+<aside>Part 2. The good news: the codebase is small and has no build step. Everything under src is ES modules loaded straight by the browser. One CSS file, one entry file, one service worker. If you can read plain JavaScript, you can read all of it in a day.</aside>
+</section>
+</div>
+<div class="frame" data-id="bigpicture" role="group" aria-roledescription="slide" hidden>
+<section id="bigpicture" data-transition="fade" style="background:#F7F6F2;color:#4A5563;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A84E10;letter-spacing:3px">THE BIG PICTURE</p>
+<h2 style="font-size:64px;font-weight:600;color:#14202E;line-height:1.15">One class in the middle of six neighbours</h2>
+</div>
+<div style="position:relative;width:1664px;height:620px">
+<div style="position:absolute;left:0px;top:0px;width:420px;height:140px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:16px;padding:20px 28px;display:flex;flex-direction:column;gap:6px">
+<p style="font-size:28px;font-weight:600;color:#14202E">CRM form API</p>
+<p style="font-size:24px;line-height:1.35">GET configUrl returns the form as JSON</p>
+</div>
+<div style="position:absolute;left:0px;top:240px;width:420px;height:140px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:16px;padding:20px 28px;display:flex;flex-direction:column;gap:6px">
+<p style="font-size:28px;font-weight:600;color:#14202E">Host web page</p>
+<p style="font-size:24px;line-height:1.35">creates the form, passes callbacks</p>
+</div>
+<div style="position:absolute;left:0px;top:480px;width:420px;height:140px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:16px;padding:20px 28px;display:flex;flex-direction:column;gap:6px">
+<p style="font-size:28px;font-weight:600;color:#14202E">service-worker.js</p>
+<p style="font-size:24px;line-height:1.35">keeps the page's files for offline</p>
+</div>
+<div style="position:absolute;left:620px;top:170px;width:424px;height:280px;background:#14202E;border-radius:20px;padding:32px;display:flex;flex-direction:column;gap:10px">
+<p style="font-size:28px;font-weight:600;color:#F2A65A;font-family:'JetBrains Mono', 'Courier New', monospace">DynamicForm Renderer</p>
+<p style="font-size:24px;color:#B9C4CF">src/DynamicFormRenderer.js</p>
+<p style="font-size:24px;color:#F3F1EC;font-family:'JetBrains Mono', 'Courier New', monospace;line-height:1.5">render() setValue()<br>refresh() submit()</p>
+</div>
+<div style="position:absolute;left:1244px;top:0px;width:420px;height:140px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:16px;padding:20px 28px;display:flex;flex-direction:column;gap:6px">
+<p style="font-size:28px;font-weight:600;color:#14202E">CRM submit API</p>
+<p style="font-size:24px;line-height:1.35">POST submission.url with getData()</p>
+</div>
+<div style="position:absolute;left:1244px;top:240px;width:420px;height:140px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:16px;padding:20px 28px;display:flex;flex-direction:column;gap:6px">
+<p style="font-size:28px;font-weight:600;color:#14202E">CAPS order data</p>
+<p style="font-size:24px;line-height:1.35">model and serial for each unit</p>
+</div>
+<div style="position:absolute;left:1244px;top:480px;width:420px;height:140px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:16px;padding:20px 28px;display:flex;flex-direction:column;gap:6px">
+<p style="font-size:28px;font-weight:600;color:#14202E">IndexedDB</p>
+<p style="font-size:24px;line-height:1.35">drafts, photos and the outbox</p>
+</div>
+<svg width="1" height="1" aria-hidden="true" style="position:absolute;left:0;top:0;overflow:visible;pointer-events:none"><polyline points="420,70 520,70 520,230 620,230" fill="none" stroke="#5F6873" stroke-width="3"/><polygon points="620,230 602,239 602,221" fill="#5F6873"/></svg>
+<svg width="1" height="1" aria-hidden="true" style="position:absolute;left:0;top:0;overflow:visible;pointer-events:none"><polyline points="420,310 620,310" fill="none" stroke="#5F6873" stroke-width="3"/><polygon points="620,310 602,319 602,301" fill="#5F6873"/></svg>
+<svg width="1" height="1" aria-hidden="true" style="position:absolute;left:0;top:0;overflow:visible;pointer-events:none"><polyline points="420,550 520,550 520,390 620,390" fill="none" stroke="#5F6873" stroke-width="3"/><polygon points="620,390 602,399 602,381" fill="#5F6873"/><polygon points="420,550 438,541 438,559" fill="#5F6873"/></svg>
+<svg width="1" height="1" aria-hidden="true" style="position:absolute;left:0;top:0;overflow:visible;pointer-events:none"><polyline points="1044,230 1144,230 1144,70 1244,70" fill="none" stroke="#A84E10" stroke-width="3"/><polygon points="1244,70 1226,79 1226,61" fill="#A84E10"/></svg>
+<svg width="1" height="1" aria-hidden="true" style="position:absolute;left:0;top:0;overflow:visible;pointer-events:none"><polyline points="1044,310 1244,310" fill="none" stroke="#A84E10" stroke-width="3"/><polygon points="1244,310 1226,319 1226,301" fill="#A84E10"/><polygon points="1044,310 1062,301 1062,319" fill="#A84E10"/></svg>
+<svg width="1" height="1" aria-hidden="true" style="position:absolute;left:0;top:0;overflow:visible;pointer-events:none"><polyline points="1044,390 1144,390 1144,550 1244,550" fill="none" stroke="#A84E10" stroke-width="3"/><polygon points="1244,550 1226,559 1226,541" fill="#A84E10"/><polygon points="1044,390 1062,381 1062,399" fill="#A84E10"/></svg>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5F6873">Accurex Dynamic Form KT · 8</p>
+<aside>One class, DynamicFormRenderer, owns everything. On the left are the things that feed it: the CRM's form JSON, the host page that creates it and passes callbacks, and the service worker that caches the page's files. On the right are the things it talks to: the CRM submission endpoint, the CAPS order-data API for Pull from CAPS, and IndexedDB for drafts, photos and the offline outbox. Locally, dev-server.py serves the config JSON and fakes the CRM submit API. It does not fake CAPS: use ?demo for demo CAPS values.</aside>
+</section>
+</div>
+<div class="frame" data-id="onerule" role="group" aria-roledescription="slide" hidden>
+<section id="onerule" data-transition="fade" style="background:#F7F6F2;color:#4A5563;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A84E10;letter-spacing:3px">THE ONE RULE</p>
+<h2 style="font-size:64px;font-weight:600;color:#14202E;line-height:1.15">All data lives in form.values</h2>
+</div>
+<div style="display:flex;align-items:center;gap:16px">
+<div style="flex:1;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:14px;padding:24px 20px"><p style="font-size:26px;color:#14202E;text-align:center">User types</p></div>
+<svg width="48" height="24" viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true" style="flex:none"><polygon points="0,15 60,15 60,0 100,25 60,50 60,35 0,35" fill="#A84E10"/></svg>
+<div style="flex:1;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:14px;padding:24px 20px"><p style="font-size:24px;color:#14202E;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace">form. setValue()</p></div>
+<svg width="48" height="24" viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true" style="flex:none"><polygon points="0,15 60,15 60,0 100,25 60,50 60,35 0,35" fill="#A84E10"/></svg>
+<div style="flex:1;background:#14202E;border-radius:14px;padding:24px 20px"><p style="font-size:24px;color:#F2A65A;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace">form.values</p></div>
+<svg width="48" height="24" viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true" style="flex:none"><polygon points="0,15 60,15 60,0 100,25 60,50 60,35 0,35" fill="#A84E10"/></svg>
+<div style="flex:1;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:14px;padding:24px 20px"><p style="font-size:24px;color:#14202E;text-align:center;font-family:'JetBrains Mono', 'Courier New', monospace">form. refresh()</p></div>
+<svg width="48" height="24" viewBox="0 0 100 50" preserveAspectRatio="none" aria-hidden="true" style="flex:none"><polygon points="0,15 60,15 60,0 100,25 60,50 60,35 0,35" fill="#A84E10"/></svg>
+<div style="flex:1;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:14px;padding:24px 20px"><p style="font-size:26px;color:#14202E;text-align:center">Screen</p></div>
+</div>
+<div style="display:flex;gap:32px">
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;border-top:3px solid #2F5D8A;padding:20px 0 0 0">
+<p style="font-size:24px;color:#2F5D8A;font-family:'JetBrains Mono', 'Courier New', monospace">refresh() step 1</p>
+<p style="font-size:26px;line-height:1.4;color:#2E3946">Calculated fields work out their numbers first, so later steps see fresh values.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;border-top:3px solid #2F5D8A;padding:20px 0 0 0">
+<p style="font-size:24px;color:#2F5D8A;font-family:'JetBrains Mono', 'Courier New', monospace">refresh() step 2</p>
+<p style="font-size:26px;line-height:1.4;color:#2E3946">Every field updates its own look: input value, status chip, selected button.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;border-top:3px solid #2F5D8A;padding:20px 0 0 0">
+<p style="font-size:24px;color:#2F5D8A;font-family:'JetBrains Mono', 'Courier New', monospace">refresh() step 3</p>
+<p style="font-size:26px;line-height:1.4;color:#2E3946">Every widget redraws what it collects from many fields: tab dots, progress, deficiencies.</p>
+</div>
+</div>
+<p style="font-size:30px;line-height:1.4;color:#14202E;background:#FBF0D9;padding:24px 32px;border-radius:12px">Debugging tip: if the screen looks wrong, type <b>form.values</b> in the console. Fields never keep their own copy.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5F6873">Accurex Dynamic Form KT · 9</p>
+<aside>If you remember one slide, remember this one. All data is in one object, form.values, keyed by field name. Inputs call setValue; setValue stores the value, fires onFieldChange, and calls refresh. Refresh is a full pass in three steps: recalculate, then every field, then every widget. It's deliberately simple: no diffing, no hidden subscriptions. The form is small enough that redrawing everything on each keystroke is cheap.</aside>
+</section>
+</div>
+<div class="frame" data-id="folders" role="group" aria-roledescription="slide" hidden>
+<section id="folders" data-transition="fade" style="background:#F7F6F2;color:#4A5563;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A84E10;letter-spacing:3px">FOLDER MAP</p>
+<h2 style="font-size:64px;font-weight:600;color:#14202E;line-height:1.15">Each folder answers one question</h2>
+</div>
+<table style="font-size:24px;color:#2E3946;font-family:'IBM Plex Sans', Arial, sans-serif">
+<tr style="background:#14202E"><th style="width:24%;color:#F3F1EC">src/</th><th style="width:38%;color:#F3F1EC">Question it answers</th><th style="width:38%;color:#F3F1EC">Main pieces</th></tr>
+<tr><td>DynamicForm Renderer.js</td><td>Who owns the data and the order of work?</td><td>render, setValue, refresh, submit</td></tr>
+<tr style="background:#EFEDE7"><td>core/</td><td>Load config, call HTTP, add up statuses</td><td>loadConfig, http, layout, status</td></tr>
+<tr><td>fields/</td><td>How does one input draw and judge itself?</td><td>BaseField and 6 field types</td></tr>
+<tr style="background:#EFEDE7"><td>sections/</td><td>How is each block of the page drawn?</td><td>header, units, accordion, reviewer</td></tr>
+<tr><td>actions/</td><td>What happens when a button is clicked?</td><td>workflow, dataPull, timer, email, save</td></tr>
+<tr style="background:#EFEDE7"><td>evaluators/</td><td>Is this answer OK?</td><td>expectedValue, percentTolerance</td></tr>
+<tr><td>offline/</td><td>What if there is no signal?</td><td>draftStores, outbox, OfflineSync</td></tr>
+<tr style="background:#EFEDE7"><td>utils/</td><td>Helpers that know nothing about forms</td><td>dom, formula, format, template</td></tr>
+</table>
+<p style="font-size:24px;line-height:1.5;color:#2E3946">At the root: <b>Accurex-DynamicFormRenderer.js</b> (entry), <b>Accurex-dynamic-form.css</b>, <b>service-worker.js</b>, <b>sample.html</b>, <b>dev-server.py</b> and the sample config JSON.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5F6873">Accurex Dynamic Form KT · 10</p>
+<aside>When you need to change something, start by asking which question it belongs to. A new kind of input goes in fields. A new block goes in sections. A new button behaviour goes in actions. A new pass/fail rule goes in evaluators. utils never imports from the form; keep it that way. The code guide has a who-imports-whom table generated from the real import lines.</aside>
+</section>
+</div>
+<div class="frame" data-id="config" role="group" aria-roledescription="slide" hidden>
+<section id="config" data-transition="fade" style="background:#F7F6F2;color:#4A5563;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A84E10;letter-spacing:3px">THE CONFIG</p>
+<h2 style="font-size:64px;font-weight:600;color:#14202E;line-height:1.15">Each JSON key has one home in the code</h2>
+</div>
+<table style="font-size:24px;color:#2E3946;font-family:'IBM Plex Sans', Arial, sans-serif">
+<tr style="background:#14202E"><th style="width:40%;color:#F3F1EC">form.…</th><th style="width:60%;color:#F3F1EC">Drawn or used by</th></tr>
+<tr><td>header: brand, status, title, metrics</td><td>sections/header.js</td></tr>
+<tr style="background:#EFEDE7"><td>sections[ ] (blocks above the tabs)</td><td>sections/index.js picks the function by type</td></tr>
+<tr><td>units.items[ ] (equipment tabs)</td><td>sections/units.js, one accordion per section</td></tr>
+<tr style="background:#EFEDE7"><td>reviewer</td><td>sections/reviewer.js</td></tr>
+<tr><td>actions[ ]</td><td>actionBar.js draws them, actions/ runs them</td></tr>
+<tr style="background:#EFEDE7"><td>submission</td><td>form.submit() with core/http.js</td></tr>
+<tr><td>dataSources.CAPS</td><td>actions/dataPullAction.js</td></tr>
+<tr style="background:#EFEDE7"><td>behavior.offline</td><td>offline/settings.js</td></tr>
+<tr><td>layout: maxWidth, columns</td><td>core/layout.js sets two CSS variables</td></tr>
+</table>
+<p style="font-size:24px;color:#2E3946">The sample is <b>accurex-startup-report-config.json</b>: 1,883 lines, 4 units. Read it next to this table.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5F6873">Accurex Dynamic Form KT · 11</p>
+<aside>The JSON has a fixed set of top-level keys under form, and each one has exactly one home in the code. The API may wrap everything in a "form" object or not; render handles both. The form must have an id: it's used for draft keys and input ids. Open the sample config side by side with this table on your first day. Not in the table: summary, drawn by summaryPanel.js and equipmentSummary.js, either as a Summary tab or below the units.</aside>
+</section>
+</div>
+<div class="frame" data-id="render" role="group" aria-roledescription="slide" hidden>
+<section id="render" data-transition="fade" style="background:#F7F6F2;color:#4A5563;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A84E10;letter-spacing:3px">FORM.RENDER()</p>
+<h2 style="font-size:64px;font-weight:600;color:#14202E;line-height:1.15">What happens when the form opens</h2>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:28px 64px">
+<div style="display:flex;gap:20px;align-items:start"><p style="font-size:26px;font-weight:600;color:#F3F1EC;background:#A84E10;border-radius:999px;padding:4px 16px">1</p><p style="font-size:26px;line-height:1.4;color:#2E3946">Load the JSON from configUrl, or take the config object. Unwrap { form }.</p></div>
+<div style="display:flex;gap:20px;align-items:start"><p style="font-size:26px;font-weight:600;color:#F3F1EC;background:#2F5D8A;border-radius:999px;padding:4px 16px">6</p><p style="font-size:26px;line-height:1.4;color:#2E3946">Load the saved draft for this form id, if there is one.</p></div>
+<div style="display:flex;gap:20px;align-items:start"><p style="font-size:26px;font-weight:600;color:#F3F1EC;background:#A84E10;border-radius:999px;padding:4px 16px">2</p><p style="font-size:26px;line-height:1.4;color:#2E3946">Stop timers and syncing left from an earlier render, then reset state.</p></div>
+<div style="display:flex;gap:20px;align-items:start"><p style="font-size:26px;font-weight:600;color:#F3F1EC;background:#2F5D8A;border-radius:999px;padding:4px 16px">7</p><p style="font-size:26px;line-height:1.4;color:#2E3946"><b>buildForm()</b>: header, top sections, unit tabs, reviewer, action bar. Each field registers its default.</p></div>
+<div style="display:flex;gap:20px;align-items:start"><p style="font-size:26px;font-weight:600;color:#F3F1EC;background:#A84E10;border-radius:999px;padding:4px 16px">3</p><p style="font-size:26px;line-height:1.4;color:#2E3946">Set header values: reportStatus starts as "draft", plus the job title.</p></div>
+<div style="display:flex;gap:20px;align-items:start"><p style="font-size:26px;font-weight:600;color:#F3F1EC;background:#2F5D8A;border-radius:999px;padding:4px 16px">8</p><p style="font-size:26px;line-height:1.4;color:#2E3946"><b>applyDraft()</b>: saved values overwrite the defaults, for fields that still exist.</p></div>
+<div style="display:flex;gap:20px;align-items:start"><p style="font-size:26px;font-weight:600;color:#F3F1EC;background:#A84E10;border-radius:999px;padding:4px 16px">4</p><p style="font-size:26px;line-height:1.4;color:#2E3946">Read the layout first, because fields need the column count.</p></div>
+<div style="display:flex;gap:20px;align-items:start"><p style="font-size:26px;font-weight:600;color:#F3F1EC;background:#2F5D8A;border-radius:999px;padding:4px 16px">9</p><p style="font-size:26px;line-height:1.4;color:#2E3946"><b>refresh()</b> once, so every input and widget shows its value.</p></div>
+<div style="display:flex;gap:20px;align-items:start"><p style="font-size:26px;font-weight:600;color:#F3F1EC;background:#A84E10;border-radius:999px;padding:4px 16px">5</p><p style="font-size:26px;line-height:1.4;color:#2E3946">Read offline settings: choose the draft store, and create OfflineSync for IndexedDB.</p></div>
+<div style="display:flex;gap:20px;align-items:start"><p style="font-size:26px;font-weight:600;color:#F3F1EC;background:#2F5D8A;border-radius:999px;padding:4px 16px">10</p><p style="font-size:26px;line-height:1.4;color:#2E3946">Send reports left in the outbox. Set up the service worker in the background.</p></div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5F6873">Accurex Dynamic Form KT · 12</p>
+<aside>Walk through render() in DynamicFormRenderer.js, top to bottom. Two order details matter. Layout is read before building because a field's column span is capped at the form's column count. And the draft is applied after buildForm, because building is what registers every field's default value; the draft then overwrites only names that still exist, so a config change never brings back stale fields. render() can be called again to rebuild; discardDraft does exactly that.</aside>
+</section>
+</div>
+<div class="frame" data-id="fields" role="group" aria-roledescription="slide" hidden>
+<section id="fields" data-transition="fade" style="background:#F7F6F2;color:#4A5563;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A84E10;letter-spacing:3px">FIELDS</p>
+<h2 style="font-size:64px;font-weight:600;color:#14202E;line-height:1.15">Every input is a class built on BaseField</h2>
+</div>
+<div style="display:flex;gap:64px;align-items:start">
+<div style="flex:1;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:6px;background:#FFFFFF;border:1px solid #E2DFD8;border-left:6px solid #A84E10;border-radius:12px;padding:20px 28px">
+<p style="font-size:24px;color:#A84E10;font-family:'JetBrains Mono', 'Courier New', monospace">new Field(config, form, context)</p>
+<p style="font-size:26px;line-height:1.4;color:#2E3946">Created once. Its default value goes into form.values.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px;background:#FFFFFF;border:1px solid #E2DFD8;border-left:6px solid #A84E10;border-radius:12px;padding:20px 28px">
+<p style="font-size:24px;color:#A84E10;font-family:'JetBrains Mono', 'Courier New', monospace">render()</p>
+<p style="font-size:26px;line-height:1.4;color:#2E3946">Builds label, help, input and photo picker. Runs once.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px;background:#FFFFFF;border:1px solid #E2DFD8;border-left:6px solid #A84E10;border-radius:12px;padding:20px 28px">
+<p style="font-size:24px;color:#A84E10;font-family:'JetBrains Mono', 'Courier New', monospace">refresh()</p>
+<p style="font-size:26px;line-height:1.4;color:#2E3946">Runs after any change. Updates the look from form.values.</p>
+</div>
+<p style="font-size:24px;line-height:1.4;color:#5F6873">context = { unit, section }, so "View" can open the right tab and section.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px">
+<table style="font-size:24px;color:#2E3946;font-family:'IBM Plex Sans', Arial, sans-serif">
+<tr style="background:#14202E"><th style="width:40%;color:#F3F1EC">JSON type</th><th style="width:60%;color:#F3F1EC">Class</th></tr>
+<tr><td>text, email, number, date, textarea</td><td>InputField</td></tr>
+<tr style="background:#EFEDE7"><td>select</td><td>SelectField</td></tr>
+<tr><td>checkbox</td><td>CheckboxField</td></tr>
+<tr style="background:#EFEDE7"><td>segmented</td><td>SegmentedField: Yes / No / N/A buttons</td></tr>
+<tr><td>tolerance</td><td>ToleranceField: stores two values</td></tr>
+<tr style="background:#EFEDE7"><td>calculated</td><td>CalculatedField: formula, read-only</td></tr>
+</table>
+<p style="font-size:24px;line-height:1.4;color:#2E3946">An unknown type shows a text box and logs a warning, so the form never breaks.</p>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5F6873">Accurex Dynamic Form KT · 13</p>
+<aside>BaseField has the whole lifecycle; subclasses usually override only renderControl, and maybe refresh. SelectField is the shortest example to copy. Two special cases. ToleranceField owns two value names, reference and reading, which is why registerField loops over getDefaultValues. CalculatedField writes straight into form.values in recalculate instead of calling setValue, because setValue calls refresh, which calls recalculate again: an endless loop.</aside>
+</section>
+</div>
+<div class="frame" data-id="registries" role="group" aria-roledescription="slide" hidden>
+<section id="registries" data-transition="fade" style="background:#14202E;color:#F3F1EC;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#F2A65A;letter-spacing:3px">EXTENSION POINTS</p>
+<h2 style="font-size:64px;font-weight:600;color:#F3F1EC;line-height:1.15">New feature = one new file + one line</h2>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:32px">
+<div style="display:flex;flex-direction:column;gap:10px;background:#1E2D40;border-radius:16px;padding:28px 32px">
+<p style="font-size:30px;font-weight:600;color:#F2A65A;font-family:'JetBrains Mono', 'Courier New', monospace">FIELD_TYPES</p>
+<p style="font-size:24px;color:#9DB4CC">fields/index.js</p>
+<p style="font-size:26px;line-height:1.4;color:#D5DDE5">type → class extending BaseField</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;background:#1E2D40;border-radius:16px;padding:28px 32px">
+<p style="font-size:30px;font-weight:600;color:#F2A65A;font-family:'JetBrains Mono', 'Courier New', monospace">SECTION_TYPES</p>
+<p style="font-size:24px;color:#9DB4CC">sections/index.js</p>
+<p style="font-size:26px;line-height:1.4;color:#D5DDE5">(form, config) → { element, refresh }. Unknown → card.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;background:#1E2D40;border-radius:16px;padding:28px 32px">
+<p style="font-size:30px;font-weight:600;color:#F2A65A;font-family:'JetBrains Mono', 'Courier New', monospace">ACTION_HANDLERS</p>
+<p style="font-size:24px;color:#9DB4CC">actions/index.js</p>
+<p style="font-size:26px;line-height:1.4;color:#D5DDE5">(form, action, button). Unknown → host's onAction.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;background:#1E2D40;border-radius:16px;padding:28px 32px">
+<p style="font-size:30px;font-weight:600;color:#F2A65A;font-family:'JetBrains Mono', 'Courier New', monospace">EVALUATORS</p>
+<p style="font-size:24px;color:#9DB4CC">evaluators/index.js</p>
+<p style="font-size:26px;line-height:1.4;color:#D5DDE5">(rule, input) → green, yellow, red or gray</p>
+</div>
+</div>
+<p style="font-size:28px;line-height:1.4;color:#B9C4CF">All four are exported from the entry file, so a website can add its own types without editing this package.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#9DB4CC">Accurex Dynamic Form KT · 14</p>
+<aside>This is the design decision that keeps the code small. There's no switch statement over types anywhere. Four plain objects map a type word from the JSON to code. To add a signature field, write SignatureField.js and add one line to FIELD_TYPES. Unknown types fail soft: a field becomes a text box, a section becomes a card, an action goes to the host page's onAction, and an evaluation becomes gray with a console warning.</aside>
+</section>
+</div>
+<div class="frame" data-id="rules" role="group" aria-roledescription="slide" hidden>
+<section id="rules" data-transition="fade" style="background:#F7F6F2;color:#4A5563;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:44px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A84E10;letter-spacing:3px">RULES</p>
+<h2 style="font-size:64px;font-weight:600;color:#14202E;line-height:1.15">Two ways to judge an answer</h2>
+</div>
+<div style="display:flex;gap:32px;align-items:stretch">
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:16px;padding:32px">
+<h3 style="font-size:34px;font-weight:600;color:#14202E">evaluation: a named rule</h3>
+<p style="font-size:24px;line-height:1.5;color:#2F5D8A;font-family:'JetBrains Mono', 'Courier New', monospace;background:#EEF2F6;padding:16px 20px;border-radius:10px">{ "type": "expectedValue",<br>  "expectedValue": "Yes" }</p>
+<p style="font-size:26px;line-height:1.4;color:#2E3946">Picks a function from EVALUATORS. Makes the field <b>tracked</b>: it counts in progress and in the deficiency list.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:16px;padding:32px">
+<h3 style="font-size:34px;font-weight:600;color:#14202E">statusRules: conditions</h3>
+<p style="font-size:24px;line-height:1.5;color:#2F5D8A;font-family:'JetBrains Mono', 'Courier New', monospace;background:#EEF2F6;padding:16px 20px;border-radius:10px">{ "when": "value &lt;= 0",<br>  "status": "pass" }</p>
+<p style="font-size:26px;line-height:1.4;color:#2E3946">The first true condition wins. It only <b>colours</b> the input, for example the hours variance.</p>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FBF0D9;border-radius:12px;padding:24px 32px">
+<p style="font-size:26px;font-weight:600;color:#7A4E0A">utils/formula.js: maths from the CRM, made safe</p>
+<p style="font-size:26px;line-height:1.4;color:#2E3946">Field names become numbers, then only digits and operators may remain. With no letters left, no code can get in.</p>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5F6873">Accurex Dynamic Form KT · 15</p>
+<aside>A common confusion: evaluation versus statusRules. evaluation is a named rule like expectedValue, valueMap, exactMatch or percentTolerance; it makes a field tracked. statusRules is a list of conditions written in the JSON; it only colours the field. Formulas and conditions come from the CRM, so formula.js replaces every name with a number and then rejects anything that isn't digits or operators before evaluating. That check is why it's safe to use Function here.</aside>
+</section>
+</div>
+<div class="frame" data-id="actions" role="group" aria-roledescription="slide" hidden>
+<section id="actions" data-transition="fade" style="background:#F7F6F2;color:#4A5563;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:44px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A84E10;letter-spacing:3px">ACTIONS</p>
+<h2 style="font-size:64px;font-weight:600;color:#14202E;line-height:1.15">What the buttons do</h2>
+</div>
+<div style="display:flex;gap:48px;align-items:start">
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#14202E;border-radius:16px;padding:32px 36px">
+<p style="font-size:24px;color:#F2A65A;font-family:'JetBrains Mono', 'Courier New', monospace">workflow: Submit, Approve, Reject</p>
+<ol style="font-size:26px;line-height:1.45;color:#E4E9EE">
+<li>Required fields empty? Outline them red and stop.</li>
+<li>Disable the button, so a double-click can't send twice.</li>
+<li>Set the new status.</li>
+<li>Await the host's onWorkflow, which usually calls form.submit().</li>
+<li>If that fails, put the old status back.</li>
+</ol>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;flex-direction:column;gap:6px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:12px;padding:20px 28px">
+<p style="font-size:24px;color:#A84E10;font-family:'JetBrains Mono', 'Courier New', monospace">dataPull</p>
+<p style="font-size:26px;line-height:1.4;color:#2E3946">Fills model and serial: onDataPull, else dataSources URL, else onAction.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:12px;padding:20px 28px">
+<p style="font-size:24px;color:#A84E10;font-family:'JetBrains Mono', 'Courier New', monospace">timer</p>
+<p style="font-size:26px;line-height:1.4;color:#2E3946">Adds one second a time to actualHours. Start, pause, resume.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:12px;padding:20px 28px">
+<p style="font-size:24px;color:#A84E10;font-family:'JetBrains Mono', 'Courier New', monospace">email · print · save</p>
+<p style="font-size:26px;line-height:1.4;color:#2E3946">mailto from templates; window.print(); saveDraft().</p>
+</div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5F6873">Accurex Dynamic Form KT · 16</p>
+<aside>Workflow is the important one; it's in actions/workflowAction.js. The order matters: the status changes before onWorkflow, so getData sends the new status, and it's rolled back if the host throws. Data pull tries three sources in order; the host's callback comes first so a site can add auth headers. The timer writes with notify false, so onFieldChange doesn't fire every second. Email builds a mailto link from templates, and can use deficiencyStatusText.</aside>
+</section>
+</div>
+<div class="frame" data-id="offline" role="group" aria-roledescription="slide" hidden>
+<section id="offline" data-transition="fade" style="background:#F7F6F2;color:#4A5563;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A84E10;letter-spacing:3px">OFFLINE MODE</p>
+<h2 style="font-size:64px;font-weight:600;color:#14202E;line-height:1.15">Three layers keep a technician working</h2>
+</div>
+<div style="display:flex;gap:32px;align-items:stretch">
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#FFFFFF;border:1px solid #E2DFD8;border-top:6px solid #2F5D8A;border-radius:16px;padding:32px">
+<p style="font-size:24px;color:#2F5D8A;font-family:'JetBrains Mono', 'Courier New', monospace">service-worker.js</p>
+<h3 style="font-size:34px;font-weight:600;color:#14202E">The page opens</h3>
+<ul style="font-size:24px;line-height:1.45;color:#2E3946">
+<li>Stores only the files the page just used</li>
+<li>Network first; stored copy after 4 s</li>
+<li>Change CACHE_NAME to wipe every device</li>
+</ul>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#FFFFFF;border:1px solid #E2DFD8;border-top:6px solid #2F5D8A;border-radius:16px;padding:32px">
+<p style="font-size:24px;color:#2F5D8A;font-family:'JetBrains Mono', 'Courier New', monospace">offline/draftStores.js</p>
+<h3 style="font-size:34px;font-weight:600;color:#14202E">Drafts are kept</h3>
+<ul style="font-size:24px;line-height:1.45;color:#2E3946">
+<li>localStorage: values only</li>
+<li>IndexedDB: values and photos</li>
+<li>Same save, load, remove on both</li>
+<li>IndexedDB fails? Falls back</li>
+</ul>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:14px;background:#FFFFFF;border:1px solid #E2DFD8;border-top:6px solid #2F5D8A;border-radius:16px;padding:32px">
+<p style="font-size:24px;color:#2F5D8A;font-family:'JetBrains Mono', 'Courier New', monospace">offline/OfflineSync.js</p>
+<h3 style="font-size:34px;font-weight:600;color:#14202E">Reports wait</h3>
+<ul style="font-size:24px;line-height:1.45;color:#2E3946">
+<li>Sends on open, when back online, every 30 s, or on Send now</li>
+<li>Oldest first</li>
+<li>A Web Lock lets one tab send</li>
+</ul>
+</div>
+</div>
+<p style="font-size:26px;line-height:1.4;color:#2E3946">Switched on by <b>behavior.offline</b> in the config, plus <b>serviceWorkerUrl</b> on the page for the first layer.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5F6873">Accurex Dynamic Form KT · 17</p>
+<aside>Offline is the most complex part, so split it into three. Files: the service worker caches exactly what the page loaded, network first with a 4-second timeout, so a release reaches users immediately. Data: drafts go to IndexedDB with photos, or localStorage without. Reports: the outbox in IndexedDB, sent by OfflineSync. The Web Lock stops two open tabs from sending the same report twice. The page must be on https or localhost and opened once online.</aside>
+</section>
+</div>
+<div class="frame" data-id="submit" role="group" aria-roledescription="slide" hidden>
+<section id="submit" data-transition="fade" style="background:#F7F6F2;color:#4A5563;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A84E10;letter-spacing:3px">FORM.SUBMIT()</p>
+<h2 style="font-size:64px;font-weight:600;color:#14202E;line-height:1.15">Four ways a submit can end</h2>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#14202E;border-radius:16px;padding:28px 36px">
+<p style="font-size:26px;line-height:1.4;color:#F3F1EC">getData() becomes a plain request object: <span style="color:#F2A65A">{ url, method, headers, body }</span></p>
+<p style="font-size:24px;line-height:1.4;color:#B9C4CF">Plain, not a fetch Request, so it can be stored in IndexedDB and sent again later.</p>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:24px">
+<div style="display:flex;flex-direction:column;gap:12px;background:#FFFFFF;border:1px solid #E2DFD8;border-top:6px solid #5F6873;border-radius:14px;padding:28px">
+<h3 style="font-size:30px;font-weight:600;color:#14202E">Known offline</h3>
+<p style="font-size:24px;line-height:1.4;color:#2E3946">Don't try. Put it in the outbox, return { queued: true }, call onSubmitQueued.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FFFFFF;border:1px solid #E2DFD8;border-top:6px solid #2E7D4F;border-radius:14px;padding:28px">
+<h3 style="font-size:30px;font-weight:600;color:#1F5E39">Sent</h3>
+<p style="font-size:24px;line-height:1.4;color:#2E3946">Delete the draft, unless it was saved after this report. Call onSubmitSuccess.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FFFFFF;border:1px solid #E2DFD8;border-top:6px solid #B7791F;border-radius:14px;padding:28px">
+<h3 style="font-size:30px;font-weight:600;color:#7A4E0A">Temporary failure</h3>
+<p style="font-size:24px;line-height:1.4;color:#2E3946">No network, or 408, 429, 5xx. Queue it and retry later.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#FFFFFF;border:1px solid #E2DFD8;border-top:6px solid #B0392B;border-radius:14px;padding:28px">
+<h3 style="font-size:30px;font-weight:600;color:#8E2A1F">Refused</h3>
+<p style="font-size:24px;line-height:1.4;color:#2E3946">For example 400. Retrying won't help. Call onSubmitError and throw.</p>
+</div>
+</div>
+<p style="font-size:24px;line-height:1.4;color:#5F6873">Queueing needs offline mode with IndexedDB. Without it, every failure is reported straight away. Photos are kept in drafts, but submit sends only their names and sizes.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5F6873">Accurex Dynamic Form KT · 18</p>
+<aside>submit() is short, but every branch matters. isTemporaryFailure in core/http.js decides: fetch throws TypeError for no network, and 408, 429 and the 5xx codes are temporary. Anything else is a real refusal. The draft rule is subtle: after a successful send we delete the draft only if it was saved before the report was made, so work the technician did after queueing is not lost. Known limit: submission is JSON, so photos are sent as names and sizes only.</aside>
+</section>
+</div>
+<div class="frame" data-id="conventions" role="group" aria-roledescription="slide" hidden>
+<section id="conventions" data-transition="fade" style="background:#F7F6F2;color:#4A5563;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A84E10;letter-spacing:3px">HOUSE RULES</p>
+<h2 style="font-size:64px;font-weight:600;color:#14202E;line-height:1.15">Keep these when you change the code</h2>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:28px 48px">
+<div style="display:flex;flex-direction:column;gap:6px;border-left:4px solid #A84E10;padding:4px 0 4px 24px"><p style="font-size:28px;font-weight:600;color:#14202E">Never innerHTML for config text</p><p style="font-size:24px;line-height:1.4">Use el() from utils/dom.js. It sets textContent, so CRM text can't inject HTML.</p></div>
+<div style="display:flex;flex-direction:column;gap:6px;border-left:4px solid #A84E10;padding:4px 0 4px 24px"><p style="font-size:28px;font-weight:600;color:#14202E">One copy of every value</p><p style="font-size:24px;line-height:1.4">Only form.values. A field reads its value; it never stores it.</p></div>
+<div style="display:flex;flex-direction:column;gap:6px;border-left:4px solid #A84E10;padding:4px 0 4px 24px"><p style="font-size:28px;font-weight:600;color:#14202E">Screen updates go in refresh()</p><p style="font-size:24px;line-height:1.4">No hidden listeners that change the page on their own.</p></div>
+<div style="display:flex;flex-direction:column;gap:6px;border-left:4px solid #A84E10;padding:4px 0 4px 24px"><p style="font-size:28px;font-weight:600;color:#14202E">Storage errors never break the form</p><p style="font-size:24px;line-height:1.4">Every draft-store method catches and logs.</p></div>
+<div style="display:flex;flex-direction:column;gap:6px;border-left:4px solid #A84E10;padding:4px 0 4px 24px"><p style="font-size:28px;font-weight:600;color:#14202E">Status words live in constants.js</p><p style="font-size:24px;line-height:1.4">A typo becomes undefined, which is easy to spot.</p></div>
+<div style="display:flex;flex-direction:column;gap:6px;border-left:4px solid #A84E10;padding:4px 0 4px 24px"><p style="font-size:28px;font-weight:600;color:#14202E">Fail soft on unknown config</p><p style="font-size:24px;line-height:1.4">Fall back and warn in the console. Don't throw.</p></div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5F6873">Accurex Dynamic Form KT · 19</p>
+<aside>These rules aren't written in one place in the code, but every file follows them. The first one is a security rule: config text comes from the CRM, so it always goes in as textContent. The second and third are what make the codebase easy to debug. Also keep the comment style: each file starts with a plain-English comment explaining its job and a config example. Reviewers will expect new files to do the same.</aside>
+</section>
+</div>
+<div class="frame" data-id="devloop" role="group" aria-roledescription="slide" hidden>
+<section id="devloop" data-transition="fade" style="background:#F7F6F2;color:#4A5563;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A84E10;letter-spacing:3px">DEV LOOP</p>
+<h2 style="font-size:64px;font-weight:600;color:#14202E;line-height:1.15">Run it, check it, ship it</h2>
+</div>
+<div style="display:flex;gap:32px;align-items:stretch">
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#14202E;border-radius:16px;padding:32px">
+<p style="font-size:24px;color:#F2A65A;font-family:'JetBrains Mono', 'Courier New', monospace">LOCAL</p>
+<p style="font-size:26px;color:#F3F1EC;font-family:'JetBrains Mono', 'Courier New', monospace;background:#1E2D40;padding:14px 18px;border-radius:8px">python3 dev-server.py</p>
+<ul style="font-size:24px;line-height:1.45;color:#D5DDE5">
+<li>localhost:8080/sample.html</li>
+<li>Fakes the CRM's POST /api/startup-report and prints each report</li>
+<li>Docs at /docs/</li>
+<li>Add ?demo to try demo mode</li>
+</ul>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:16px;padding:32px">
+<p style="font-size:24px;color:#A84E10;font-family:'JetBrains Mono', 'Courier New', monospace">CI CHECK (EVERY PR)</p>
+<ul style="font-size:24px;line-height:1.45;color:#2E3946">
+<li>Every .js file parses</li>
+<li>Every .json file is valid</li>
+<li>dev-server.py compiles</li>
+<li>The code guide still matches the code: excerpts, folder tree, diagrams</li>
+</ul>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:16px;padding:32px">
+<p style="font-size:24px;color:#A84E10;font-family:'JetBrains Mono', 'Courier New', monospace">DEPLOY (PUSH TO MAIN)</p>
+<ul style="font-size:24px;line-height:1.45;color:#2E3946">
+<li>Copy the site files to _site/</li>
+<li>Publish to GitHub Pages</li>
+<li>Off localhost, sample.html runs in demo mode: nothing is sent</li>
+</ul>
+</div>
+</div>
+<p style="font-size:26px;line-height:1.4;color:#14202E;background:#FBF0D9;padding:20px 28px;border-radius:12px">Gap: there are no unit tests yet. core/status.js and the evaluators are pure functions and would be easy first tests.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5F6873">Accurex Dynamic Form KT · 20</p>
+<aside>Day-to-day: run the Python dev server, open sample.html, and watch the terminal for received reports. The page must be served over http, never opened as a file. CI is in .github/workflows/pages.yml. Note the code-guide check: if you rename a file or function that the guide mentions, CI fails until you update docs/code-guide.html. That's on purpose; it keeps the guide honest. There is no unit test suite today; worth raising.</aside>
+</section>
+</div>
+<div class="frame" data-id="firstday" role="group" aria-roledescription="slide" hidden>
+<section id="firstday" data-transition="fade" style="background:#F7F6F2;color:#4A5563;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#A84E10;letter-spacing:3px">YOUR FIRST DAY</p>
+<h2 style="font-size:64px;font-weight:600;color:#14202E;line-height:1.15">Read in this order, then try four changes</h2>
+</div>
+<div style="display:flex;gap:64px;align-items:start">
+<div style="flex:1;display:flex;flex-direction:column;gap:16px">
+<p style="font-size:26px;font-weight:600;color:#14202E">Reading order</p>
+<ol style="font-size:26px;line-height:1.55;color:#2E3946">
+<li>README.md</li>
+<li>The top comment of DynamicFormRenderer.js</li>
+<li>fields/BaseField.js, then SelectField.js</li>
+<li>core/status.js and evaluators/index.js</li>
+<li>sections/units.js and accordion.js</li>
+<li>actions/workflowAction.js</li>
+<li>offline/OfflineSync.js</li>
+</ol>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px">
+<p style="font-size:26px;font-weight:600;color:#14202E">Practice changes</p>
+<div style="display:flex;flex-direction:column;gap:6px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:12px;padding:18px 24px"><p style="font-size:26px;color:#14202E">Edit one question in the JSON and reload</p></div>
+<div style="display:flex;flex-direction:column;gap:6px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:12px;padding:18px 24px"><p style="font-size:26px;color:#14202E">Add a "range" evaluator: min and max</p></div>
+<div style="display:flex;flex-direction:column;gap:6px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:12px;padding:18px 24px"><p style="font-size:26px;color:#14202E">Add a field type: one file + one line</p></div>
+<div style="display:flex;flex-direction:column;gap:6px;background:#FFFFFF;border:1px solid #E2DFD8;border-radius:12px;padding:18px 24px"><p style="font-size:26px;color:#14202E">Go offline in DevTools, submit, come back online</p></div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5F6873">Accurex Dynamic Form KT · 21</p>
+<aside>This order follows the data: the overview, then one field, then how statuses roll up, then the containers, then the buttons, then offline. The four exercises each touch a different extension point. The offline one is the best way to understand the outbox: in DevTools set Network to Offline, press Submit for review, watch the status bar count the waiting report, then switch back online and watch it send.</aside>
+</section>
+</div>
+<div class="frame" data-id="close" role="group" aria-roledescription="slide" hidden>
+<section id="close" data-transition="fade" style="background:#14202E;color:#F3F1EC;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between">
+<div style="display:flex;flex-direction:column;gap:24px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:28px;color:#F2A65A;letter-spacing:4px">KEEP GOING</p>
+<h1 style="font-size:96px;font-weight:600;line-height:1.1;color:#F3F1EC">Questions?</h1>
+</div>
+<div style="display:flex;flex-direction:column;gap:22px">
+<div style="display:flex;gap:32px;align-items:baseline"><p style="font-size:26px;color:#9DB4CC;width:520px">Landing page</p><p style="font-size:26px;font-family:'JetBrains Mono', 'Courier New', monospace"><a href="https://ghchetan.github.io/dynamic-form/" style="color:#F2A65A">https://ghchetan.github.io/dynamic-form/</a></p></div>
+<div style="display:flex;gap:32px;align-items:baseline"><p style="font-size:26px;color:#9DB4CC;width:520px">Form demo</p><p style="font-size:26px;font-family:'JetBrains Mono', 'Courier New', monospace"><a href="https://ghchetan.github.io/dynamic-form/sample.html" style="color:#F2A65A">https://ghchetan.github.io/dynamic-form/sample.html</a></p></div>
+<div style="display:flex;gap:32px;align-items:baseline"><p style="font-size:26px;color:#9DB4CC;width:520px">Developer docs</p><p style="font-size:26px;font-family:'JetBrains Mono', 'Courier New', monospace"><a href="https://ghchetan.github.io/dynamic-form/docs/" style="color:#F2A65A">https://ghchetan.github.io/dynamic-form/docs/</a></p></div>
+<div style="display:flex;gap:32px;align-items:baseline"><p style="font-size:26px;color:#9DB4CC;width:520px">Code guide: folders and flow diagrams</p><p style="font-size:26px;font-family:'JetBrains Mono', 'Courier New', monospace"><a href="https://ghchetan.github.io/dynamic-form/docs/code-guide.html" style="color:#F2A65A">https://ghchetan.github.io/dynamic-form/docs/code-guide.html</a></p></div>
+<div style="display:flex;gap:32px;align-items:baseline"><p style="font-size:26px;color:#9DB4CC;width:520px">Video tour: five short episodes</p><p style="font-size:26px;font-family:'JetBrains Mono', 'Courier New', monospace"><a href="https://ghchetan.github.io/dynamic-form/docs/video-tutorial.html" style="color:#F2A65A">https://ghchetan.github.io/dynamic-form/docs/video-tutorial.html</a></p></div>
+</div>
+<aside>That's the KT. All five links are live on GitHub Pages. For depth, the code guide has a sequence diagram for each of nine features, and CI keeps it in step with the code. The video tour covers the same ground in five short episodes. Start with the form demo and the reading order from the previous slide.</aside>
+</section>
+</div>
+    </div>
+  </div>
+</main>
+
+<section class="notes" id="notes" aria-live="polite" hidden>
+  <span class="notes-label">Speaker notes</span>
+  <span id="notesText"></span>
+</section>
+
+<nav class="toolbar" aria-label="Deck controls">
+  <div class="group wide-only">
+    <a href="../index.html">← Home</a>
+  </div>
+  <div class="group">
+    <button type="button" id="prev" aria-label="Previous slide">←</button>
+    <span class="counter" id="counter" aria-live="polite"></span>
+    <button type="button" id="next" aria-label="Next slide">→</button>
+  </div>
+  <div class="group">
+    <button type="button" id="overviewBtn" title="All slides (O)">All slides</button>
+    <button type="button" id="notesBtn" aria-pressed="false" title="Speaker notes (N)">Notes</button>
+    <button type="button" id="fullscreenBtn" class="wide-only" title="Full screen (F)">Full screen</button>
+  </div>
+</nav>
+
+<div class="overview" id="overview" role="dialog" aria-modal="true" aria-label="All slides" hidden>
+  <div class="overview-head">
+    <h2>All slides</h2>
+    <button type="button" id="overviewClose">Close</button>
+  </div>
+  <div class="thumbs" id="thumbs"></div>
+</div>
+
+<script>
+(() => {
+    const frames = [...document.querySelectorAll('.stage .frame')];
+    const holder = document.querySelector('.holder');
+    const stage = document.querySelector('.stage');
+    const viewport = document.querySelector('.viewport');
+    const counter = document.getElementById('counter');
+    const prevButton = document.getElementById('prev');
+    const nextButton = document.getElementById('next');
+    const notes = document.getElementById('notes');
+    const notesText = document.getElementById('notesText');
+    const notesButton = document.getElementById('notesBtn');
+    const overview = document.getElementById('overview');
+    const thumbs = document.getElementById('thumbs');
+    let current = 0;
+
+    const titleOf = frame => frame.querySelector('h1, h2')?.textContent.trim() || frame.dataset.id;
+    frames.forEach((frame, index) => frame.setAttribute('aria-label', `${index + 1} of ${frames.length}: ${titleOf(frame)}`));
+
+    // Scale the 1920×1080 stage to fit the space above the toolbar.
+    function fit() {
+        const padding = window.innerWidth < 600 ? 8 : 24;
+        const scale = Math.max(0.05, Math.min(
+            (viewport.clientWidth - padding * 2) / 1920,
+            (viewport.clientHeight - padding * 2) / 1080,
+        ));
+        holder.style.width = `${1920 * scale}px`;
+        holder.style.height = `${1080 * scale}px`;
+        stage.style.transform = `scale(${scale})`;
+    }
+
+    function show(index) {
+        current = Math.max(0, Math.min(frames.length - 1, index));
+        frames.forEach((frame, i) => { frame.hidden = i !== current; });
+        counter.textContent = `${current + 1} / ${frames.length}`;
+        prevButton.disabled = current === 0;
+        nextButton.disabled = current === frames.length - 1;
+        notesText.textContent = frames[current].querySelector('aside')?.textContent.trim() || 'No notes for this slide.';
+        const hash = `#${frames[current].dataset.id}`;
+        if (location.hash !== hash) history.replaceState(null, '', hash);
+    }
+
+    function slideFromHash() {
+        const key = decodeURIComponent(location.hash.slice(1));
+        const byId = frames.findIndex(frame => frame.dataset.id === key);
+        if (byId >= 0) return byId;
+        return /^\d+$/.test(key) ? Number(key) - 1 : 0;
+    }
+
+    function setNotes(open) {
+        notes.hidden = !open;
+        notesButton.setAttribute('aria-pressed', String(open));
+        try { localStorage.setItem('kt-deck-notes', open ? '1' : '0'); } catch { /* storage blocked: not remembered */ }
+        fit();
+    }
+
+    function toggleFullscreen() {
+        if (document.fullscreenElement) document.exitFullscreen?.();
+        else document.documentElement.requestFullscreen?.().catch(() => {});
+    }
+
+    // ── All slides: small live copies of each slide ──
+    function buildOverview() {
+        if (thumbs.childElementCount) return;
+        frames.forEach((frame, index) => {
+            const copy = frame.cloneNode(true);
+            copy.hidden = false;
+            copy.removeAttribute('role');
+            copy.removeAttribute('aria-label');
+            copy.setAttribute('aria-hidden', 'true');
+            copy.querySelectorAll('[id]').forEach(element => element.removeAttribute('id'));
+            copy.querySelectorAll('a').forEach(link => link.setAttribute('tabindex', '-1'));
+
+            const view = document.createElement('span');
+            view.className = 'thumb-view';
+            view.append(copy);
+
+            const label = document.createElement('span');
+            label.textContent = `${index + 1}. ${titleOf(frame)}`;
+
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'thumb';
+            button.append(view, label);
+            button.addEventListener('click', () => { show(index); closeOverview(); });
+            thumbs.append(button);
+        });
+    }
+
+    function scaleThumbs() {
+        thumbs.querySelectorAll('.thumb-view').forEach(view => {
+            view.firstElementChild.style.transform = `scale(${view.clientWidth / 1920})`;
+        });
+    }
+
+    function openOverview() {
+        buildOverview();
+        overview.hidden = false;
+        scaleThumbs();
+        [...thumbs.children].forEach((thumb, i) => thumb.setAttribute('aria-current', String(i === current)));
+        thumbs.children[current]?.focus();
+        thumbs.children[current]?.scrollIntoView({ block: 'center' });
+    }
+
+    function closeOverview() {
+        overview.hidden = true;
+        document.getElementById('overviewBtn').focus();
+    }
+
+    // ── Controls ──
+    prevButton.addEventListener('click', () => show(current - 1));
+    nextButton.addEventListener('click', () => show(current + 1));
+    notesButton.addEventListener('click', () => setNotes(notes.hidden));
+    document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
+    document.getElementById('overviewBtn').addEventListener('click', openOverview);
+    document.getElementById('overviewClose').addEventListener('click', closeOverview);
+
+    document.addEventListener('keydown', event => {
+        if (event.metaKey || event.ctrlKey || event.altKey) return;
+        if (!overview.hidden) {
+            if (event.key === 'Escape' || event.key === 'o') closeOverview();
+            return;
+        }
+        if (event.target.closest('button, a') && (event.key === ' ' || event.key === 'Enter')) return;
+        switch (event.key) {
+            case 'ArrowRight': case 'PageDown': case ' ': show(current + 1); break;
+            case 'ArrowLeft': case 'PageUp': show(current - 1); break;
+            case 'Home': show(0); break;
+            case 'End': show(frames.length - 1); break;
+            case 'n': case 'N': setNotes(notes.hidden); break;
+            case 'o': case 'O': openOverview(); break;
+            case 'f': case 'F': toggleFullscreen(); break;
+            default: return;
+        }
+        event.preventDefault();
+    });
+
+    // Swipe left or right on touch screens.
+    let touchStartX = null;
+    viewport.addEventListener('touchstart', event => { touchStartX = event.touches[0].clientX; }, { passive: true });
+    viewport.addEventListener('touchend', event => {
+        if (touchStartX === null) return;
+        const distance = event.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(distance) > 50) show(current + (distance < 0 ? 1 : -1));
+        touchStartX = null;
+    });
+
+    window.addEventListener('hashchange', () => show(slideFromHash()));
+    window.addEventListener('resize', () => { fit(); if (!overview.hidden) scaleThumbs(); });
+
+    let notesOpen = false;
+    try { notesOpen = localStorage.getItem('kt-deck-notes') === '1'; } catch { /* storage blocked */ }
+    setNotes(notesOpen);
+    show(slideFromHash());
+    fit();
+})();
+</script>
+</body>
+</html>
