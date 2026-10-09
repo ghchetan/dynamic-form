@@ -1,0 +1,117 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:02.158
+Debugger walkthrough, episode six.
+
+2
+00:00:02.158 --> 00:00:06.538
+We answer one question, and follow that answer through the real code,
+
+3
+00:00:06.538 --> 00:00:08.760
+line by line, with the real values.
+
+4
+00:00:09.112 --> 00:00:13.799
+On control panel C P 1, the technician answers No to: power to lights.
+
+5
+00:00:13.799 --> 00:00:17.280
+Watch the chip, the tab dot and the deficiency list.
+
+6
+00:00:17.632 --> 00:00:21.301
+The field is now flagged, and the C P 1 tab shows a red dot.
+
+7
+00:00:21.301 --> 00:00:23.379
+Let’s see how one click got there.
+
+8
+00:00:23.731 --> 00:00:25.693
+We are paused in the Sources panel.
+
+9
+00:00:25.693 --> 00:00:27.599
+The click lands in SegmentedField.
+
+10
+00:00:27.599 --> 00:00:30.907
+This arrow function runs for the No button, and calls form.
+
+11
+00:00:30.907 --> 00:00:33.486
+setValue() with the field name and the answer.
+
+12
+00:00:33.838 --> 00:00:36.277
+Step in, and we are in setValue().
+
+13
+00:00:36.277 --> 00:00:38.788
+Name is u4LightsPower, value is No.
+
+14
+00:00:38.788 --> 00:00:43.021
+This one line is the only place the answer is stored: form.
+
+15
+00:00:43.021 --> 00:00:43.523
+values.
+
+16
+00:00:43.874 --> 00:00:45.773
+Then setValue() calls refresh().
+
+17
+00:00:45.773 --> 00:00:47.139
+Refresh is a full pass.
+
+18
+00:00:47.139 --> 00:00:52.777
+It updates every field and every widget, so nothing on screen keeps its own copy of the answer.
+
+19
+00:00:53.131 --> 00:00:56.242
+During refresh, our field asks for its status.
+
+20
+00:00:56.242 --> 00:00:59.286
+It has an evaluation rule: expectedValue Yes.
+
+21
+00:00:59.286 --> 00:01:02.600
+So getStatus() hands the answer to the evaluator.
+
+22
+00:01:02.950 --> 00:01:04.542
+Here is the evaluator.
+
+23
+00:01:04.542 --> 00:01:09.970
+Value is No, the expected value is Yes, so it returns the fail status: red.
+
+24
+00:01:10.321 --> 00:01:12.718
+And here the unit adds up its fields.
+
+25
+00:01:12.718 --> 00:01:17.318
+hasFail is true, so CP-1 becomes red, with the label: deficiency found.
+
+26
+00:01:17.318 --> 00:01:19.327
+That is the red dot on the tab.
+
+27
+00:01:19.679 --> 00:01:21.974
+To try this yourself, open sample.
+
+28
+00:01:21.974 --> 00:01:26.768
+html, open DevTools, and set the same breakpoints in the Sources panel.
+
+29
+00:01:26.768 --> 00:01:29.536
+Then do what we did, and step through it.

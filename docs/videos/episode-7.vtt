@@ -1,0 +1,117 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:01.916
+Episode seven: the happy path.
+
+2
+00:00:01.916 --> 00:00:06.324
+The technician submits the report for review, and the CRM accepts it.
+
+3
+00:00:06.676 --> 00:00:08.608
+First the technician saves a draft.
+
+4
+00:00:08.608 --> 00:00:10.486
+Then they press Submit for review.
+
+5
+00:00:10.837 --> 00:00:13.351
+The status at the top changes to Review.
+
+6
+00:00:13.351 --> 00:00:14.796
+The CRM has the report.
+
+7
+00:00:15.147 --> 00:00:17.488
+Submit for review is a workflow action.
+
+8
+00:00:17.488 --> 00:00:19.650
+First it checks the required fields.
+
+9
+00:00:19.650 --> 00:00:23.312
+This button has none, so the list is empty and it carries on.
+
+10
+00:00:23.662 --> 00:00:25.415
+The previous status is draft.
+
+11
+00:00:25.415 --> 00:00:28.862
+It is kept in a variable, in case we need to put it back.
+
+12
+00:00:28.862 --> 00:00:32.429
+Then the status changes to review, before anything is sent,
+
+13
+00:00:32.429 --> 00:00:35.029
+so the report goes out with its new status.
+
+14
+00:00:35.381 --> 00:00:38.478
+The page’s onWorkflow callback calls form.
+
+15
+00:00:38.478 --> 00:00:39.141
+submit().
+
+16
+00:00:39.141 --> 00:00:42.607
+We are online, so it does not go to the outbox.
+
+17
+00:00:42.607 --> 00:00:45.482
+It sends a POST to /api/startup-report.
+
+18
+00:00:45.833 --> 00:00:47.581
+The answer comes back.
+
+19
+00:00:47.581 --> 00:00:49.249
+Status 200, response.
+
+20
+00:00:49.249 --> 00:00:51.950
+ok is true, so no error is thrown.
+
+21
+00:00:52.302 --> 00:00:53.487
+Now the saved draft.
+
+22
+00:00:53.487 --> 00:00:56.984
+It was saved before this report was made, so it is deleted.
+
+23
+00:00:56.984 --> 00:01:01.074
+If the technician had saved again after submitting, it would be kept.
+
+24
+00:01:01.425 --> 00:01:05.827
+Finally, onSubmitSuccess tells the page, with the CRM’s answer.
+
+25
+00:01:06.179 --> 00:01:07.757
+That is the whole happy path.
+
+26
+00:01:07.757 --> 00:01:10.369
+Here it is again as a diagram in the code guide.
+
+27
+00:01:10.720 --> 00:01:13.015
+To try this yourself, open sample.
+
+28
+00:01:13.015 --> 00:01:17.809
+html, open DevTools, and set the same breakpoints in the Sources panel.
+
+29
+00:01:17.809 --> 00:01:20.577
+Then do what we did, and step through it.

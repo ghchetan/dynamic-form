@@ -2,6 +2,7 @@
   "episodes": [
     {
       "number": 1,
+      "series": "Code tour",
       "title": "What it is, and how to run it",
       "summary": "What the project does, a tour of the demo, and how to run it on your own machine.",
       "duration": 121,
@@ -38,6 +39,7 @@
     },
     {
       "number": 2,
+      "series": "Code tour",
       "title": "Folders and the main loop",
       "summary": "What each folder is for, and the setValue → refresh loop at the heart of the code.",
       "duration": 105,
@@ -74,6 +76,7 @@
     },
     {
       "number": 3,
+      "series": "Code tour",
       "title": "Fields and rules",
       "summary": "Field classes, the registry pattern, BaseField, and how answers become green, yellow or red.",
       "duration": 89,
@@ -114,6 +117,7 @@
     },
     {
       "number": 4,
+      "series": "Code tour",
       "title": "Sections, widgets and buttons",
       "summary": "Page blocks as widgets, closures, the action registry, and what happens on Submit and Reject.",
       "duration": 83,
@@ -150,6 +154,7 @@
     },
     {
       "number": 5,
+      "series": "Code tour",
       "title": "Working offline",
       "summary": "Drafts in IndexedDB, the outbox and sync, the service worker, and where to go next.",
       "duration": 79,
@@ -187,8 +192,181 @@
           "start": 74
         }
       ]
+    },
+    {
+      "number": 6,
+      "series": "Debugger walkthroughs",
+      "title": "Debugging: an answer turns red",
+      "summary": "Answer No to a check, then follow the value through setValue, refresh and the evaluator in the debugger.",
+      "duration": 90,
+      "video": "videos/episode-6.mp4",
+      "poster": "videos/episode-6-poster.jpg",
+      "captions": "videos/episode-6.vtt",
+      "chaptersTrack": "videos/episode-6-chapters.vtt",
+      "chapters": [
+        {
+          "title": "Welcome",
+          "start": 0
+        },
+        {
+          "title": "What the technician sees",
+          "start": 9
+        },
+        {
+          "title": "Click and store",
+          "start": 24
+        },
+        {
+          "title": "Refresh",
+          "start": 44
+        },
+        {
+          "title": "The rule and the roll-up",
+          "start": 63
+        },
+        {
+          "title": "Try it yourself",
+          "start": 80
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "series": "Debugger walkthroughs",
+      "title": "Debugging: submit succeeds",
+      "summary": "Submit for review when the CRM accepts the report: the workflow, the request, and the draft being cleared.",
+      "duration": 81,
+      "video": "videos/episode-7.mp4",
+      "poster": "videos/episode-7-poster.jpg",
+      "captions": "videos/episode-7.vtt",
+      "chaptersTrack": "videos/episode-7-chapters.vtt",
+      "chapters": [
+        {
+          "title": "Welcome",
+          "start": 0
+        },
+        {
+          "title": "What the technician sees",
+          "start": 7
+        },
+        {
+          "title": "The workflow button",
+          "start": 15
+        },
+        {
+          "title": "Sending the report",
+          "start": 35
+        },
+        {
+          "title": "Cleaning up",
+          "start": 52
+        },
+        {
+          "title": "Try it yourself",
+          "start": 71
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "series": "Debugger walkthroughs",
+      "title": "Debugging: reject without a note",
+      "summary": "The reviewer presses Reject with an empty note: the required-field check stops the workflow before anything changes.",
+      "duration": 62,
+      "video": "videos/episode-8.mp4",
+      "poster": "videos/episode-8-poster.jpg",
+      "captions": "videos/episode-8.vtt",
+      "chaptersTrack": "videos/episode-8-chapters.vtt",
+      "chapters": [
+        {
+          "title": "Welcome",
+          "start": 0
+        },
+        {
+          "title": "What the reviewer sees",
+          "start": 7
+        },
+        {
+          "title": "The required-field check",
+          "start": 17
+        },
+        {
+          "title": "With a note",
+          "start": 44
+        },
+        {
+          "title": "Try it yourself",
+          "start": 52
+        }
+      ]
+    },
+    {
+      "number": 9,
+      "series": "Debugger walkthroughs",
+      "title": "Debugging: the server refuses (400)",
+      "summary": "The CRM answers 400. Why the report is not queued, and how the status is put back to Draft.",
+      "duration": 74,
+      "video": "videos/episode-9.mp4",
+      "poster": "videos/episode-9-poster.jpg",
+      "captions": "videos/episode-9.vtt",
+      "chaptersTrack": "videos/episode-9-chapters.vtt",
+      "chapters": [
+        {
+          "title": "Welcome",
+          "start": 0
+        },
+        {
+          "title": "What the technician sees",
+          "start": 6
+        },
+        {
+          "title": "The refusal",
+          "start": 20
+        },
+        {
+          "title": "Putting the status back",
+          "start": 42
+        },
+        {
+          "title": "Try it yourself",
+          "start": 64
+        }
+      ]
+    },
+    {
+      "number": 10,
+      "series": "Debugger walkthroughs",
+      "title": "Debugging: offline, then synced",
+      "summary": "Submit with no connection: the report goes to the outbox, and is sent when the connection comes back.",
+      "duration": 84,
+      "video": "videos/episode-10.mp4",
+      "poster": "videos/episode-10-poster.jpg",
+      "captions": "videos/episode-10.vtt",
+      "chaptersTrack": "videos/episode-10-chapters.vtt",
+      "chapters": [
+        {
+          "title": "Welcome",
+          "start": 0
+        },
+        {
+          "title": "What the technician sees",
+          "start": 7
+        },
+        {
+          "title": "Into the outbox",
+          "start": 23
+        },
+        {
+          "title": "Back online",
+          "start": 41
+        },
+        {
+          "title": "Try it yourself",
+          "start": 74
+        }
+      ]
     }
   ],
   "voice": "Samantha",
-  "builtAt": "2026-10-07"
+  "builtAt": "2026-10-09"
 }

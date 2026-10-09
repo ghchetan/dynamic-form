@@ -1,0 +1,77 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.138
+Episode eight: a failure that never reaches the server.
+
+2
+00:00:03.138 --> 00:00:06.220
+The reviewer rejects the report, but forgets the note.
+
+3
+00:00:06.570 --> 00:00:11.156
+The reviewer opens the reviewer view, leaves the note empty, and presses Reject.
+
+4
+00:00:11.508 --> 00:00:15.058
+The note box is outlined in red, and the cursor is put in it.
+
+5
+00:00:15.058 --> 00:00:16.570
+The status did not change.
+
+6
+00:00:16.922 --> 00:00:19.810
+Reject lists reviewerNote as a required field.
+
+7
+00:00:19.810 --> 00:00:22.510
+It is empty, so missingNames has one entry.
+
+8
+00:00:22.510 --> 00:00:23.640
+The check is true.
+
+9
+00:00:23.991 --> 00:00:26.913
+Each missing field is told to mark itself invalid.
+
+10
+00:00:26.913 --> 00:00:28.433
+That adds the red outline.
+
+11
+00:00:28.433 --> 00:00:32.290
+As soon as someone types in it, refresh removes the outline again.
+
+12
+00:00:32.641 --> 00:00:36.749
+The first missing field gets the focus, and the function returns false.
+
+13
+00:00:36.749 --> 00:00:39.353
+Look at the watch: the status is still draft.
+
+14
+00:00:39.353 --> 00:00:43.288
+It returned before the status changed, and before anything was sent.
+
+15
+00:00:43.638 --> 00:00:45.751
+With a note, the same button works.
+
+16
+00:00:45.751 --> 00:00:48.830
+The status becomes rejected, and the note is shown.
+
+17
+00:00:51.963 --> 00:00:54.258
+To try this yourself, open sample.
+
+18
+00:00:54.258 --> 00:00:59.052
+html, open DevTools, and set the same breakpoints in the Sources panel.
+
+19
+00:00:59.052 --> 00:01:01.820
+Then do what we did, and step through it.

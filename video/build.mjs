@@ -4,6 +4,7 @@
  *
  *   node video/build.mjs            all episodes
  *   node video/build.mjs 2 3        only episodes 2 and 3
+ *   node video/build.mjs --trace 9  only capture episode 9's debugger pauses and print them (no video)
  *   VOICE="Isha (Premium)" node video/build.mjs
  *
  * What it does, per episode:
@@ -13,6 +14,10 @@
  *   3. Assembly (ffmpeg): each scene's video is trimmed and joined with its narration,
  *      and the scenes are joined into one MP4.
  *   4. Captions and chapters: WebVTT files built from the same narration timings.
+ *
+ * Debugger walkthroughs (episodes with a `debug` spec): before recording, trace.mjs plays the
+ * scenario with the JavaScript debugger on and captures every breakpoint pause. Scenes marked
+ * `trace: true` then record video/debugger.html, which shows one captured pause per step.
  *
  * Output (published with the site): docs/videos/episode-N.mp4, .vtt captions, chapter .vtt, poster .jpg,
  * and docs/videos/episodes.json, which the video page reads.
@@ -27,10 +32,13 @@ import { mkdirSync, readFileSync, writeFileSync, existsSync, rmSync } from 'node
 import { dirname, extname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { EPISODES } from './episodes.mjs';
+import { captureTrace } from './trace.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT_DIR = join(ROOT, 'docs', 'videos');
 const WORK_DIR = join(ROOT, 'video', '.build');          // scratch files, git-ignored
+const TRACE_DIR = join(WORK_DIR, 'traces');               // captured debugger pauses (served to debugger.html)
+const OVERLAY = join(ROOT, 'video', 'overlay.js');
 const PORT = 8770;
 const VIEWPORT = { width: 1280, height: 720 };
 const SPEECH_RATE = 172;                                  // words per minute
@@ -205,6 +213,18 @@ function toolkit(page) {
             await page.reload({ waitUntil: 'networkidle' });
             await settle(page);
         },
+
+        /** Go to another page of the site in the same recording, e.g. the code guide. */
+        async open(path) {
+            await page.goto(`http://localhost:${PORT}/${path}`, { waitUntil: 'networkidle' });
+            await settle(page);
+        },
+
+        /** Cut or restore the network connection (the page sees navigator.onLine change). */
+        offline: isOffline => page.context().setOffline(isOffline),
+
+        /** Show captured debugger pause number `index` (only on video/debugger.html). */
+        showPause: index => page.evaluate(number => window.__debugger.show(number), index),
     };
     return t;
 }
@@ -225,13 +245,15 @@ async function recordScene(browser, scene, narration, label) {
         viewport: VIEWPORT, deviceScaleFactor: 1, colorScheme: 'light', serviceWorkers: 'block',
         recordVideo: { dir: WORK_DIR, size: VIEWPORT },
     });
-    await context.addInitScript({ path: join(ROOT, 'video', 'overlay.js') });
+    await context.addInitScript({ path: OVERLAY });
     await context.addInitScript(() => { try { localStorage.setItem('accurex-docs-theme', 'light'); } catch { /* fine */ } });
 
     const page = await context.newPage();
+    if (scene.setup) await scene.setup({ context, page });   // e.g. fake the CRM's answer
     const recordingStarted = Date.now();
     await page.goto(`http://localhost:${PORT}/${scene.page}`, { waitUntil: 'networkidle' });
     await settle(page);
+    if (scene.trace) await page.waitForFunction(() => window.__debugger?.ready, null, { timeout: 15000 });
     await page.mouse.move(VIEWPORT.width * 0.62, VIEWPORT.height * 0.82);
 
     const t = toolkit(page);
@@ -323,6 +345,40 @@ function buildChapters(chapters, total) {
     }).join('\n\n') + '\n';
 }
 
+// ───────────────────────────── Debugger pauses ─────────────────────────────
+
+/** Capture the episode's debugger pauses and save them where debugger.html can load them. */
+async function captureEpisodeTrace(browser, episode) {
+    log(`episode ${episode.number}: capturing debugger pauses`);
+    const trace = await captureTrace(browser, episode.debug, { root: ROOT, port: PORT, overlayPath: OVERLAY, toolkit, settle });
+    mkdirSync(TRACE_DIR, { recursive: true });
+    const file = join(TRACE_DIR, `episode-${episode.number}.json`);
+    writeFileSync(file, JSON.stringify(trace, null, 2) + '\n');
+    return { ...trace, url: `video/.build/traces/episode-${episode.number}.json` };
+}
+
+/**
+ * Turn `trace: true` scenes into recordings of debugger.html, and each step's `pause: 'id'`
+ * (or 'id#2' for its second hit) into showing that captured pause.
+ */
+function useTrace(episode, trace) {
+    const indexOf = reference => {
+        const [id, hit = '1'] = reference.split('#');
+        const index = trace.pauses.findIndex(pause => pause.id === id && pause.hit === Number(hit));
+        if (index < 0) throw new Error(`episode ${episode.number}: no captured pause "${reference}"`);
+        return index;
+    };
+    return episode.scenes.map(scene => (!scene.trace ? scene : {
+        ...scene,
+        page: 'video/debugger.html?' + new URLSearchParams({ trace: trace.url, first: indexOf(scene.steps.find(step => step.pause).pause) }),
+        steps: scene.steps.map(step => {
+            if (!step.pause) return step;
+            const index = indexOf(step.pause);
+            return { ...step, do: async t => { await t.showPause(index); if (step.do) await step.do(t); } };
+        }),
+    }));
+}
+
 // ───────────────────────────── Episode ─────────────────────────────
 
 async function buildEpisode(browser, episode, voice) {
@@ -331,12 +387,14 @@ async function buildEpisode(browser, episode, voice) {
     rmSync(workDir, { recursive: true, force: true });
     mkdirSync(workDir, { recursive: true });
 
+    const scenes = episode.debug ? useTrace(episode, await captureEpisodeTrace(browser, episode)) : episode.scenes;
+
     const sceneFiles = [];
     const timeline = [];
     const chapters = [];
     let clock = 0;
 
-    for (const [sceneIndex, scene] of episode.scenes.entries()) {
+    for (const [sceneIndex, scene] of scenes.entries()) {
         const label = `episode ${episode.number}, scene ${sceneIndex + 1} (${scene.title})`;
         log(`${label}: narration`);
         const narration = scene.steps.map((step, stepIndex) => speak(step.say, voice, join(workDir, `s${sceneIndex}-${stepIndex}.wav`)));
@@ -371,6 +429,7 @@ async function buildEpisode(browser, episode, voice) {
 
     return {
         number: episode.number,
+        series: episode.series,
         title: episode.title,
         summary: episode.summary,
         duration: Math.round(duration),
@@ -384,18 +443,37 @@ async function buildEpisode(browser, episode, voice) {
 
 // ───────────────────────────── Main ─────────────────────────────
 
+const traceOnly = process.argv.includes('--trace');
 const wanted = process.argv.slice(2).map(Number).filter(Boolean);
-const episodes = EPISODES.filter(episode => !wanted.length || wanted.includes(episode.number));
+const episodes = EPISODES.filter(episode => (!wanted.length || wanted.includes(episode.number)) && (!traceOnly || episode.debug));
 if (!episodes.length) { console.error('No such episode. Episodes: ' + EPISODES.map(episode => episode.number).join(', ')); process.exit(1); }
 
-const voice = pickVoice();
-log(`voice: ${voice}`);
 mkdirSync(OUT_DIR, { recursive: true });
 mkdirSync(WORK_DIR, { recursive: true });
 
 const server = await startServer();
 const { chromium } = loadPlaywright();
 const browser = await chromium.launch();
+
+if (traceOnly) {
+    try {
+        for (const episode of episodes) {
+            const trace = await captureEpisodeTrace(browser, episode);
+            for (const pause of trace.pauses) {
+                console.log(`\n● ${pause.id}#${pause.hit}  ${pause.file}:${pause.line}  in ${pause.fn}`);
+                [...pause.scope, ...pause.watch].forEach(item => console.log(`    ${item.name} = ${item.value}`));
+                console.log('    stack: ' + pause.stack.map(frame => frame.async ? `[${frame.async}]` : `${frame.fn} (${frame.file}:${frame.line})`).join(' ← '));
+            }
+        }
+    } finally {
+        await browser.close();
+        server.close();
+    }
+    process.exit(0);
+}
+
+const voice = pickVoice();
+log(`voice: ${voice}`);
 
 const manifestFile = join(OUT_DIR, 'episodes.json');
 const manifest = existsSync(manifestFile) ? JSON.parse(readFileSync(manifestFile, 'utf8')) : { episodes: [] };

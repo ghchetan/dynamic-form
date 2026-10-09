@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Debugger</title>
+<!--
+  The "paused in the debugger" view for the Debugger walkthrough videos. Used only while recording.
+  ?trace=video/.build/traces/episode-N.json  — the pauses captured by trace.mjs
+  &first=0                                    — the pause to show before the first step
+  build.mjs calls window.__debugger.show(n) at the start of each narration step.
+  Layout and colours follow Chrome DevTools' Sources panel (light theme), so it looks like what
+  a developer will see when they set the same breakpoints themselves.
+-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<style>
+  :root {
+    --mono: Menlo, "SF Mono", Consolas, monospace; --ui: -apple-system, system-ui, "Segoe UI", sans-serif;
+    --line-h: 22px; --char-w: 7.83px;
+    --border: #d6dadf; --pane: #f1f3f4; --text: #202124; --muted: #5f6368; --blue: #1a73e8;
+    --exec-bg: #e8f0fe; --paused-bg: #fef7e0; --paused-border: #f9e3a7;
+  }
+  html, body { margin: 0; height: 100%; }
+  body { width: 1280px; height: 720px; overflow: hidden; display: grid; grid-template-rows: 32px 30px 1fr;
+         background: #fff; color: var(--text); font: 13px/1.4 var(--ui); -webkit-font-smoothing: antialiased; }
+
+  /* DevTools tab strip */
+  .tabs { display: flex; align-items: stretch; gap: 2px; padding: 0 8px; background: var(--pane); border-bottom: 1px solid var(--border); }
+  .tabs span { display: flex; align-items: center; padding: 0 12px; color: var(--muted); }
+  .tabs .on { color: var(--blue); box-shadow: inset 0 -2px 0 var(--blue); }
+  .tabs .page { margin-left: auto; font-size: 12px; }
+
+  /* "Paused on breakpoint" */
+  .paused { display: flex; align-items: center; gap: 10px; padding: 0 14px; background: var(--paused-bg);
+            border-bottom: 1px solid var(--paused-border); font-weight: 500; }
+  .paused .controls { margin-left: auto; display: flex; gap: 14px; color: var(--muted); font-size: 15px; letter-spacing: 1px; }
+
+  .main { display: grid; grid-template-columns: 1fr 380px; min-height: 0; }
+
+  /* Editor */
+  .editor { display: grid; grid-template-rows: 30px 1fr; min-width: 0; border-right: 1px solid var(--border); }
+  .file-tabs { display: flex; align-items: stretch; background: var(--pane); border-bottom: 1px solid var(--border); }
+  .file-tab { display: flex; align-items: center; gap: 6px; padding: 0 14px; background: #fff; border-right: 1px solid var(--border);
+              font: 12.5px var(--ui); }
+  .file-tab .dir { color: var(--muted); }
+  .code { position: relative; overflow: hidden; font: 13px/var(--line-h) var(--mono); }
+  .code-inner { position: absolute; left: 0; right: 0; top: 0; transition: transform 0.55s cubic-bezier(.3,.7,.2,1); }
+  .line { display: flex; height: var(--line-h); white-space: pre; }
+  .gutter { flex: none; width: 52px; padding-right: 10px; text-align: right; color: #9aa0a6; position: relative; }
+  .text { flex: 1; min-width: 0; overflow: hidden; padding-left: 8px; }
+  .line.exec { background: var(--exec-bg); }
+  .line.exec .gutter { color: #fff; }
+  .line.exec .gutter::before { content: ""; position: absolute; inset: 2px 0 2px 4px; background: var(--blue);
+      clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 50%, calc(100% - 7px) 100%, 0 100%); z-index: 0; }
+  .line.exec .gutter span { position: relative; z-index: 1; }
+  .inline-values { color: #7c3aad; font-style: italic; margin-left: 2ch; }
+  .code.switching .code-inner { transition: none; }
+
+  /* Syntax colours (DevTools light) */
+  .hljs-keyword, .hljs-built_in, .hljs-literal { color: #aa0d91; }
+  .hljs-string, .hljs-template-string, .hljs-regexp { color: #c41a16; }
+  .hljs-number { color: #1c00cf; }
+  .hljs-comment { color: #236e25; }
+  .hljs-title.function_, .hljs-title { color: #1a1a1a; }
+  .hljs-property, .hljs-attr { color: #881280; }
+  .hljs-params, .hljs-variable { color: #202124; }
+
+  /* Sidebar: Watch, Scope, Call Stack */
+  .sidebar { overflow: hidden; display: flex; flex-direction: column; }
+  .pane-head { display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; flex: none;
+               background: var(--pane); border-bottom: 1px solid var(--border); border-top: 1px solid var(--border); font-weight: 600; font-size: 12.5px; }
+  .pane-head:first-child { border-top: 0; }
+  .pane-head::before { content: "▼"; font-size: 8px; color: var(--muted); }
+  .pane-body { padding: 6px 0 10px; font: 13px/1.6 var(--mono); }
+  .sub { padding: 2px 12px; color: var(--muted); font: 600 12px/1.6 var(--ui); }
+  .row { padding: 1px 12px 1px 24px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row.wrap { white-space: normal; word-break: break-word; }
+  .name { color: #881280; }
+  .v-string { color: #c41a16; } .v-number { color: #1c00cf; } .v-keyword { color: #0d22aa; } .v-warn { color: #b06000; }
+  .empty { padding: 1px 24px; color: var(--muted); font: italic 12.5px var(--ui); }
+  .frame { display: flex; gap: 10px; padding: 2px 12px 2px 24px; position: relative; font-family: var(--ui); font-size: 13px; }
+  .frame .fn { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .frame .where { color: var(--muted); white-space: nowrap; font-size: 12px; }
+  .frame.top { background: var(--exec-bg); }
+  .frame.top::before { content: "➤"; position: absolute; left: 8px; color: var(--blue); font-size: 11px; top: 3px; }
+  .async { padding: 1px 24px; color: var(--muted); font: italic 12px/1.6 var(--ui); border-top: 1px dashed var(--border); margin-top: 2px; }
+  #__tour-cursor { display: none !important; }   /* nothing to point at here: the narration leads */
+  .fade { animation: fade .45s ease; }
+  @keyframes fade { from { opacity: .25; } }
+</style>
+</head>
+<body>
+  <div class="tabs"><span>Elements</span><span>Console</span><span class="on">Sources</span><span>Network</span><span>Application</span><span class="page">localhost · sample.html</span></div>
+  <div class="paused"><span>⏸</span><span id="reason">Paused on breakpoint</span><span class="controls" aria-hidden="true">▶ ⤼ ⤓ ⤒ →</span></div>
+  <div class="main">
+    <section class="editor">
+      <div class="file-tabs"><div class="file-tab" id="fileTab"></div></div>
+      <div class="code" id="code"><div class="code-inner" id="codeInner"></div></div>
+    </section>
+    <aside class="sidebar">
+      <div class="pane-head">Watch</div>
+      <div class="pane-body" id="watch"></div>
+      <div class="pane-head">Scope</div>
+      <div class="pane-body" id="scope"></div>
+      <div class="pane-head">Call Stack</div>
+      <div class="pane-body" id="stack"></div>
+    </aside>
+  </div>
+<script>
+(async () => {
+    'use strict';
+    const params = new URLSearchParams(location.search);
+    const trace = await (await fetch('/' + params.get('trace'), { cache: 'no-cache' })).json();
+    const sources = new Map();   // file → { lines: [html per line], indent: [spaces per line] }
+    const LINE_H = 22;
+    let shownFile = null;
+
+    const make = (tag, className, text) => {
+        const element = document.createElement(tag);
+        if (className) element.className = className;
+        if (text !== undefined) element.textContent = text;
+        return element;
+    };
+
+    /**
+     * highlight.js returns one HTML string; a comment or string can span several lines.
+     * Split it into lines, closing the open <span>s at each line end and reopening them on the next.
+     */
+    function splitHighlighted(html) {
+        const lines = [];
+        const open = [];
+        let current = '';
+        for (const part of html.split(/(<span[^>]*>|<\/span>|\n)/)) {
+            if (part === '\n') { lines.push(current + '</span>'.repeat(open.length)); current = open.join(''); }
+            else if (part.startsWith('<span')) { open.push(part); current += part; }
+            else if (part === '</span>') { open.pop(); current += part; }
+            else current += part;
+        }
+        lines.push(current + '</span>'.repeat(open.length));
+        return lines;
+    }
+
+    async function loadSource(file) {
+        if (sources.has(file)) return;
+        const text = await (await fetch('/' + file, { cache: 'no-cache' })).text();
+        const language = file.endsWith('.html') ? 'xml' : 'javascript';
+        sources.set(file, {
+            lines: splitHighlighted(hljs.highlight(text, { language }).value),
+            indent: text.split('\n').map(line => (line.trim() ? line.search(/\S/) : Infinity)),
+        });
+    }
+
+    /** Colour a value the way DevTools does: strings red, numbers blue, true/false/null purple. */
+    function valueElement(text) {
+        const kind = text.startsWith('"') ? 'v-string'
+            : /^-?\d/.test(text) ? 'v-number'
+            : /^(true|false|null|undefined)$/.test(text) ? 'v-keyword'
+            : text.startsWith('⚠') ? 'v-warn' : '';
+        return make('span', kind, text);
+    }
+
+    function rows(target, items, emptyText) {
+        target.replaceChildren();
+        if (!items.length) { target.append(make('div', 'empty', emptyText)); return; }
+        items.forEach(item => {
+            const row = make('div', 'row' + (item.value.length > 46 ? ' wrap' : ''));
+            row.append(make('span', 'name', item.name), ': ', valueElement(item.value));
+            target.append(row);
+        });
+    }
+
+    function renderCode(pause) {
+        const code = document.getElementById('code');
+        const inner = document.getElementById('codeInner');
+        const source = sources.get(pause.file);
+        const visibleLines = Math.floor(code.clientHeight / LINE_H);
+        const first = Math.max(0, Math.min(source.lines.length - visibleLines, pause.line - 1 - Math.floor(visibleLines / 2.4)));
+
+        if (shownFile !== pause.file) {
+            code.classList.add('switching');
+            inner.replaceChildren(...source.lines.map((html, index) => {
+                const line = make('div', 'line');
+                const gutter = make('div', 'gutter');
+                gutter.append(make('span', '', String(index + 1)));
+                const text = make('div', 'text');
+                text.innerHTML = html || ' ';   // highlight.js output of our own source file
+                line.append(gutter, text);
+                return line;
+            }));
+            inner.classList.remove('fade'); void inner.offsetWidth; inner.classList.add('fade');
+            shownFile = pause.file;
+        }
+
+        // Shift long lines left by the common indent of what is visible, so the paused line fits.
+        const indents = source.indent.slice(first, first + visibleLines).filter(Number.isFinite);
+        const shift = Math.max(0, Math.min(...indents, 8) - 2);
+        inner.style.transform = `translate(${-shift * 7.83}px, ${-first * LINE_H}px)`;
+        requestAnimationFrame(() => code.classList.remove('switching'));
+
+        inner.querySelectorAll('.line.exec').forEach(line => line.classList.remove('exec'));
+        inner.querySelectorAll('.inline-values').forEach(hint => hint.remove());
+        const execLine = inner.children[pause.line - 1];
+        execLine.classList.add('exec');
+
+        // Inline values after the paused line, like DevTools, when they fit.
+        const hint = pause.scope.map(item => `${item.name} = ${item.value}`).join(', ');
+        const textElement = execLine.querySelector('.text');
+        const roomInChars = Math.floor((textElement.clientWidth - 8) / 7.83) + shift - textElement.textContent.length - 2;
+        if (hint && hint.length <= roomInChars) textElement.append(make('span', 'inline-values', hint));
+    }
+
+    function renderStack(pause) {
+        const target = document.getElementById('stack');
+        target.replaceChildren();
+        pause.stack.forEach((frame, index) => {
+            if (frame.async) { target.append(make('div', 'async', frame.async === 'await' ? 'await' : frame.async)); return; }
+            const row = make('div', 'frame' + (index === 0 ? ' top' : ''));
+            row.append(make('span', 'fn', frame.fn), make('span', 'where', `${frame.file.split('/').pop()}:${frame.line}`));
+            target.append(row);
+        });
+    }
+
+    function show(index) {
+        const pause = trace.pauses[index];
+        if (!pause) throw new Error('No pause ' + index);
+        const tab = document.getElementById('fileTab');
+        const parts = pause.file.split('/');
+        tab.replaceChildren(make('span', 'dir', parts.slice(0, -1).join('/') + '/'), make('span', '', parts.at(-1)));
+        document.getElementById('reason').textContent = `Paused on breakpoint · ${pause.fn}`;
+
+        renderCode(pause);
+        rows(document.getElementById('watch'), pause.watch, 'No watch expressions');
+        const scope = document.getElementById('scope');
+        rows(scope, pause.scope, 'Not shown');
+        scope.prepend(make('div', 'sub', 'Local'));
+        renderStack(pause);
+        ['watch', 'scope', 'stack'].forEach(id => {
+            const element = document.getElementById(id);
+            element.classList.remove('fade'); void element.offsetWidth; element.classList.add('fade');
+        });
+    }
+
+    await Promise.all([...new Set(trace.pauses.map(pause => pause.file))].map(loadSource));
+    show(Number(params.get('first') || 0));
+    window.__debugger = { show, ready: true };
+})();
+</script>
+</body>
+</html>

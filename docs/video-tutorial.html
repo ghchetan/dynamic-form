@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Accurex Dynamic Form Video Tour</title>
 <script src="theme.js"></script>
-<meta name="description" content="A five-part video tour of the Accurex Dynamic Form code, for new developers.">
+<meta name="description" content="Video tour of the Accurex Dynamic Form code for new developers: a five-part code tour, and debugger walkthroughs of the success and failure flows.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
@@ -105,8 +105,11 @@ details.transcript > summary { cursor: pointer; padding: 12px 16px; font-weight:
 .cue[aria-current="true"] { background: var(--accent-soft); }
 .cue .time { font-family: var(--font-mono); font-size: 12px; color: var(--fg-faint); padding-top: 2px; font-variant-numeric: tabular-nums; }
 
-/* Episode shelf */
-.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(208px, 1fr)); gap: 14px; }
+/* Episode shelf: one group per series (Code tour, Debugger walkthroughs) */
+.shelf { display: grid; gap: 32px; }
+.shelf-group h3 { margin: 0; font-size: 17px; letter-spacing: -0.01em; }
+.shelf-note { margin: 4px 0 14px; max-width: 68ch; color: var(--fg-muted); font-size: 14.5px; }
+.shelf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(208px, 1fr)); gap: 14px; }
 .episode { display: grid; gap: 8px; padding: 0 0 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); text-align: left; cursor: pointer; overflow: hidden; transition: border-color 0.12s, box-shadow 0.12s; }
 .episode:hover { border-color: var(--line-strong); box-shadow: var(--shadow); }
 .episode[aria-current="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
@@ -139,8 +142,8 @@ footer { padding-top: 20px; border-top: 1px solid var(--line); font-size: 13.5px
 <main class="page">
   <section>
     <p class="eyebrow">Video tour · for new developers</p>
-    <h1>How the code works, in five short videos</h1>
-    <p class="lead" id="lead">Watch them in order. Each one shows the real demo and the real code, with captions and a transcript. Pair them with the <a href="code-guide.html">code guide</a>, which covers the same ground in writing.</p>
+    <h1>How the code works, in short videos</h1>
+    <p class="lead" id="lead">Start with the code tour, in order. Then the debugger walkthroughs pause the real code at real breakpoints, to show what happens when a report is accepted, refused, or waits for a connection. Every video has captions and a transcript. Pair them with the <a href="code-guide.html">code guide</a>, which covers the same ground in writing.</p>
   </section>
 
   <section class="theatre" aria-label="Player" id="theatre" hidden>
@@ -282,9 +285,16 @@ footer { padding-top: 20px; border-top: 1px solid var(--line); font-size: 13.5px
     });
   });
 
-  // When an episode ends, offer the next one by selecting it
+  /** Older manifests have no series: those episodes are the code tour. */
+  const seriesOf = episode => episode.series || 'Code tour';
+  const SERIES_NOTES = {
+    'Code tour': 'Five short videos, in order: what the project is, then the code from top to bottom.',
+    'Debugger walkthroughs': 'The real code, paused at real breakpoints with real values. One flow per video: an answer turning red, a successful submit, validation, a refused report, and offline.',
+  };
+
+  // When an episode ends, offer the next one in the same series by selecting it
   video.addEventListener('ended', () => {
-    const next = episodes.find(episode => episode.number === current.number + 1);
+    const next = episodes.find(episode => episode.number === current.number + 1 && seriesOf(episode) === seriesOf(current));
     if (next) select(next, false);
   });
 
@@ -304,7 +314,7 @@ footer { padding-top: 20px; border-top: 1px solid var(--line); font-size: 13.5px
       const total = episodes.reduce((seconds, episode) => seconds + episode.duration, 0);
       document.getElementById('lead').prepend(episodes.length + (episodes.length === 1 ? ' episode, ' : ' episodes, ') + Math.round(total / 60) + ' minutes in total. ');
 
-      shelf.replaceChildren(...episodes.map(episode => {
+      const cards = episodes.map(episode => {
         const card = make('button', 'episode');
         card.type = 'button';
         card.dataset.number = episode.number;
@@ -314,7 +324,18 @@ footer { padding-top: 20px; border-top: 1px solid var(--line); font-size: 13.5px
         meta.append(make('span', '', 'Episode ' + episode.number), make('span', '', clock(episode.duration)));
         card.append(poster, meta, make('strong', '', episode.title), make('span', 'summary', episode.summary));
         card.addEventListener('click', () => { select(episode, true); document.getElementById('theatre').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
-        return card;
+        return { series: seriesOf(episode), card };
+      });
+
+      const seriesNames = [...new Set(cards.map(entry => entry.series))];
+      shelf.replaceChildren(...seriesNames.map(name => {
+        const group = make('section', 'shelf-group');
+        const grid = make('div', 'shelf-grid');
+        grid.append(...cards.filter(entry => entry.series === name).map(entry => entry.card));
+        group.append(make('h3', '', name));
+        if (SERIES_NOTES[name]) group.append(make('p', 'shelf-note', SERIES_NOTES[name]));
+        group.append(grid);
+        return group;
       }));
 
       const fromHash = Number((location.hash.match(/^#episode-(\d+)$/) || [])[1]);

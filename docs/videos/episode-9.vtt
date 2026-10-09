@@ -1,0 +1,97 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.378
+Episode nine: the CRM refuses the report.
+
+2
+00:00:03.378 --> 00:00:05.686
+It answers 400, Bad Request.
+
+3
+00:00:06.037 --> 00:00:08.348
+The technician presses Submit for review.
+
+4
+00:00:08.348 --> 00:00:09.927
+Watch the status at the top.
+
+5
+00:00:10.278 --> 00:00:11.398
+It is still Draft.
+
+6
+00:00:11.398 --> 00:00:14.696
+The status did change to Review, but the CRM said no,
+
+7
+00:00:14.696 --> 00:00:17.559
+and it was put straight back, too fast to see.
+
+8
+00:00:17.559 --> 00:00:19.737
+Let’s slow it down in the debugger.
+
+9
+00:00:20.089 --> 00:00:23.381
+In sendRequest(), the response is not ok.
+
+10
+00:00:23.381 --> 00:00:26.994
+Its status is 400, so it throws an HttpError.
+
+11
+00:00:27.347 --> 00:00:30.993
+submit() catches it and asks one question: is this temporary?
+
+12
+00:00:30.993 --> 00:00:32.069
+Look at the watch.
+
+13
+00:00:32.069 --> 00:00:34.160
+isTemporaryFailure() returns false.
+
+14
+00:00:34.160 --> 00:00:37.507
+A 400 means the server looked at the report and said no.
+
+15
+00:00:37.507 --> 00:00:41.990
+Sending it again would get the same answer, so it is not put in the outbox.
+
+16
+00:00:42.344 --> 00:00:45.055
+submit() calls onSubmitError and throws again.
+
+17
+00:00:45.055 --> 00:00:48.001
+The error reaches runWorkflow(), which catches it.
+
+18
+00:00:48.352 --> 00:00:50.358
+Right now the status is review.
+
+19
+00:00:50.358 --> 00:00:55.406
+The previous status, draft, was kept for exactly this moment, and is put back.
+
+20
+00:00:55.757 --> 00:01:00.025
+In the finally block the button is enabled again, and the status is draft.
+
+21
+00:01:00.025 --> 00:01:03.254
+The screen never claims a review the CRM never received.
+
+22
+00:01:03.606 --> 00:01:05.901
+To try this yourself, open sample.
+
+23
+00:01:05.901 --> 00:01:10.695
+html, open DevTools, and set the same breakpoints in the Sources panel.
+
+24
+00:01:10.695 --> 00:01:13.463
+Then do what we did, and step through it.

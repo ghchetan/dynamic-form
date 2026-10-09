@@ -1,10 +1,11 @@
 # Video tour
 
-The five tutorial videos on [docs/video-tutorial.html](../docs/video-tutorial.html) are generated from code, so they can be rebuilt whenever the product changes. Nobody needs to re-record a screen.
+The tutorial videos on [docs/video-tutorial.html](../docs/video-tutorial.html) are generated from code, so they can be rebuilt whenever the product changes. Nobody needs to re-record a screen. There are two series: the **Code tour** (episodes 1–5) and the **Debugger walkthroughs** (episodes 6–10), which pause the real code at real breakpoints.
 
 ```bash
 node video/build.mjs          # all episodes
 node video/build.mjs 3        # only episode 3
+node video/build.mjs --trace 9  # only capture episode 9's debugger pauses and print them (fast, no video)
 ```
 
 Output goes to `docs/videos/`: `episode-N.mp4`, captions (`episode-N.vtt`), chapters (`episode-N-chapters.vtt`), a poster image, and `episodes.json`, which the video page reads. Commit those files, and the GitHub Pages workflow publishes them.
@@ -45,6 +46,10 @@ A step lasts as long as its narration, or longer if its actions need more time. 
 | `t.console(command)` | Type a command into an on-screen console and show its real result |
 | `t.reload()` | Reload the page (e.g. to show a restored draft) |
 | `t.wait(seconds)` | Pause |
+| `t.open(path)` | Go to another page of the site in the same scene (e.g. the code guide) |
+| `t.offline(true / false)` | Cut or restore the network connection |
+
+A scene can also have `setup: async ({ context, page }) => { … }`, which runs before the page opens. The walkthroughs use it to fake the CRM's answer: `crmAnswers(400)` in `episodes.mjs` makes `POST /api/startup-report` return 400.
 
 The cursor, spotlight and console come from [overlay.js](overlay.js), which is injected only while recording. Title and end cards come from [card.html](card.html).
 
@@ -72,3 +77,43 @@ VOICE="Isha (Premium)" node video/build.mjs
 ```
 
 `episodes.json` records which voice was used.
+
+## Debugger walkthroughs
+
+These episodes show the real code paused in a debugger. An episode gets a `debug` spec, and its scenes marked `trace: true` show one captured pause per step:
+
+```js
+{
+    number: 9,
+    series: 'Debugger walkthroughs',
+    debug: {
+        page: 'sample.html',                 // without ?demo, so Submit really calls form.submit()
+        setup: crmAnswers(400),              // the CRM refuses the report
+        breakpoints: [
+            { id: 'classify', file: 'src/DynamicFormRenderer.js',
+              match: 'if (this.offlineSync && isTemporaryFailure(error))',   // the line to stop on, found by its text
+              show: ['error.status'],                                       // shown under Scope
+              watch: ['isTemporaryFailure(error)'] },                       // shown under Watch
+        ],
+        run: async t => { await t.click('[data-action-id="submitForReview"]'); },
+    },
+    scenes: [
+        { title: 'The refusal', trace: true, steps: [{ pause: 'classify', say: '…' }] },
+    ],
+}
+```
+
+Breakpoint options: `condition` (only stop when this JavaScript is true, e.g. `"this.name === 'u4LightsPower'"`), `hits` (stop more than once; refer to the second stop as `pause: 'id#2'`) and `offset: 1` (stop on the line after `match`, for a line whose own text isn't unique).
+
+How it works:
+
+1. Before recording, [trace.mjs](trace.mjs) plays `run` in headless Chromium with the JavaScript debugger switched on, through the Chrome DevTools Protocol. At every breakpoint it saves the file, line, call stack (async calls included) and the values of `show` and `watch`, then resumes. The pauses go to `video/.build/traces/episode-N.json`.
+2. Each `trace: true` scene records [debugger.html](debugger.html), which draws a captured pause like the DevTools Sources panel.
+
+The build stops with a clear message, rather than showing the wrong line, when:
+
+- a `match` text is not found exactly once
+- a breakpoint is never hit, or is hit fewer times than `hits`
+- a breakpoint would stop on a different line than its `match` (put `match` at the start of a statement)
+
+So after changing the code, run `node video/build.mjs --trace` first: it checks every walkthrough in under a minute.

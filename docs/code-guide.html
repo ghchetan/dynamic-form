@@ -306,7 +306,7 @@ details.seq-text li.seq-text-group, details.seq-text li.seq-text-note { list-sty
         <span class="chapter-number"></span>
         <h2>Before you start</h2>
 
-        <div class="box why"><span class="box-title">Prefer to watch first?</span><p>The <a href="video-tutorial.html">video tour</a> covers the same ground in five short videos (about 15 minutes in total). Watch an episode, then read the matching chapters here.</p></div>
+        <div class="box why"><span class="box-title">Prefer to watch first?</span><p>The <a href="video-tutorial.html">video tour</a> covers the same ground in five short videos (about 8 minutes in total). Watch an episode, then read the matching chapters here. Its debugger walkthroughs then pause the real code at real breakpoints for the main success and failure flows.</p></div>
 
         <h3>What you should already know</h3>
         <p>Basic JavaScript: variables, functions, objects, arrays and loops. Everything else you will meet (modules, classes, <code>async</code>/<code>await</code>, closures) is explained in <a href="#js-primer" data-chapter-ref>chapter</a> with examples from this codebase. You don't need React, a build tool or npm. This project uses none of them.</p>
@@ -498,6 +498,8 @@ formRenderer.getDeficientFields().map(f =&gt; f.config.label)</code></pre>
                     <li><code data-repo-path="video/build.mjs">build.mjs</code><span class="role">Turns the scripts into MP4s: narration, recording, captions.</span></li>
                     <li><code data-repo-path="video/overlay.js">overlay.js</code><span class="role">Cursor, spotlight and console shown only in the videos.</span></li>
                     <li><code data-repo-path="video/card.html">card.html</code><span class="role">Title and end cards.</span></li>
+                    <li><code data-repo-path="video/trace.mjs">trace.mjs</code><span class="role">Runs a scenario with the debugger on and captures each breakpoint pause.</span></li>
+                    <li><code data-repo-path="video/debugger.html">debugger.html</code><span class="role">Shows a captured pause like the DevTools Sources panel.</span></li>
                     <li><code data-repo-path="video/README.md">README.md</code><span class="role">How to change and rebuild the videos.</span></li>
                   </ul>
                 </li>
